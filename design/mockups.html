@@ -1068,6 +1068,333 @@
   }
 
   /* ========================================
+     Screen 5: MCP Servers Detail
+     ======================================== */
+  .mcp-detail {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mcp-header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .mcp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mcp-back-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .mcp-back-btn:hover { background: var(--bg-elevated); }
+  .mcp-back-btn svg { width: 14px; height: 14px; }
+
+  .mcp-header-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .mcp-header-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  .mcp-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mcp-body {
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    overflow-y: auto;
+  }
+
+  /* Server cards grid — Railway-inspired */
+  .mcp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 920px;
+  }
+
+  .mcp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .mcp-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mcp-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .mcp-card-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mcp-card-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .mcp-card-logo.github { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+  .mcp-card-logo.notion { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+  .mcp-card-logo.figma { background: rgba(162, 89, 255, 0.15); color: #A259FF; }
+  .mcp-card-logo.sentry { background: rgba(54, 45, 89, 0.4); color: #F6B0CB; }
+  .mcp-card-logo.perplexity { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
+
+  .mcp-card-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .mcp-card-provider {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+
+  .mcp-card-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .mcp-card-status.connected {
+    background: rgba(50, 215, 75, 0.1);
+    color: var(--green);
+  }
+
+  .mcp-card-status.disconnected {
+    background: rgba(255, 69, 58, 0.1);
+    color: var(--red);
+  }
+
+  .mcp-card-status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .mcp-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .mcp-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: var(--bg-elevated);
+    color: var(--text-tertiary);
+  }
+
+  .mcp-tag.code { color: var(--blue); background: rgba(10, 132, 255, 0.1); }
+  .mcp-tag.issues { color: var(--green); background: rgba(50, 215, 75, 0.1); }
+  .mcp-tag.prs { color: #AF52DE; background: rgba(175, 82, 222, 0.1); }
+  .mcp-tag.design { color: #A259FF; background: rgba(162, 89, 255, 0.1); }
+  .mcp-tag.search { color: var(--accent); background: var(--accent-dim); }
+  .mcp-tag.errors { color: var(--red); background: rgba(255, 69, 58, 0.1); }
+  .mcp-tag.pages { color: var(--text-primary); background: rgba(255, 255, 255, 0.08); }
+
+  .mcp-card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .mcp-card-feature {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .mcp-card-feature svg {
+    width: 12px;
+    height: 12px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .mcp-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .mcp-card-tool-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .mcp-card-action {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-accent);
+    margin-left: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mcp-card-action:hover { text-decoration: underline; }
+  .mcp-card-action svg { width: 10px; height: 10px; }
+
+  /* Comparison matrix — Railway-inspired */
+  .mcp-matrix-section {
+    max-width: 920px;
+  }
+
+  .mcp-matrix-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mcp-matrix-title svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-tertiary);
+  }
+
+  .mcp-matrix {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .mcp-matrix-row {
+    display: grid;
+    grid-template-columns: 160px repeat(5, 1fr);
+    align-items: center;
+    min-height: 38px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mcp-matrix-row:last-child { border-bottom: none; }
+
+  .mcp-matrix-row.header {
+    background: var(--bg-elevated);
+  }
+
+  .mcp-matrix-row:not(.header):hover {
+    background: var(--bg-card);
+  }
+
+  .mcp-matrix-cell {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .mcp-matrix-cell:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .mcp-matrix-row.header .mcp-matrix-cell {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .mcp-matrix-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(50, 215, 75, 0.12);
+    color: var(--green);
+  }
+
+  .mcp-matrix-check svg { width: 10px; height: 10px; }
+
+  .mcp-matrix-dash {
+    color: var(--text-tertiary);
+    font-size: 16px;
+  }
+
+  /* ========================================
      SVG Icons (inline)
      ======================================== */
   .icon { display: inline-flex; align-items: center; }
@@ -1807,6 +2134,432 @@
           </div>
         </div>
         <div class="status-bar-right"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       SCREEN 5: MCP SERVERS DETAIL
+       ======================================== -->
+  <div class="artboard-group">
+    <div class="artboard-label">Screen 5 — MCP Servers Detail</div>
+    <div class="artboard">
+      <!-- Window Chrome -->
+      <div class="window-chrome">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light minimize"></div>
+          <div class="traffic-light maximize"></div>
+        </div>
+        <div class="window-title">
+          <span class="window-title-text">LUMNO</span>
+          <span style="color: var(--text-tertiary); font-size: 12px;">›</span>
+          <span class="window-title-text">Configuration</span>
+          <span style="color: var(--text-tertiary); font-size: 12px;">›</span>
+          <span class="window-title-text" style="color: var(--text-primary);">MCP Servers</span>
+        </div>
+        <div class="window-actions">
+          <button class="window-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3v10"/></svg>
+            Add Server
+          </button>
+          <button class="window-btn-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0112 0M14 8a6 6 0 01-12 0"/><path d="M14 3v5h-5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+              Sessions
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+              Commands
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+              Skills
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+              Configuration
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <span class="sidebar-section-title">Config Sections</span>
+            </div>
+          </div>
+
+          <div class="sidebar-sessions">
+            <div class="session-item">
+              <span class="session-item-title" style="max-width: 200px;">Skills</span>
+              <span class="session-item-time">8</span>
+            </div>
+            <div class="session-item">
+              <span class="session-item-title" style="max-width: 200px;">Slash Commands</span>
+              <span class="session-item-time">12</span>
+            </div>
+            <div class="session-item active">
+              <span class="session-item-title" style="max-width: 200px;">MCP Servers</span>
+              <span class="session-item-time">5</span>
+            </div>
+            <div class="session-item">
+              <span class="session-item-title" style="max-width: 200px;">Models</span>
+            </div>
+            <div class="session-item">
+              <span class="session-item-title" style="max-width: 200px;">Sub-agents</span>
+              <span class="session-item-time">4</span>
+            </div>
+            <div class="session-item">
+              <span class="session-item-title" style="max-width: 200px;">Output Styles</span>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-footer-btn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 7l-3 1 3 1M11 7l3 1-3 1M5 8h6"/></svg>
+              Back to Config
+            </div>
+          </div>
+        </div>
+
+        <!-- Main: MCP Servers Detail -->
+        <div class="main-content">
+          <div class="mcp-detail">
+            <div class="mcp-header">
+              <div class="mcp-header-left">
+                <button class="mcp-back-btn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4l-4 4 4 4"/></svg>
+                </button>
+                <div class="mcp-header-title">MCP Servers</div>
+                <div class="mcp-header-count">5 connected</div>
+              </div>
+              <div class="mcp-header-right">
+                <button class="window-btn" style="font-size: 11px;">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 12px; height: 12px;"><path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 2v4h4"/></svg>
+                  settings.json
+                </button>
+              </div>
+            </div>
+
+            <div class="mcp-body">
+              <!-- Server cards -->
+              <div class="mcp-grid">
+                <!-- GitHub -->
+                <div class="mcp-card">
+                  <div class="mcp-card-top">
+                    <div class="mcp-card-identity">
+                      <div class="mcp-card-logo github">
+                        <svg viewBox="0 0 16 16" fill="currentColor" width="20" height="20"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                      </div>
+                      <div>
+                        <div class="mcp-card-name">GitHub</div>
+                        <div class="mcp-card-provider">github.com/modelcontextprotocol</div>
+                      </div>
+                    </div>
+                    <div class="mcp-card-status connected">
+                      <div class="mcp-card-status-dot"></div>
+                      Live
+                    </div>
+                  </div>
+                  <div class="mcp-card-tags">
+                    <span class="mcp-tag code">Code</span>
+                    <span class="mcp-tag issues">Issues</span>
+                    <span class="mcp-tag prs">PRs</span>
+                  </div>
+                  <div class="mcp-card-features">
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Search code, issues, and pull requests
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Create branches, PRs, and reviews
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Read and write file contents
+                    </div>
+                  </div>
+                  <div class="mcp-card-footer">
+                    <div class="mcp-card-tool-count">38 tools</div>
+                    <div class="mcp-card-action">
+                      Configure
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Notion -->
+                <div class="mcp-card">
+                  <div class="mcp-card-top">
+                    <div class="mcp-card-identity">
+                      <div class="mcp-card-logo notion">
+                        <span style="font-size: 20px;">N</span>
+                      </div>
+                      <div>
+                        <div class="mcp-card-name">Notion</div>
+                        <div class="mcp-card-provider">notion.so/mcp</div>
+                      </div>
+                    </div>
+                    <div class="mcp-card-status connected">
+                      <div class="mcp-card-status-dot"></div>
+                      Live
+                    </div>
+                  </div>
+                  <div class="mcp-card-tags">
+                    <span class="mcp-tag pages">Pages</span>
+                    <span class="mcp-tag search">Search</span>
+                  </div>
+                  <div class="mcp-card-features">
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Search and fetch page content
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Create pages and databases
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Add and read comments
+                    </div>
+                  </div>
+                  <div class="mcp-card-footer">
+                    <div class="mcp-card-tool-count">11 tools</div>
+                    <div class="mcp-card-action">
+                      Configure
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Figma -->
+                <div class="mcp-card">
+                  <div class="mcp-card-top">
+                    <div class="mcp-card-identity">
+                      <div class="mcp-card-logo figma">
+                        <span style="font-size: 18px;">F</span>
+                      </div>
+                      <div>
+                        <div class="mcp-card-name">Figma</div>
+                        <div class="mcp-card-provider">figma.com/mcp</div>
+                      </div>
+                    </div>
+                    <div class="mcp-card-status connected">
+                      <div class="mcp-card-status-dot"></div>
+                      Live
+                    </div>
+                  </div>
+                  <div class="mcp-card-tags">
+                    <span class="mcp-tag design">Design</span>
+                    <span class="mcp-tag code">Code Connect</span>
+                  </div>
+                  <div class="mcp-card-features">
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Get design screenshots and metadata
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Extract variables and design tokens
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Generate designs and code mappings
+                    </div>
+                  </div>
+                  <div class="mcp-card-footer">
+                    <div class="mcp-card-tool-count">12 tools</div>
+                    <div class="mcp-card-action">
+                      Configure
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sentry -->
+                <div class="mcp-card">
+                  <div class="mcp-card-top">
+                    <div class="mcp-card-identity">
+                      <div class="mcp-card-logo sentry">
+                        <span style="font-size: 18px;">S</span>
+                      </div>
+                      <div>
+                        <div class="mcp-card-name">Sentry</div>
+                        <div class="mcp-card-provider">sentry.io/mcp</div>
+                      </div>
+                    </div>
+                    <div class="mcp-card-status connected">
+                      <div class="mcp-card-status-dot"></div>
+                      Live
+                    </div>
+                  </div>
+                  <div class="mcp-card-tags">
+                    <span class="mcp-tag errors">Errors</span>
+                    <span class="mcp-tag search">Search</span>
+                  </div>
+                  <div class="mcp-card-features">
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Search and analyze issues
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Get trace and event details
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      AI-powered issue analysis with Seer
+                    </div>
+                  </div>
+                  <div class="mcp-card-footer">
+                    <div class="mcp-card-tool-count">10 tools</div>
+                    <div class="mcp-card-action">
+                      Configure
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Perplexity -->
+                <div class="mcp-card">
+                  <div class="mcp-card-top">
+                    <div class="mcp-card-identity">
+                      <div class="mcp-card-logo perplexity">
+                        <span style="font-size: 18px;">P</span>
+                      </div>
+                      <div>
+                        <div class="mcp-card-name">Perplexity</div>
+                        <div class="mcp-card-provider">perplexity.ai/mcp</div>
+                      </div>
+                    </div>
+                    <div class="mcp-card-status connected">
+                      <div class="mcp-card-status-dot"></div>
+                      Live
+                    </div>
+                  </div>
+                  <div class="mcp-card-tags">
+                    <span class="mcp-tag search">Web Search</span>
+                  </div>
+                  <div class="mcp-card-features">
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Search the web with AI synthesis
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Get up-to-date documentation
+                    </div>
+                    <div class="mcp-card-feature">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8l3 3 5-6"/></svg>
+                      Research APIs and libraries
+                    </div>
+                  </div>
+                  <div class="mcp-card-footer">
+                    <div class="mcp-card-tool-count">1 tool</div>
+                    <div class="mcp-card-action">
+                      Configure
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Capability Matrix -->
+              <div class="mcp-matrix-section">
+                <div class="mcp-matrix-title">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 6h12M6 2v12"/></svg>
+                  Capability Matrix
+                </div>
+                <div class="mcp-matrix">
+                  <div class="mcp-matrix-row header">
+                    <div class="mcp-matrix-cell">Capability</div>
+                    <div class="mcp-matrix-cell">GitHub</div>
+                    <div class="mcp-matrix-cell">Notion</div>
+                    <div class="mcp-matrix-cell">Figma</div>
+                    <div class="mcp-matrix-cell">Sentry</div>
+                    <div class="mcp-matrix-cell">Perplexity</div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">Read content</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">Write / Create</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">Search</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">AI analysis</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">Code context</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                  </div>
+                  <div class="mcp-matrix-row">
+                    <div class="mcp-matrix-cell">Visual assets</div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-check"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8l3 3 5-6"/></svg></span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                    <div class="mcp-matrix-cell"><span class="mcp-matrix-dash">—</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-bar-left">
+          <div class="status-item">
+            <div class="status-dot"></div>
+            Claude Code active
+          </div>
+          <div class="status-item">5 MCP servers connected</div>
+        </div>
+        <div class="status-bar-right">
+          <div class="status-item">72 tools available</div>
+          <div class="status-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c3-6 9-6 12 0-3 6-9 6-12 0z"/><circle cx="8" cy="8" r="2"/></svg>
+            main
+          </div>
+        </div>
       </div>
     </div>
   </div>
