@@ -7,12 +7,17 @@ options:
   createIntermediateGroups: true
   generateEmptyDirectories: true
 
+packages:
+  SwiftMockKit:
+    url: https://github.com/leocardz/SwiftMockKit-mirror
+    branch: main
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "15.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    ENABLE_USER_SCRIPT_SANDBOXING: true
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
 
 targets:
   Lumno:
@@ -22,6 +27,8 @@ targets:
       - path: Lumno/Sources
     resources:
       - path: Lumno/Resources
+    dependencies:
+      - package: SwiftMockKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lumno.app
@@ -33,3 +40,37 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         CODE_SIGN_ENTITLEMENTS: Lumno/Resources/Lumno.entitlements
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2025 Leonardo Cardoso"
+        ENABLE_USER_SCRIPT_SANDBOXING: false
+    postCompileScripts:
+      - script: |
+          if which swiftlint > /dev/null; then
+            swiftlint lint --config "${SRCROOT}/.swiftlint.yml" "${SRCROOT}/Lumno/Sources"
+          else
+            echo "warning: SwiftLint not installed"
+          fi
+        name: SwiftLint
+        basedOnDependencyAnalysis: false
+
+  LumnoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: LumnoTests
+    dependencies:
+      - target: Lumno
+      - package: SwiftMockKit
+    settings:
+      base:
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lumno.app/Contents/MacOS/Lumno"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  Lumno:
+    build:
+      targets:
+        Lumno: all
+        LumnoTests: [test]
+    test:
+      targets:
+        - LumnoTests

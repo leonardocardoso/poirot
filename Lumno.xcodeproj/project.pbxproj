@@ -7,43 +7,87 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */; };
+		12B126ED93402658B44B5C95 /* ProjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051CC38A33328E65D675A2E1 /* ProjectTests.swift */; };
 		26C171F912E800F59B32F392 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */; };
+		2BBCA2EB25AF5B45E4ED476C /* SwiftMockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 012DEC4F48F3572155658765 /* SwiftMockKit */; };
 		2C102F530BCAD366E45A7EFD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */; };
 		3E5191E1C5473A9F9274EB24 /* ConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9601475B49F6C24ABAF3DE52 /* ConfigurationView.swift */; };
+		52D39E0E4B5C75B1B899B312 /* SessionLoading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59052D971EFD463145948C58 /* SessionLoading.swift */; };
 		56683DF85C4BEB40C240992C /* SessionLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D096AA43314CB12B527DD2D /* SessionLoader.swift */; };
 		5A7A6F058A9E22079657E1E4 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */; };
 		5E6EC27EC4A08AC64E388879 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9037065BDCD04E4E9E76BEA /* Session.swift */; };
 		60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3061A613C0DB1C8AA798712F /* StatusBarView.swift */; };
+		6B61003B582CF2ED6236A6E7 /* SwiftMockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6AD65A09BE1FE71B5CD3CA89 /* SwiftMockKit */; };
 		6BA1D375175BFBFD869EDFDD /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708F35B9F72515D84EEB70C4 /* Message.swift */; };
+		95D1C11C6151C59284E19D9B /* Environment+Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84041BC9485193ED6A85E3D2 /* Environment+Services.swift */; };
 		98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307731283D6CD473215E5410 /* ToolBlockView.swift */; };
 		AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B8CBA1726156160D0996CE /* LumnoTheme.swift */; };
 		AF8CE28964613DED136703EC /* SearchOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */; };
+		C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */; };
 		C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */; };
 		D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E876CA975AFA2E40B4DDBC14 /* HomeView.swift */; };
 		E3C04056927AEF474DFD04D6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFB417F5CA27CDEFEF8C31 /* ContentView.swift */; };
 		FA04F2E1F5DC9E65B8DC8F33 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A408C825092B7A7D292479 /* AppState.swift */; };
 		FC832FA50B11E101A049CCB1 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEEF3D3B602D17DFE23FCB1 /* Project.swift */; };
+		FCBD3B9445A14D8D43DE211E /* MessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE58B67CFE3C7FA05A5EAC76 /* MessageTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DC16F6F6CF999CBAEACB06CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E25F2957B72091EFD21F8D92 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34DD496E070FAF87AB7ED55E;
+			remoteInfo = Lumno;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		051CC38A33328E65D675A2E1 /* ProjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTests.swift; sourceTree = "<group>"; };
 		0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		17A408C825092B7A7D292479 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoApp.swift; sourceTree = "<group>"; };
 		3061A613C0DB1C8AA798712F /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		307731283D6CD473215E5410 /* ToolBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBlockView.swift; sourceTree = "<group>"; };
 		3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoaderTests.swift; sourceTree = "<group>"; };
+		56C3551FBDF9B29879A6063D /* LumnoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LumnoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		59052D971EFD463145948C58 /* SessionLoading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoading.swift; sourceTree = "<group>"; };
 		708F35B9F72515D84EEB70C4 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		7AEEF3D3B602D17DFE23FCB1 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		84041BC9485193ED6A85E3D2 /* Environment+Services.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Services.swift"; sourceTree = "<group>"; };
 		8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchOverlayView.swift; sourceTree = "<group>"; };
 		8D096AA43314CB12B527DD2D /* SessionLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoader.swift; sourceTree = "<group>"; };
 		9601475B49F6C24ABAF3DE52 /* ConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationView.swift; sourceTree = "<group>"; };
 		988B5C79E5E0DB436276FEB5 /* Lumno.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lumno.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE58B67CFE3C7FA05A5EAC76 /* MessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTests.swift; sourceTree = "<group>"; };
 		C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTests.swift; sourceTree = "<group>"; };
 		D3B8CBA1726156160D0996CE /* LumnoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoTheme.swift; sourceTree = "<group>"; };
 		E876CA975AFA2E40B4DDBC14 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F9037065BDCD04E4E9E76BEA /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		F9AFB417F5CA27CDEFEF8C31 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1584F43F31E4C5E4D1F4BBC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BBCA2EB25AF5B45E4ED476C /* SwiftMockKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FB82E0E2062739F02D280CC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B61003B582CF2ED6236A6E7 /* SwiftMockKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		16CD839F6874681B82724B7A /* Session */ = {
@@ -59,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				988B5C79E5E0DB436276FEB5 /* Lumno.app */,
+				56C3551FBDF9B29879A6063D /* LumnoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,6 +113,14 @@
 			children = (
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		2BD006310572BAFA6A7CAC6A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		366AF5A75825DE32816B8C1D /* App */ = {
@@ -98,6 +151,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		4DCF07F3133DA2518E65A15E /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				59052D971EFD463145948C58 /* SessionLoading.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		681EADB8ADFEDE72F23B775A /* Theme */ = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +177,16 @@
 				16CD839F6874681B82724B7A /* Session */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		83687CF8D1AA4876A1593608 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AE58B67CFE3C7FA05A5EAC76 /* MessageTests.swift */,
+				051CC38A33328E65D675A2E1 /* ProjectTests.swift */,
+				C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		90F2A3EBBE1368FCE08B24EA /* Models */ = {
@@ -147,9 +218,19 @@
 		BC2D93F9D5DDF5A287B6FE3E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				84041BC9485193ED6A85E3D2 /* Environment+Services.swift */,
 				8D096AA43314CB12B527DD2D /* SessionLoader.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		C0BC5F7A48955D2E0EDF0964 /* LumnoTests */ = {
+			isa = PBXGroup;
+			children = (
+				83687CF8D1AA4876A1593608 /* Models */,
+				2BD006310572BAFA6A7CAC6A /* Services */,
+			);
+			path = LumnoTests;
 			sourceTree = "<group>";
 		};
 		E234B780748DDB3DDB96D9E1 /* Sources */ = {
@@ -157,6 +238,7 @@
 			children = (
 				366AF5A75825DE32816B8C1D /* App */,
 				90F2A3EBBE1368FCE08B24EA /* Models */,
+				4DCF07F3133DA2518E65A15E /* Protocols */,
 				BC2D93F9D5DDF5A287B6FE3E /* Services */,
 				681EADB8ADFEDE72F23B775A /* Theme */,
 				20AFABEE0359DCBDFAF6FADA /* Utilities */,
@@ -177,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				F115EE003A9C42011FB8C8A3 /* Lumno */,
+				C0BC5F7A48955D2E0EDF0964 /* LumnoTests */,
 				1B28653F9A7CC37905BFE56F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -184,11 +267,33 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		07ACAAFCA9486263E8F23E28 /* LumnoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4AF9CFDEE14DE9505B5F6C3A /* Build configuration list for PBXNativeTarget "LumnoTests" */;
+			buildPhases = (
+				C30FA0E86AFD34FAAA0E04EA /* Sources */,
+				FB82E0E2062739F02D280CC9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F7821B782589D21741396D9 /* PBXTargetDependency */,
+			);
+			name = LumnoTests;
+			packageProductDependencies = (
+				6AD65A09BE1FE71B5CD3CA89 /* SwiftMockKit */,
+			);
+			productName = LumnoTests;
+			productReference = 56C3551FBDF9B29879A6063D /* LumnoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		34DD496E070FAF87AB7ED55E /* Lumno */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 18EBAE400F28E2A110EE236C /* Build configuration list for PBXNativeTarget "Lumno" */;
 			buildPhases = (
 				FBC9ABB987519DD19C0BC27D /* Sources */,
+				69E39EF501415DD0A6238887 /* SwiftLint */,
+				1584F43F31E4C5E4D1F4BBC3 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,6 +301,7 @@
 			);
 			name = Lumno;
 			packageProductDependencies = (
+				012DEC4F48F3572155658765 /* SwiftMockKit */,
 			);
 			productName = Lumno;
 			productReference = 988B5C79E5E0DB436276FEB5 /* Lumno.app */;
@@ -220,16 +326,53 @@
 			);
 			mainGroup = FA224C14499CF9AEF0E91E27;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				34DD496E070FAF87AB7ED55E /* Lumno */,
+				07ACAAFCA9486263E8F23E28 /* LumnoTests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		69E39EF501415DD0A6238887 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint > /dev/null; then\n  swiftlint lint --config \"${SRCROOT}/.swiftlint.yml\" \"${SRCROOT}/Lumno/Sources\"\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		C30FA0E86AFD34FAAA0E04EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCBD3B9445A14D8D43DE211E /* MessageTests.swift in Sources */,
+				12B126ED93402658B44B5C95 /* ProjectTests.swift in Sources */,
+				C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */,
+				0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FBC9ABB987519DD19C0BC27D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -237,6 +380,7 @@
 				FA04F2E1F5DC9E65B8DC8F33 /* AppState.swift in Sources */,
 				3E5191E1C5473A9F9274EB24 /* ConfigurationView.swift in Sources */,
 				E3C04056927AEF474DFD04D6 /* ContentView.swift in Sources */,
+				95D1C11C6151C59284E19D9B /* Environment+Services.swift in Sources */,
 				D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */,
 				C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */,
 				AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */,
@@ -246,6 +390,7 @@
 				5E6EC27EC4A08AC64E388879 /* Session.swift in Sources */,
 				26C171F912E800F59B32F392 /* SessionDetailView.swift in Sources */,
 				56683DF85C4BEB40C240992C /* SessionLoader.swift in Sources */,
+				52D39E0E4B5C75B1B899B312 /* SessionLoading.swift in Sources */,
 				2C102F530BCAD366E45A7EFD /* SettingsView.swift in Sources */,
 				5A7A6F058A9E22079657E1E4 /* SidebarView.swift in Sources */,
 				60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */,
@@ -254,6 +399,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4F7821B782589D21741396D9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34DD496E070FAF87AB7ED55E /* Lumno */;
+			targetProxy = DC16F6F6CF999CBAEACB06CE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		11515B932430EDCA13E9B30E /* Debug */ = {
@@ -293,7 +446,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -315,11 +467,29 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
+		};
+		27466D7C40210CB53DFEBA51 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lumno.LumnoTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lumno.app/Contents/MacOS/Lumno";
+			};
+			name = Release;
 		};
 		555E973FF7A2DD49749676F2 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -328,6 +498,7 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
@@ -350,6 +521,7 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
@@ -362,6 +534,23 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lumno.app;
 				PRODUCT_NAME = Lumno;
 				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		AAA46A0958BFD26CC9884597 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lumno.LumnoTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Lumno.app/Contents/MacOS/Lumno";
 			};
 			name = Debug;
 		};
@@ -402,7 +591,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -417,6 +605,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
@@ -444,7 +633,40 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		4AF9CFDEE14DE9505B5F6C3A /* Build configuration list for PBXNativeTarget "LumnoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAA46A0958BFD26CC9884597 /* Debug */,
+				27466D7C40210CB53DFEBA51 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/leocardz/SwiftMockKit-mirror";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		012DEC4F48F3572155658765 /* SwiftMockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */;
+			productName = SwiftMockKit;
+		};
+		6AD65A09BE1FE71B5CD3CA89 /* SwiftMockKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */;
+			productName = SwiftMockKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E25F2957B72091EFD21F8D92 /* Project object */;
 }

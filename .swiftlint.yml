@@ -81,7 +81,7 @@ only_rules:
     - number_separator
     - opening_brace
     - operator_usage_whitespace
-    - operator_whitespace
+    - function_name_whitespace
     - optional_enum_case_matching
     - overridden_super_call
     - override_in_extension
@@ -94,7 +94,7 @@ only_rules:
     - reduce_into
     - redundant_nil_coalescing
     - redundant_objc_attribute
-    - redundant_optional_initialization
+    - implicit_optional_initialization
     - redundant_set_access_control
     - redundant_string_enum_value
     - redundant_type_annotation

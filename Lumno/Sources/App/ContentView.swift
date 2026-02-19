@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.sessionLoader) private var sessionLoader
 
     var body: some View {
         NavigationSplitView {
@@ -15,8 +16,12 @@ struct ContentView: View {
                 SearchOverlayView()
             }
         }
-        .onAppear {
-            // TODO: Load projects from ~/.claude/projects/
+        .task {
+            do {
+                appState.projects = try sessionLoader.discoverProjects()
+            } catch {
+                print("Failed to load projects: \(error)")
+            }
         }
         .keyboardShortcut(for: .search) {
             appState.isSearchPresented.toggle()

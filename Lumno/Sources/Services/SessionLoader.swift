@@ -1,14 +1,15 @@
 import Foundation
 
 /// Loads Claude Code session transcripts from ~/.claude/projects/
-struct SessionLoader {
-    static let claudeProjectsPath: String = {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        return "\(home)/.claude/projects"
-    }()
+struct SessionLoader: SessionLoading {
+    let claudeProjectsPath: String
+
+    init(claudeProjectsPath: String? = nil) {
+        self.claudeProjectsPath = claudeProjectsPath ?? Self.defaultPath
+    }
 
     /// Discovers all projects with JSONL transcript files
-    static func discoverProjects() throws -> [Project] {
+    func discoverProjects() throws -> [Project] {
         let fm = FileManager.default
         let projectsURL = URL(fileURLWithPath: claudeProjectsPath)
 
@@ -38,4 +39,9 @@ struct SessionLoader {
             )
         }
     }
+
+    private static let defaultPath: String = {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/.claude/projects"
+    }()
 }
