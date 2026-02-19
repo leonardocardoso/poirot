@@ -164,11 +164,10 @@ struct SessionLoaderTests {
 
         let session = projects[0].sessions[0]
         #expect(session.id == sessionId)
-        #expect(session.messages.count == 2)
-        #expect(session.messages[0].role == .user)
-        #expect(session.messages[0].textContent == "Hello")
-        #expect(session.messages[1].role == .assistant)
-        #expect(session.messages[1].textContent == "Hi there")
+        // Lazy loading: messages are empty, title comes from cachedTitle
+        #expect(session.messages.isEmpty)
+        #expect(session.title == "Hello")
+        #expect(session.fileURL != nil)
     }
 
     @Test func discoverProjects_skipsAgentFiles() throws {
@@ -229,7 +228,8 @@ struct SessionLoaderTests {
                     "sessionId": "\(sessionId)",
                     "created": "2026-01-28T10:00:00.000Z",
                     "isSidechain": false,
-                    "projectPath": "/Users/dev/projects/my-cool-app"
+                    "projectPath": "/Users/dev/projects/my-cool-app",
+                    "firstPrompt": "Hello from index"
                 }
             ]
         }
@@ -247,6 +247,12 @@ struct SessionLoaderTests {
         let projects = try loader.discoverProjects()
         #expect(projects[0].name == "my-cool-app")
         #expect(projects[0].path == "/Users/dev/projects/my-cool-app")
+
+        // Index fast path: session has cached title from firstPrompt, no messages parsed
+        let session = projects[0].sessions[0]
+        #expect(session.messages.isEmpty)
+        #expect(session.title == "Hello from index")
+        #expect(session.fileURL != nil)
     }
 
     @Test func discoverProjects_withMissingIndex_usesFallback() throws {
@@ -280,5 +286,109 @@ struct SessionLoaderTests {
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
         #expect(projects[0].sessions.isEmpty)
+    }
+
+    // MARK: - Index Fast Path
+
+    @Test func discoverProjects_indexPath_skipsSidechainEntries() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let mainId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        let sidechainId = "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+        let indexJSON = """
+        {
+            "version": 1,
+            "entries": [
+                {
+                    "sessionId": "\(mainId)",
+                    "created": "2026-01-28T10:00:00.000Z",
+                    "isSidechain": false,
+                    "projectPath": "/test/project",
+                    "firstPrompt": "Main session"
+                },
+                {
+                    "sessionId": "\(sidechainId)",
+                    "created": "2026-01-28T11:00:00.000Z",
+                    "isSidechain": true,
+                    "projectPath": "/test/project"
+                }
+            ]
+        }
+        """
+
+        let projectDir = tmpDir.appendingPathComponent("test-project")
+        try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
+
+        // Create both JSONL files
+        try simpleJSONL().write(
+            to: projectDir.appendingPathComponent("\(mainId).jsonl"),
+            atomically: true, encoding: .utf8
+        )
+        try simpleJSONL().write(
+            to: projectDir.appendingPathComponent("\(sidechainId).jsonl"),
+            atomically: true, encoding: .utf8
+        )
+
+        let indexFile = projectDir.appendingPathComponent("sessions-index.json")
+        try indexJSON.write(to: indexFile, atomically: true, encoding: .utf8)
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        #expect(projects[0].sessions.count == 1)
+        #expect(projects[0].sessions[0].id == mainId)
+    }
+
+    @Test func discoverProjects_indexPath_limitsTo20Sessions() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let projectDir = tmpDir.appendingPathComponent("test-project")
+        try FileManager.default.createDirectory(at: projectDir, withIntermediateDirectories: true)
+
+        // Create 25 sessions via index
+        var entries: [[String: Any]] = []
+        for i in 0..<25 {
+            let sessionId = String(format: "00000000-0000-0000-0000-%012d", i)
+            let created = String(format: "2026-01-%02dT10:00:00.000Z", i + 1)
+            entries.append([
+                "sessionId": sessionId,
+                "created": created,
+                "isSidechain": false,
+                "projectPath": "/test/project"
+            ])
+            let jsonlFile = projectDir.appendingPathComponent("\(sessionId).jsonl")
+            try simpleJSONL(userTimestamp: created).write(to: jsonlFile, atomically: true, encoding: .utf8)
+        }
+
+        let index: [String: Any] = ["version": 1, "entries": entries]
+        let indexData = try JSONSerialization.data(withJSONObject: index)
+        try indexData.write(to: projectDir.appendingPathComponent("sessions-index.json"))
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        #expect(projects[0].sessions.count == 20)
+    }
+
+    @Test func discoverProjects_fallbackPath_usesParsesSummary() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let sessionId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        // No index — forces fallback path
+        try makeProjectWithJSONL(
+            in: tmpDir,
+            projectDirName: "test-project",
+            sessionId: sessionId,
+            jsonlContent: simpleJSONL(userText: "Fallback title")
+        )
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        let session = projects[0].sessions[0]
+        #expect(session.messages.isEmpty)
+        #expect(session.title == "Fallback title")
+        #expect(session.turnCount == 1)
+        #expect(session.fileURL != nil)
     }
 }

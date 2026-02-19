@@ -47,8 +47,8 @@ struct SidebarView: View {
             .padding(.horizontal, LumnoTheme.Spacing.md)
 
             ScrollView {
-                LazyVStack(spacing: 2) {
-                    ForEach(appState.projects) { project in
+                LazyVStack(alignment: .leading, spacing: 2) {
+                    ForEach(appState.projects.filter { !$0.sessions.isEmpty }) { project in
                         ProjectRow(project: project)
                     }
                 }
@@ -121,6 +121,7 @@ private struct ProjectRow: View {
                 .buttonStyle(SessionItemButtonStyle(isActive: appState.selectedSession == session))
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

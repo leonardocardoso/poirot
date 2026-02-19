@@ -130,6 +130,91 @@ struct TranscriptParser {
         )
     }
 
+    // MARK: - Summary Parse
+
+    func parseSummary(
+        fileURL: URL,
+        projectPath: String,
+        sessionId: String,
+        indexStartedAt: Date?
+    ) -> Session? {
+        guard let data = try? Data(contentsOf: fileURL) else { return nil }
+        guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return nil }
+
+        let lines = text.components(separatedBy: .newlines)
+
+        var firstUserText: String?
+        var userCount = 0
+        var firstAssistantModel: String?
+        var earliestTimestamp: Date?
+        var totalTokens = 0
+        var seenMsgIds: Set<String> = []
+
+        for line in lines {
+            guard !line.isEmpty,
+                  let lineData = line.data(using: .utf8),
+                  let record = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any]
+            else { continue }
+
+            guard let type = record["type"] as? String,
+                  type == "user" || type == "assistant"
+            else { continue }
+
+            if record["isSidechain"] as? Bool == true { continue }
+
+            let message = record["message"] as? [String: Any] ?? [:]
+
+            if type == "assistant" {
+                if message["model"] as? String == "<synthetic>" { continue }
+            }
+
+            if let ts = parseTimestamp(record["timestamp"]) {
+                if earliestTimestamp == nil || ts < earliestTimestamp! {
+                    earliestTimestamp = ts
+                }
+            }
+
+            if type == "user" {
+                userCount += 1
+                if firstUserText == nil {
+                    let content = message["content"]
+                    if let str = content as? String, !str.isEmpty {
+                        firstUserText = str
+                    } else if let array = content as? [[String: Any]] {
+                        firstUserText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                    }
+                }
+            } else if type == "assistant" {
+                let msgId = message["id"] as? String ?? UUID().uuidString
+                if firstAssistantModel == nil {
+                    firstAssistantModel = message["model"] as? String
+                }
+                if !seenMsgIds.contains(msgId) {
+                    seenMsgIds.insert(msgId)
+                    if let usage = message["usage"] as? [String: Any] {
+                        totalTokens += (usage["input_tokens"] as? Int ?? 0) + (usage["output_tokens"] as? Int ?? 0)
+                    }
+                }
+            }
+        }
+
+        guard userCount > 0 || !seenMsgIds.isEmpty else { return nil }
+
+        let startedAt = earliestTimestamp ?? indexStartedAt ?? Date.distantPast
+
+        return Session(
+            id: sessionId,
+            projectPath: projectPath,
+            messages: [],
+            startedAt: startedAt,
+            model: firstAssistantModel,
+            totalTokens: totalTokens,
+            fileURL: fileURL,
+            cachedTitle: firstUserText,
+            cachedTurnCount: userCount
+        )
+    }
+
     // MARK: - User Content
 
     private func parseUserContent(_ content: Any?) -> [ContentBlock] {

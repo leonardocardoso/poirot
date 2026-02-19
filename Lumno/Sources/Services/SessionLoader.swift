@@ -52,6 +52,8 @@ struct SessionLoader: SessionLoading {
 
     private let parser = TranscriptParser()
 
+    private static let maxSessionsPerProject = 20
+
     private func buildProject(at directoryURL: URL) -> Project? {
         let fm = FileManager.default
         let dirName = directoryURL.lastPathComponent
@@ -66,36 +68,65 @@ struct SessionLoader: SessionLoading {
 
         let projectPath = index?.originalPath ?? ("/" + dirName.replacingOccurrences(of: "-", with: "/"))
 
+        // Index fast path: build sessions from metadata without parsing JSONL
+        if let entries = index?.entries, !entries.isEmpty {
+            var sessions: [Session] = []
+            for entry in entries where !entry.isSidechain {
+                let fileURL = directoryURL.appendingPathComponent("\(entry.sessionId).jsonl")
+                guard fm.fileExists(atPath: fileURL.path) else { continue }
+                let startedAt = Self.dateFormatter.date(from: entry.created) ?? Date.distantPast
+                let session = Session(
+                    id: entry.sessionId,
+                    projectPath: projectPath,
+                    messages: [],
+                    startedAt: startedAt,
+                    model: nil,
+                    totalTokens: 0,
+                    fileURL: fileURL,
+                    cachedTitle: entry.firstPrompt,
+                    cachedTurnCount: nil
+                )
+                sessions.append(session)
+            }
+            sessions.sort { $0.startedAt > $1.startedAt }
+            if sessions.count > Self.maxSessionsPerProject {
+                sessions = Array(sessions.prefix(Self.maxSessionsPerProject))
+            }
+            return Project(id: dirName, name: projectName, path: projectPath, sessions: sessions)
+        }
+
+        // Fallback path: no index — parseSummary the most recent JSONL files
         guard let items = try? fm.contentsOfDirectory(
             at: directoryURL,
-            includingPropertiesForKeys: nil,
+            includingPropertiesForKeys: [.contentModificationDateKey],
             options: [.skipsHiddenFiles]
         ) else {
             return Project(id: dirName, name: projectName, path: projectPath, sessions: [])
         }
 
-        let createdDates: [String: Date] = {
-            guard let entries = index?.entries else { return [:] }
-            var map: [String: Date] = [:]
-            for entry in entries {
-                if let date = Self.dateFormatter.date(from: entry.created) {
-                    map[entry.sessionId] = date
-                }
+        let jsonlFiles = items
+            .filter {
+                $0.pathExtension == "jsonl"
+                    && isUUIDFilename($0.deletingPathExtension().lastPathComponent)
             }
-            return map
-        }()
+            .sorted { lhs, rhs in
+                let keys: Set<URLResourceKey> = [.contentModificationDateKey]
+                let lhsDate = (try? lhs.resourceValues(forKeys: keys))
+                    .flatMap(\.contentModificationDate) ?? .distantPast
+                let rhsDate = (try? rhs.resourceValues(forKeys: keys))
+                    .flatMap(\.contentModificationDate) ?? .distantPast
+                return lhsDate > rhsDate
+            }
+            .prefix(Self.maxSessionsPerProject)
 
         var sessions: [Session] = []
-        for item in items {
-            guard item.pathExtension == "jsonl" else { continue }
+        for item in jsonlFiles {
             let stem = item.deletingPathExtension().lastPathComponent
-            guard isUUIDFilename(stem) else { continue }
-
-            if let session = parser.parse(
+            if let session = parser.parseSummary(
                 fileURL: item,
                 projectPath: projectPath,
                 sessionId: stem,
-                indexStartedAt: createdDates[stem]
+                indexStartedAt: nil
             ) {
                 sessions.append(session)
             }
@@ -120,11 +151,13 @@ struct SessionLoader: SessionLoading {
                 else { return nil }
                 let isSidechain = entry["isSidechain"] as? Bool ?? false
                 let projectPath = entry["projectPath"] as? String
+                let firstPrompt = entry["firstPrompt"] as? String
                 return SessionsIndex.Entry(
                     sessionId: sessionId,
                     created: created,
                     isSidechain: isSidechain,
-                    projectPath: projectPath
+                    projectPath: projectPath,
+                    firstPrompt: firstPrompt
                 )
             }
         }()
@@ -155,5 +188,6 @@ private struct SessionsIndex {
         let created: String
         let isSidechain: Bool
         let projectPath: String?
+        let firstPrompt: String?
     }
 }

@@ -26,6 +26,23 @@ struct ContentView: View {
         .keyboardShortcut(for: .search) {
             appState.isSearchPresented.toggle()
         }
+        .onChange(of: appState.selectedSession) { _, newSession in
+            guard let session = newSession,
+                  session.messages.isEmpty,
+                  let url = session.fileURL
+            else { return }
+            Task {
+                let parser = TranscriptParser()
+                if let full = parser.parse(
+                    fileURL: url,
+                    projectPath: session.projectPath,
+                    sessionId: session.id,
+                    indexStartedAt: session.startedAt
+                ) {
+                    appState.selectedSession = full
+                }
+            }
+        }
     }
 
     @ViewBuilder

@@ -457,6 +457,129 @@ struct TranscriptParserTests {
         #expect(result?.messages[3].role == .assistant)
         #expect(result?.messages[3].textContent == "A2")
     }
+    // MARK: - parseSummary
+
+    @Test func parseSummary_emptyFile_returnsNil() throws {
+        let (dir, file) = try makeTempFile("")
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result == nil)
+    }
+
+    @Test func parseSummary_extractsTitle() throws {
+        let lines = [
+            userRecord(content: "Hello world"),
+            assistantRecord(content: [["type": "text", "text": "Hi"]])
+        ]
+        let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result != nil)
+        #expect(result?.title == "Hello world")
+        #expect(result?.messages.isEmpty == true)
+        #expect(result?.fileURL == file)
+    }
+
+    @Test func parseSummary_extractsTurnCount() throws {
+        let u1 = userRecord(content: "Q1", uuid: "u1", timestamp: "2026-01-28T10:00:00.000Z")
+        let a1 = assistantRecord(
+            content: [["type": "text", "text": "A1"]],
+            msgId: "msg_a1",
+            timestamp: "2026-01-28T10:01:00.000Z"
+        )
+        let u2 = userRecord(content: "Q2", uuid: "u2", timestamp: "2026-01-28T10:02:00.000Z")
+        let (dir, file) = try makeTempFile([u1, a1, u2].joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result?.turnCount == 2)
+    }
+
+    @Test func parseSummary_extractsModel() throws {
+        let lines = [
+            userRecord(content: "Hello"),
+            assistantRecord(content: [["type": "text", "text": "Hi"]], model: "claude-sonnet-4-6")
+        ]
+        let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result?.model == "claude-sonnet-4-6")
+    }
+
+    @Test func parseSummary_sumsTokensPerGroup() throws {
+        let u1 = userRecord(content: "Hi")
+        let a1 = assistantRecord(
+            content: [["type": "text", "text": "A"]],
+            msgId: "msg_1",
+            timestamp: "2026-01-28T10:01:00.000Z",
+            inputTokens: 100,
+            outputTokens: 50
+        )
+        // Duplicate msgId — tokens should NOT be double-counted
+        let a1dup = assistantRecord(
+            content: [["type": "tool_use", "id": "t1", "name": "Read", "input": ["path": "/a"]]],
+            msgId: "msg_1",
+            timestamp: "2026-01-28T10:01:01.000Z",
+            inputTokens: 200,
+            outputTokens: 100
+        )
+        let a2 = assistantRecord(
+            content: [["type": "text", "text": "B"]],
+            msgId: "msg_2",
+            timestamp: "2026-01-28T10:02:00.000Z",
+            inputTokens: 300,
+            outputTokens: 150
+        )
+        let (dir, file) = try makeTempFile([u1, a1, a1dup, a2].joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        // msg_1: 100+50=150, msg_2: 300+150=450 → total 600
+        #expect(result?.totalTokens == 600)
+    }
+
+    @Test func parseSummary_skipsSidechainRecords() throws {
+        let lines = [
+            userRecord(content: "Sidechain", isSidechain: true),
+            userRecord(content: "Real message", isSidechain: false)
+        ]
+        let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result?.title == "Real message")
+        #expect(result?.turnCount == 1)
+    }
+
+    @Test func parseSummary_skipsSyntheticAssistant() throws {
+        let synth = assistantRecord(content: [["type": "text", "text": "Synthetic"]], model: "<synthetic>")
+        let real = userRecord(content: "Real user")
+        let (dir, file) = try makeTempFile([synth, real].joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        #expect(result?.model == nil)
+        #expect(result?.turnCount == 1)
+    }
+
+    @Test func parseSummary_usesEarliestTimestamp() throws {
+        let u = userRecord(content: "First", timestamp: "2026-01-28T09:00:00.000Z")
+        let a = assistantRecord(
+            content: [["type": "text", "text": "Reply"]],
+            timestamp: "2026-01-28T10:00:00.000Z"
+        )
+        let (dir, file) = try makeTempFile([u, a].joined(separator: "\n"))
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let result = parser.parseSummary(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let expected = fmt.date(from: "2026-01-28T09:00:00.000Z")
+        #expect(result?.startedAt == expected)
+    }
 }
 
 // swiftlint:enable file_length type_body_length
