@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatusBarView: View {
     var isSessionEnded: Bool = false
+    @Environment(\.provider) private var provider
 
     var body: some View {
         HStack {
@@ -11,7 +12,7 @@ struct StatusBarView: View {
                         .fill(isSessionEnded ? LumnoTheme.Colors.textTertiary : LumnoTheme.Colors.green)
                         .frame(width: 6, height: 6)
 
-                    Text(isSessionEnded ? "Session ended" : "Claude Code active")
+                    Text(isSessionEnded ? "Session ended" : provider.statusActiveText)
                         .font(LumnoTheme.Typography.tiny)
                         .foregroundStyle(LumnoTheme.Colors.textTertiary)
                 }

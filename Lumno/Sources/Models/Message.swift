@@ -45,31 +45,6 @@ struct ToolUse: Identifiable, Hashable {
     let name: String
     let input: [String: String]
 
-    var displayName: String {
-        switch name {
-        case "Read": "Read"
-        case "Write": "Write"
-        case "Edit": "Edit"
-        case "Bash": "Bash"
-        case "Glob": "Glob"
-        case "Grep": "Grep"
-        case "Task": "Task"
-        default: name
-        }
-    }
-
-    var icon: String {
-        switch name {
-        case "Read": "doc.text"
-        case "Write": "doc.text.fill"
-        case "Edit": "pencil"
-        case "Bash": "terminal"
-        case "Glob": "magnifyingglass"
-        case "Grep": "text.magnifyingglass"
-        default: "wrench"
-        }
-    }
-
     var filePath: String? {
         input["file_path"] ?? input["path"] ?? input["command"]
     }

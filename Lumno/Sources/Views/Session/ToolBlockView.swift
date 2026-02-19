@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ToolBlockView: View {
     let tool: ToolUse
+    @Environment(\.provider) private var provider
     @State private var isExpanded = false
 
     var body: some View {
@@ -13,11 +14,11 @@ struct ToolBlockView: View {
                 }
             } label: {
                 HStack(spacing: LumnoTheme.Spacing.sm) {
-                    Image(systemName: tool.icon)
+                    Image(systemName: provider.toolIcon(for: tool.name))
                         .font(.system(size: 12))
                         .foregroundStyle(LumnoTheme.Colors.textSecondary)
 
-                    Text(tool.displayName)
+                    Text(provider.toolDisplayName(for: tool.name))
                         .font(LumnoTheme.Typography.smallBold)
                         .foregroundStyle(LumnoTheme.Colors.textSecondary)
 

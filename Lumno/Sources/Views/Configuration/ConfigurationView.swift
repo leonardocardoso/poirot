@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ConfigurationView: View {
+    @Environment(\.provider) private var provider
+
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -9,7 +11,7 @@ struct ConfigurationView: View {
                     .font(LumnoTheme.Typography.heading)
                     .foregroundStyle(LumnoTheme.Colors.textPrimary)
 
-                Text("Manage your Claude Code skills, commands, MCPs, and preferences")
+                Text("Manage your \(provider.name) skills, commands, and preferences")
                     .font(LumnoTheme.Typography.caption)
                     .foregroundStyle(LumnoTheme.Colors.textSecondary)
             }
@@ -29,7 +31,7 @@ struct ConfigurationView: View {
                     ],
                     spacing: LumnoTheme.Spacing.lg
                 ) {
-                    ForEach(ConfigItem.allItems) { item in
+                    ForEach(provider.configurationItems) { item in
                         ConfigCard(item: item)
                     }
                 }
@@ -42,66 +44,10 @@ struct ConfigurationView: View {
     }
 }
 
-// MARK: - Config Item
-
-private struct ConfigItem: Identifiable {
-    let id = UUID()
-    let icon: String
-    let iconColor: Color
-    let title: String
-    let count: String
-    let description: String
-
-    static let allItems: [ConfigItem] = [
-        ConfigItem(
-            icon: "bolt.fill",
-            iconColor: LumnoTheme.Colors.accent,
-            title: "Skills",
-            count: "8 active",
-            description: "Custom skills and automation workflows for Claude Code sessions"
-        ),
-        ConfigItem(
-            icon: "slash.circle",
-            iconColor: LumnoTheme.Colors.blue,
-            title: "Slash Commands",
-            count: "12 available",
-            description: "Quick commands for common operations like worktrees, PRs, and tasks"
-        ),
-        ConfigItem(
-            icon: "powerplug.fill",
-            iconColor: LumnoTheme.Colors.green,
-            title: "MCP Servers",
-            count: "5 connected",
-            description: "Connected services — GitHub, Notion, Figma, Sentry, Perplexity"
-        ),
-        ConfigItem(
-            icon: "brain",
-            iconColor: LumnoTheme.Colors.purple,
-            title: "Models",
-            count: "Opus 4",
-            description: "Select default model, configure per-project preferences"
-        ),
-        ConfigItem(
-            icon: "person.2.fill",
-            iconColor: LumnoTheme.Colors.orange,
-            title: "Sub-agents",
-            count: "4 types",
-            description: "Configure Explore, Plan, Bash, and General-purpose agents"
-        ),
-        ConfigItem(
-            icon: "speaker.wave.3.fill",
-            iconColor: LumnoTheme.Colors.red,
-            title: "Output Styles",
-            count: "TTS ready",
-            description: "Text-to-speech with ElevenLabs, output formatting, and display options"
-        ),
-    ]
-}
-
 // MARK: - Config Card
 
 private struct ConfigCard: View {
-    let item: ConfigItem
+    let item: ConfigurationItem
     @State private var isHovered = false
 
     var body: some View {

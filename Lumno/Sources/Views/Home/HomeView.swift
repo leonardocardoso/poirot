@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.provider) private var provider
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,7 +37,7 @@ struct HomeView: View {
                 .shadow(color: LumnoTheme.Colors.accent.opacity(0.3), radius: 20)
                 .padding(.bottom, LumnoTheme.Spacing.md)
 
-            Text("Your Claude Code companion")
+            Text(provider.companionTagline)
                 .font(LumnoTheme.Typography.title)
                 .foregroundStyle(LumnoTheme.Colors.textPrimary)
 
@@ -99,7 +100,7 @@ struct HomeView: View {
 
             HStack {
                 HStack(spacing: 4) {
-                    TagButton(label: "Opus 4", icon: "sparkle", isAccent: true)
+                    TagButton(label: provider.defaultModelName, icon: "sparkle", isAccent: true)
                     TagButton(label: "Attach", icon: "plus")
                     TagButton(label: "Commands", icon: "slash.circle")
                 }

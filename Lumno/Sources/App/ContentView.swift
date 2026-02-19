@@ -30,21 +30,18 @@ struct ContentView: View {
 
     @ViewBuilder
     private var detailView: some View {
-        switch appState.selectedNav {
-        case .sessions:
+        switch appState.selectedNav.id {
+        case NavigationItem.sessions.id:
             if let session = appState.selectedSession {
                 SessionDetailView(session: session)
             } else {
                 HomeView()
             }
-        case .commands:
-            Text("Commands")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .skills:
-            Text("Skills")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .configuration:
+        case NavigationItem.configuration.id:
             ConfigurationView()
+        default:
+            Text(appState.selectedNav.title)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

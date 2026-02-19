@@ -97,11 +97,12 @@ struct SessionDetailView: View {
 
 private struct MessageRow: View {
     let message: Message
+    @Environment(\.provider) private var provider
 
     var body: some View {
         HStack(alignment: .top, spacing: LumnoTheme.Spacing.md) {
             // Avatar
-            Text(message.role == .user ? "Y" : "L")
+            Text(message.role == .user ? "Y" : provider.assistantAvatarLetter)
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(message.role == .user ? LumnoTheme.Colors.textSecondary : LumnoTheme.Colors.accent)
                 .frame(width: 28, height: 28)
@@ -112,7 +113,7 @@ private struct MessageRow: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: LumnoTheme.Spacing.sm) {
-                    Text(message.role == .user ? "You" : "Claude")
+                    Text(message.role == .user ? "You" : provider.assistantName)
                         .font(LumnoTheme.Typography.smallBold)
                         .foregroundStyle(LumnoTheme.Colors.textTertiary)
 

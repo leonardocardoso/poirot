@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SidebarView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.provider) private var provider
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,7 +18,7 @@ struct SidebarView: View {
 
     private var navigationItems: some View {
         VStack(spacing: 2) {
-            ForEach(AppState.NavigationItem.allCases) { item in
+            ForEach(provider.navigationItems) { item in
                 @Bindable var state = appState
                 Button {
                     state.selectedNav = item
