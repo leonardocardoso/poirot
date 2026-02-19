@@ -1,0 +1,21 @@
+# format options
+--emptybraces spaced
+--ifdef no-indent
+--importgrouping testable-first
+--maxwidth 120
+--self remove
+--self init-only
+--stripunusedargs closure-only
+--wraparguments before-first
+--wrapcollections before-first
+--wrapparameters before-first
+--xcodeindentation enabled
+--swiftversion 6.0
+--funcattributes prev-line
+
+# rules
+--disable wrapMultilineStatementBraces
+--enable blankLinesBetweenImports, blockComments, isEmpty, redundantReturn, redundantSelf, redundantType, redundantRawValues, redundantPattern
+
+# file options
+--exclude DerivedData, **/*.generated.swift
