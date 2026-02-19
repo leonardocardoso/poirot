@@ -15,6 +15,7 @@
 		2C102F530BCAD366E45A7EFD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */; };
 		2CA4AC257A3F7676EB60C998 /* NavigationItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E4AE89141360C30111032E /* NavigationItemTests.swift */; };
 		2F23B4495167093840BBEE47 /* ProviderDescribing+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F47A84F9DCA0A367C74C7 /* ProviderDescribing+Defaults.swift */; };
+		3B19D69F6427207782F6F54F /* TranscriptParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */; };
 		3E5191E1C5473A9F9274EB24 /* ConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9601475B49F6C24ABAF3DE52 /* ConfigurationView.swift */; };
 		52D39E0E4B5C75B1B899B312 /* SessionLoading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59052D971EFD463145948C58 /* SessionLoading.swift */; };
 		55177286A7816A03D7AE7502 /* ProviderDescribing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457EB6CD3ED56881D688D414 /* ProviderDescribing.swift */; };
@@ -31,6 +32,7 @@
 		98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307731283D6CD473215E5410 /* ToolBlockView.swift */; };
 		AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B8CBA1726156160D0996CE /* LumnoTheme.swift */; };
 		AF8CE28964613DED136703EC /* SearchOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */; };
+		BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */; };
 		C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */; };
 		C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */; };
 		D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E876CA975AFA2E40B4DDBC14 /* HomeView.swift */; };
@@ -60,8 +62,10 @@
 		1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoApp.swift; sourceTree = "<group>"; };
 		28886CD412EB2A60FEE84B2A /* ToolDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefinition.swift; sourceTree = "<group>"; };
 		2CD9E9CAAA9AEFDC566F4F7B /* ConfigurationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationItem.swift; sourceTree = "<group>"; };
+		2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptParser.swift; sourceTree = "<group>"; };
 		3061A613C0DB1C8AA798712F /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		307731283D6CD473215E5410 /* ToolBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBlockView.swift; sourceTree = "<group>"; };
+		3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptParserTests.swift; sourceTree = "<group>"; };
 		3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		457EB6CD3ED56881D688D414 /* ProviderDescribing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDescribing.swift; sourceTree = "<group>"; };
 		4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoaderTests.swift; sourceTree = "<group>"; };
@@ -145,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */,
+				3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -258,6 +263,7 @@
 			children = (
 				84041BC9485193ED6A85E3D2 /* Environment+Services.swift */,
 				8D096AA43314CB12B527DD2D /* SessionLoader.swift */,
+				2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */,
 				1CE240ECC35BD2D230B140DD /* Providers */,
 			);
 			path = Services;
@@ -423,6 +429,7 @@
 				12B126ED93402658B44B5C95 /* ProjectTests.swift in Sources */,
 				C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */,
 				0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */,
+				BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,6 +462,7 @@
 				60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */,
 				98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */,
 				8AC8BC83CDF4EFC3359ECB55 /* ToolDefinition.swift in Sources */,
+				3B19D69F6427207782F6F54F /* TranscriptParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
