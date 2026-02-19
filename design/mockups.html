@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUMNO — Design Mockups</title>
+<style>
+  /* ========================================
+     LUMNO Design System
+     ======================================== */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    /* Background layers */
+    --bg-app: #0D0D0F;
+    --bg-sidebar: #141416;
+    --bg-content: #0D0D0F;
+    --bg-card: #1A1A1E;
+    --bg-card-hover: #222226;
+    --bg-input: #1A1A1E;
+    --bg-elevated: #222226;
+    --bg-code: #161618;
+
+    /* Accent — warm golden (lumno = light) */
+    --accent: #E8A642;
+    --accent-dim: rgba(232, 166, 66, 0.15);
+    --accent-hover: #F0B85A;
+
+    /* Text */
+    --text-primary: #F5F5F7;
+    --text-secondary: #8E8E93;
+    --text-tertiary: #636366;
+    --text-accent: #E8A642;
+
+    /* Borders */
+    --border: rgba(255, 255, 255, 0.06);
+    --border-subtle: rgba(255, 255, 255, 0.03);
+
+    /* Status */
+    --green: #32D74B;
+    --red: #FF453A;
+    --blue: #0A84FF;
+    --orange: #FF9F0A;
+
+    /* Diff colors */
+    --diff-add-bg: rgba(50, 215, 75, 0.1);
+    --diff-add-text: #32D74B;
+    --diff-remove-bg: rgba(255, 69, 58, 0.1);
+    --diff-remove-text: #FF453A;
+
+    /* Sizing */
+    --sidebar-width: 260px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0c;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    padding: 60px;
+  }
+
+  /* ========================================
+     Artboard Layout (Figma-like)
+     ======================================== */
+  .artboards {
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+    align-items: center;
+  }
+
+  .artboard-group {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .artboard-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .artboard {
+    width: 1280px;
+    height: 820px;
+    background: var(--bg-app);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ========================================
+     Window Chrome (macOS)
+     ======================================== */
+  .window-chrome {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 20px;
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border);
+    -webkit-app-region: drag;
+    flex-shrink: 0;
+  }
+
+  .traffic-lights {
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
+  }
+
+  .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .traffic-light.close { background: #FF5F57; }
+  .traffic-light.minimize { background: #FFBD2E; }
+  .traffic-light.maximize { background: #28C840; }
+
+  .window-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .window-title-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .window-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .window-btn {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .window-btn:hover { background: var(--bg-elevated); }
+  .window-btn svg { width: 14px; height: 14px; }
+
+  .window-btn-icon {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  /* ========================================
+     App Layout
+     ======================================== */
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ========================================
+     Sidebar
+     ======================================== */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+  .nav-item.active { background: var(--accent-dim); color: var(--text-accent); }
+
+  .nav-item svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active svg { opacity: 1; }
+
+  .sidebar-section {
+    padding: 16px 12px 8px;
+  }
+
+  .sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    margin-bottom: 8px;
+  }
+
+  .sidebar-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-section-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .sidebar-icon-btn {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+  }
+
+  .sidebar-icon-btn:hover { background: var(--bg-card); color: var(--text-secondary); }
+  .sidebar-icon-btn svg { width: 14px; height: 14px; }
+
+  .sidebar-sessions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .sidebar-project {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .sidebar-project-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .sidebar-project-name svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-tertiary);
+  }
+
+  .session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px 7px 32px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .session-item:hover { background: var(--bg-card); }
+  .session-item.active { background: var(--accent-dim); }
+
+  .session-item-title {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  .session-item.active .session-item-title { color: var(--text-accent); }
+
+  .session-item-time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-footer-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .sidebar-footer-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+  .sidebar-footer-btn svg { width: 16px; height: 16px; }
+
+  /* ========================================
+     Main Content
+     ======================================== */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-content);
+    overflow: hidden;
+  }
+
+  /* ========================================
+     Screen 1: Home / Empty State
+     ======================================== */
+  .home-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding-bottom: 80px;
+  }
+
+  .home-logo {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .home-logo-glow {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #D4872A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0D0D0F;
+    box-shadow: 0 0 40px rgba(232, 166, 66, 0.3);
+  }
+
+  .home-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .home-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .project-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 28px;
+  }
+
+  .project-selector:hover { background: var(--bg-card); }
+  .project-selector svg { width: 14px; height: 14px; }
+
+  .suggestion-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .suggestion-card {
+    width: 210px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .suggestion-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .suggestion-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .suggestion-icon.sessions { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
+  .suggestion-icon.search { background: rgba(232, 166, 66, 0.15); color: var(--accent); }
+  .suggestion-icon.config { background: rgba(50, 215, 75, 0.15); color: var(--green); }
+
+  .suggestion-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     Input Bar
+     ======================================== */
+  .input-bar-container {
+    padding: 0 24px 20px;
+  }
+
+  .input-bar {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    transition: border-color 0.2s;
+  }
+
+  .input-bar:focus-within { border-color: rgba(232, 166, 66, 0.3); }
+
+  .input-field {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+
+  .input-field::placeholder { color: var(--text-tertiary); }
+
+  .input-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .input-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .input-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: 1px solid var(--border);
+  }
+
+  .input-tag:hover { background: var(--bg-elevated); }
+  .input-tag svg { width: 12px; height: 12px; }
+
+  .model-tag {
+    color: var(--text-accent);
+    border-color: rgba(232, 166, 66, 0.2);
+    background: var(--accent-dim);
+  }
+
+  .input-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #0D0D0F;
+    transition: all 0.15s;
+  }
+
+  .send-btn:hover { background: var(--accent-hover); transform: scale(1.05); }
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .mic-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+  }
+
+  .mic-btn:hover { background: var(--bg-elevated); }
+  .mic-btn svg { width: 14px; height: 14px; }
+
+  /* ========================================
+     Status Bar (Bottom)
+     ======================================== */
+  .status-bar {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: var(--bg-sidebar);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .status-bar-left,
+  .status-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .status-item:hover { background: var(--bg-card); }
+  .status-item svg { width: 12px; height: 12px; }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  .status-dot.idle { background: var(--text-tertiary); }
+
+  /* ========================================
+     Screen 2: Session Detail
+     ======================================== */
+  .session-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .session-header {
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .session-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .session-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .session-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .model-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--accent-dim);
+    color: var(--text-accent);
+  }
+
+  .token-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: rgba(10, 132, 255, 0.1);
+    color: var(--blue);
+  }
+
+  .session-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Message blocks */
+  .message {
+    display: flex;
+    gap: 12px;
+    max-width: 820px;
+  }
+
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .message-avatar.user {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+  }
+
+  .message-avatar.assistant {
+    background: var(--accent-dim);
+    color: var(--text-accent);
+  }
+
+  .message-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .message-role {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .message-time {
+    font-weight: 400;
+    color: var(--text-tertiary);
+    font-size: 11px;
+  }
+
+  .message-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-primary);
+  }
+
+  .message-text p { margin-bottom: 8px; }
+
+  /* Tool/Command blocks */
+  .tool-block {
+    margin: 8px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .tool-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-elevated);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .tool-header svg { width: 14px; height: 14px; }
+
+  .tool-header .tool-badge {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(50, 215, 75, 0.1);
+    color: var(--green);
+    margin-left: auto;
+  }
+
+  .tool-body {
+    padding: 0;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--bg-code);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .code-line {
+    display: flex;
+    padding: 0 14px;
+    min-height: 22px;
+  }
+
+  .code-line-num {
+    width: 40px;
+    color: var(--text-tertiary);
+    text-align: right;
+    padding-right: 16px;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .code-line-content {
+    flex: 1;
+    white-space: pre;
+  }
+
+  /* Diff lines */
+  .code-line.added {
+    background: var(--diff-add-bg);
+  }
+
+  .code-line.added .code-line-content { color: var(--diff-add-text); }
+
+  .code-line.removed {
+    background: var(--diff-remove-bg);
+  }
+
+  .code-line.removed .code-line-content { color: var(--diff-remove-text); }
+
+  .diff-filename {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .diff-filename svg { width: 14px; height: 14px; color: var(--text-tertiary); }
+
+  /* Command inline */
+  .command-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin: 4px 0;
+  }
+
+  .command-inline:hover { border-color: var(--accent); }
+  .command-inline svg { width: 12px; height: 12px; color: var(--text-tertiary); }
+
+  /* ========================================
+     Screen 3: Configuration View
+     ======================================== */
+  .config-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+
+  .config-header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .config-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .config-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 800px;
+    padding: 24px 32px;
+  }
+
+  .config-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .config-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  .config-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .config-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .config-card-icon.skills { background: rgba(232, 166, 66, 0.15); color: var(--accent); }
+  .config-card-icon.commands { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
+  .config-card-icon.mcps { background: rgba(50, 215, 75, 0.15); color: var(--green); }
+  .config-card-icon.models { background: rgba(175, 82, 222, 0.15); color: #AF52DE; }
+  .config-card-icon.agents { background: rgba(255, 159, 10, 0.15); color: var(--orange); }
+  .config-card-icon.output { background: rgba(255, 69, 58, 0.15); color: var(--red); }
+
+  .config-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .config-card-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+    background: var(--bg-elevated);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .config-card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     Search Overlay
+     ======================================== */
+  .search-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 120px;
+    z-index: 100;
+  }
+
+  .search-modal {
+    width: 580px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-input-wrapper svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text-primary);
+  }
+
+  .search-input::placeholder { color: var(--text-tertiary); }
+
+  .search-kbd {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: inherit;
+  }
+
+  .search-results {
+    padding: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .search-result-group-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 10px 4px;
+  }
+
+  .search-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .search-result:hover { background: var(--bg-elevated); }
+  .search-result.selected { background: var(--accent-dim); }
+
+  .search-result-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+
+  .search-result-icon svg { width: 14px; height: 14px; }
+
+  .search-result-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+
+  .search-result-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .search-result-highlight {
+    color: var(--text-accent);
+    font-weight: 600;
+  }
+
+  /* ========================================
+     SVG Icons (inline)
+     ======================================== */
+  .icon { display: inline-flex; align-items: center; }
+</style>
+</head>
+<body>
+
+<div class="artboards">
+
+  <!-- ========================================
+       SCREEN 1: HOME / EMPTY STATE
+       ======================================== -->
+  <div class="artboard-group">
+    <div class="artboard-label">Screen 1 — Home / Welcome</div>
+    <div class="artboard">
+      <!-- Window Chrome -->
+      <div class="window-chrome">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light minimize"></div>
+          <div class="traffic-light maximize"></div>
+        </div>
+        <div class="window-title">
+          <span class="window-title-text">LUMNO</span>
+        </div>
+        <div class="window-actions">
+          <button class="window-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3v10"/></svg>
+            New Session
+          </button>
+          <button class="window-btn-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M11.5 11.5L14 14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-nav">
+            <div class="nav-item active">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+              Sessions
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+              Commands
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+              Skills
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+              Configuration
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <span class="sidebar-section-title">Projects</span>
+              <div class="sidebar-section-actions">
+                <div class="sidebar-icon-btn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3v10"/></svg>
+                </div>
+                <div class="sidebar-icon-btn">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-sessions">
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                lumno
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Set up project structure</span>
+                <span class="session-item-time">2m</span>
+              </div>
+            </div>
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                ignio
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Fix daily security audit workflow</span>
+                <span class="session-item-time">11h</span>
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Add rate limiting to API</span>
+                <span class="session-item-time">1d</span>
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Refactor auth middleware</span>
+                <span class="session-item-time">2d</span>
+              </div>
+            </div>
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                reellette-ios
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Improve search performance</span>
+                <span class="session-item-time">3d</span>
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Split Discover and Catalog</span>
+                <span class="session-item-time">5d</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-footer-btn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 6v4M6 8h4"/></svg>
+              Settings
+            </div>
+            <div class="sidebar-footer-btn" style="color: var(--text-accent);">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l2 4 4.5.5-3.25 3.5.75 4.5L8 12.5 3.75 14.5l.75-4.5L1.25 6.5 5.75 6z"/></svg>
+              v0.1.0
+            </div>
+          </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main-content">
+          <div class="home-center">
+            <div class="home-logo">
+              <div class="home-logo-glow">L</div>
+            </div>
+            <div class="home-title">Your Claude Code companion</div>
+            <div class="home-subtitle">Browse sessions, explore diffs, re-run commands</div>
+            <div class="project-selector">
+              All Projects
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7l3 3 3-3"/></svg>
+            </div>
+            <div class="suggestion-cards">
+              <div class="suggestion-card">
+                <div class="suggestion-icon sessions">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.5l2.5 1.5"/></svg>
+                </div>
+                <div class="suggestion-text">Browse your latest coding sessions across all projects</div>
+              </div>
+              <div class="suggestion-card">
+                <div class="suggestion-icon search">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </div>
+                <div class="suggestion-text">Search across all conversations, commands, and file changes</div>
+              </div>
+              <div class="suggestion-card">
+                <div class="suggestion-icon config">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+                </div>
+                <div class="suggestion-text">Manage your skills, MCPs, and slash commands</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-bar-container">
+            <div class="input-bar">
+              <input type="text" class="input-field" placeholder="Search sessions, run commands, or ask anything...   ⌘K">
+              <div class="input-controls">
+                <div class="input-controls-left">
+                  <div class="input-tag model-tag">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l2 4 4.5.5-3.25 3.5.75 4.5L8 12.5 3.75 14.5l.75-4.5L1.25 6.5 5.75 6z"/></svg>
+                    Opus 4
+                  </div>
+                  <div class="input-tag">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3v10"/></svg>
+                    Attach
+                  </div>
+                  <div class="input-tag">
+                    /
+                    Commands
+                  </div>
+                </div>
+                <div class="input-controls-right">
+                  <button class="mic-btn">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="2" width="5" height="8" rx="2.5"/><path d="M3 8a5 5 0 0010 0M8 13v2"/></svg>
+                  </button>
+                  <button class="send-btn">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13V3l10 5z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-bar-left">
+          <div class="status-item">
+            <div class="status-dot"></div>
+            Claude Code active
+          </div>
+          <div class="status-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+            lumno
+          </div>
+        </div>
+        <div class="status-bar-right">
+          <div class="status-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3h3l2 2h7v8z"/></svg>
+            ~/Dev/git/business/lumno
+          </div>
+          <div class="status-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c3-6 9-6 12 0-3 6-9 6-12 0z"/><circle cx="8" cy="8" r="2"/></svg>
+            main
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       SCREEN 2: SESSION DETAIL
+       ======================================== -->
+  <div class="artboard-group">
+    <div class="artboard-label">Screen 2 — Session Detail</div>
+    <div class="artboard">
+      <!-- Window Chrome -->
+      <div class="window-chrome">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light minimize"></div>
+          <div class="traffic-light maximize"></div>
+        </div>
+        <div class="window-title">
+          <span class="window-title-text">LUMNO</span>
+          <span style="color: var(--text-tertiary); font-size: 12px;">›</span>
+          <span class="window-title-text" style="color: var(--text-primary);">Fix daily security audit workflow</span>
+        </div>
+        <div class="window-actions">
+          <button class="window-btn">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+            Open in VSCode
+          </button>
+          <button class="window-btn-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="4" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-nav">
+            <div class="nav-item active">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+              Sessions
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+              Commands
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+              Skills
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+              Configuration
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <span class="sidebar-section-title">Projects</span>
+            </div>
+          </div>
+
+          <div class="sidebar-sessions">
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                ignio
+              </div>
+              <div class="session-item active">
+                <span class="session-item-title">Fix daily security audit workflow</span>
+                <span class="session-item-time">11h</span>
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Add rate limiting to API</span>
+                <span class="session-item-time">1d</span>
+              </div>
+              <div class="session-item">
+                <span class="session-item-title">Refactor auth middleware</span>
+                <span class="session-item-time">2d</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-footer-btn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 6v4M6 8h4"/></svg>
+              Settings
+            </div>
+          </div>
+        </div>
+
+        <!-- Main: Session Detail -->
+        <div class="main-content">
+          <div class="session-header">
+            <div class="session-header-left">
+              <div class="session-header-title">Fix daily security audit workflow</div>
+              <div class="session-header-meta">
+                <span class="model-badge">Opus 4</span>
+                <span class="token-badge">42.3k tokens</span>
+                <span>11 hours ago · 14 turns</span>
+              </div>
+            </div>
+            <div class="session-header-right">
+              <button class="window-btn" style="font-size: 11px;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;"><path d="M4 12l8-8M12 4v4M12 4H8"/></svg>
+                Resume
+              </button>
+              <button class="window-btn-icon" title="Re-run all commands">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0112 0M14 8a6 6 0 01-12 0"/><path d="M14 3v5h-5"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="session-content">
+            <!-- User message -->
+            <div class="message">
+              <div class="message-avatar user">Y</div>
+              <div class="message-body">
+                <div class="message-role">You <span class="message-time">11:24 AM</span></div>
+                <div class="message-text">
+                  The daily security audit GitHub Action is failing. It runs a cron job at midnight but the workflow file has a syntax error. Can you fix it?
+                </div>
+              </div>
+            </div>
+
+            <!-- Assistant message -->
+            <div class="message">
+              <div class="message-avatar assistant">L</div>
+              <div class="message-body">
+                <div class="message-role">Claude <span class="message-time">11:24 AM</span></div>
+                <div class="message-text">
+                  <p>I'll look at the workflow file and fix the syntax error.</p>
+                </div>
+
+                <!-- Tool: Read file -->
+                <div class="tool-block">
+                  <div class="tool-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 2v4h4"/></svg>
+                    Read .github/workflows/security-audit.yml
+                    <span class="tool-badge">Done</span>
+                  </div>
+                </div>
+
+                <!-- Tool: Edit file with diff -->
+                <div class="tool-block">
+                  <div class="tool-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+                    Edit .github/workflows/security-audit.yml
+                    <span class="tool-badge">Done</span>
+                  </div>
+                  <div class="tool-body">
+                    <div class="diff-filename">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/></svg>
+                      .github/workflows/security-audit.yml
+                    </div>
+                    <div class="code-block">
+                      <div class="code-line">
+                        <span class="code-line-num">12</span>
+                        <span class="code-line-content">on:</span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num">13</span>
+                        <span class="code-line-content">  schedule:</span>
+                      </div>
+                      <div class="code-line removed">
+                        <span class="code-line-num">14</span>
+                        <span class="code-line-content">-   - cron: '0 0 * * *'</span>
+                      </div>
+                      <div class="code-line added">
+                        <span class="code-line-num">14</span>
+                        <span class="code-line-content">+    - cron: '0 0 * * *'</span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num">15</span>
+                        <span class="code-line-content">  workflow_dispatch:</span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num">16</span>
+                        <span class="code-line-content"></span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num">17</span>
+                        <span class="code-line-content">jobs:</span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num">18</span>
+                        <span class="code-line-content">  audit:</span>
+                      </div>
+                      <div class="code-line removed">
+                        <span class="code-line-num">19</span>
+                        <span class="code-line-content">-   runs-on: ubuntu-latest</span>
+                      </div>
+                      <div class="code-line added">
+                        <span class="code-line-num">19</span>
+                        <span class="code-line-content">+    runs-on: ubuntu-latest</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tool: Bash command -->
+                <div class="tool-block">
+                  <div class="tool-header">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2-2 2M9 11h3"/></svg>
+                    Bash
+                    <span class="tool-badge">Done</span>
+                  </div>
+                  <div class="tool-body">
+                    <div class="code-block">
+                      <div class="code-line">
+                        <span class="code-line-num"></span>
+                        <span class="code-line-content" style="color: var(--text-tertiary);">$ </span><span class="code-line-content" style="color: var(--text-primary);">cd /Users/leo/Dev/ignio && actionlint .github/workflows/security-audit.yml</span>
+                      </div>
+                      <div class="code-line">
+                        <span class="code-line-num"></span>
+                        <span class="code-line-content" style="color: var(--green);">✓ No errors found</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-text" style="margin-top: 8px;">
+                  <p>Fixed the indentation issues in the workflow file. The <code style="background: var(--bg-code); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">schedule</code> trigger and <code style="background: var(--bg-code); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">runs-on</code> had incorrect YAML indentation (3 spaces instead of 4). The linter confirms the fix.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Re-run hint -->
+            <div style="display: flex; gap: 8px; margin-left: 40px;">
+              <div class="command-inline">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0112 0M14 8a6 6 0 01-12 0"/><path d="M14 3v5h-5"/></svg>
+                Re-run: actionlint
+              </div>
+              <div class="command-inline">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="8" height="8" rx="1"/><path d="M6 10h8v-8"/></svg>
+                Copy diff
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <div class="status-bar-left">
+              <div class="status-item">
+                <div class="status-dot idle"></div>
+                Session ended
+              </div>
+              <div class="status-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                ignio
+              </div>
+            </div>
+            <div class="status-bar-right">
+              <div class="status-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V3h3l2 2h7v8z"/></svg>
+                ~/Dev/git/business/ignio
+              </div>
+              <div class="status-item">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c3-6 9-6 12 0-3 6-9 6-12 0z"/><circle cx="8" cy="8" r="2"/></svg>
+                main
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       SCREEN 3: CONFIGURATION DASHBOARD
+       ======================================== -->
+  <div class="artboard-group">
+    <div class="artboard-label">Screen 3 — Configuration Dashboard</div>
+    <div class="artboard">
+      <!-- Window Chrome -->
+      <div class="window-chrome">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light minimize"></div>
+          <div class="traffic-light maximize"></div>
+        </div>
+        <div class="window-title">
+          <span class="window-title-text">LUMNO</span>
+          <span style="color: var(--text-tertiary); font-size: 12px;">›</span>
+          <span class="window-title-text" style="color: var(--text-primary);">Configuration</span>
+        </div>
+        <div class="window-actions">
+          <button class="window-btn-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M11.5 11.5L14 14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-nav">
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+              Sessions
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+              Commands
+            </div>
+            <div class="nav-item">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v5M5.5 8h5"/></svg>
+              Skills
+            </div>
+            <div class="nav-item active">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.5 2.5L13.5 5.5 5.5 13.5H2.5V10.5Z"/></svg>
+              Configuration
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <span class="sidebar-section-title">Projects</span>
+            </div>
+          </div>
+
+          <div class="sidebar-sessions">
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                lumno
+              </div>
+            </div>
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                ignio
+              </div>
+            </div>
+            <div class="sidebar-project">
+              <div class="sidebar-project-name">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5l6-3 6 3v6l-6 3-6-3z"/></svg>
+                reellette-ios
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-footer-btn">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 6v4M6 8h4"/></svg>
+              Settings
+            </div>
+          </div>
+        </div>
+
+        <!-- Main: Config -->
+        <div class="main-content">
+          <div class="config-header">
+            <div class="config-title">Configuration</div>
+            <div class="config-subtitle">Manage your Claude Code skills, commands, MCPs, and preferences</div>
+          </div>
+
+          <div class="config-grid">
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon skills">⚡</div>
+                <div class="config-card-title">Skills</div>
+                <div class="config-card-count">8 active</div>
+              </div>
+              <div class="config-card-desc">Custom skills and automation workflows for Claude Code sessions</div>
+            </div>
+
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon commands">/</div>
+                <div class="config-card-title">Slash Commands</div>
+                <div class="config-card-count">12 available</div>
+              </div>
+              <div class="config-card-desc">Quick commands for common operations like worktrees, PRs, and tasks</div>
+            </div>
+
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon mcps">🔌</div>
+                <div class="config-card-title">MCP Servers</div>
+                <div class="config-card-count">5 connected</div>
+              </div>
+              <div class="config-card-desc">Connected services — GitHub, Notion, Figma, Sentry, Perplexity</div>
+            </div>
+
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon models">🧠</div>
+                <div class="config-card-title">Models</div>
+                <div class="config-card-count">Opus 4</div>
+              </div>
+              <div class="config-card-desc">Select default model, configure per-project preferences</div>
+            </div>
+
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon agents">🤖</div>
+                <div class="config-card-title">Sub-agents</div>
+                <div class="config-card-count">4 types</div>
+              </div>
+              <div class="config-card-desc">Configure Explore, Plan, Bash, and General-purpose agents</div>
+            </div>
+
+            <div class="config-card">
+              <div class="config-card-header">
+                <div class="config-card-icon output">🔊</div>
+                <div class="config-card-title">Output Styles</div>
+                <div class="config-card-count">TTS ready</div>
+              </div>
+              <div class="config-card-desc">Text-to-speech with ElevenLabs, output formatting, and display options</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-bar-left">
+          <div class="status-item">
+            <div class="status-dot"></div>
+            Claude Code active
+          </div>
+        </div>
+        <div class="status-bar-right">
+          <div class="status-item">5 MCP servers connected</div>
+          <div class="status-item">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8c3-6 9-6 12 0-3 6-9 6-12 0z"/><circle cx="8" cy="8" r="2"/></svg>
+            main
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================
+       SCREEN 4: FUZZY SEARCH OVERLAY
+       ======================================== -->
+  <div class="artboard-group">
+    <div class="artboard-label">Screen 4 — Fuzzy Search (⌘K)</div>
+    <div class="artboard">
+      <!-- Window Chrome -->
+      <div class="window-chrome">
+        <div class="traffic-lights">
+          <div class="traffic-light close"></div>
+          <div class="traffic-light minimize"></div>
+          <div class="traffic-light maximize"></div>
+        </div>
+        <div class="window-title">
+          <span class="window-title-text">LUMNO</span>
+        </div>
+      </div>
+
+      <div class="app-body" style="position: relative;">
+        <!-- Sidebar (dimmed) -->
+        <div class="sidebar" style="opacity: 0.3;">
+          <div class="sidebar-nav">
+            <div class="nav-item active">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+              Sessions
+            </div>
+          </div>
+        </div>
+
+        <div class="main-content" style="position: relative;">
+          <!-- Search Overlay -->
+          <div class="search-overlay">
+            <div class="search-modal">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                <input type="text" class="search-input" placeholder="Search sessions, commands, files..." value="security audit">
+                <span class="search-kbd">ESC</span>
+              </div>
+              <div class="search-results">
+                <div class="search-result-group-title">Sessions</div>
+                <div class="search-result selected">
+                  <div class="search-result-icon">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+                  </div>
+                  <div class="search-result-text">Fix daily <span class="search-result-highlight">security audit</span> workflow</div>
+                  <div class="search-result-meta">ignio · 11h</div>
+                </div>
+                <div class="search-result">
+                  <div class="search-result-icon">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12"/></svg>
+                  </div>
+                  <div class="search-result-text">Add <span class="search-result-highlight">security</span> headers to API</div>
+                  <div class="search-result-meta">ignio · 5d</div>
+                </div>
+
+                <div class="search-result-group-title">Commands</div>
+                <div class="search-result">
+                  <div class="search-result-icon">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2-2 2M9 11h3"/></svg>
+                  </div>
+                  <div class="search-result-text">actionlint .github/workflows/<span class="search-result-highlight">security</span>-<span class="search-result-highlight">audit</span>.yml</div>
+                  <div class="search-result-meta">Bash · 11h</div>
+                </div>
+
+                <div class="search-result-group-title">Files Changed</div>
+                <div class="search-result">
+                  <div class="search-result-icon">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/></svg>
+                  </div>
+                  <div class="search-result-text">.github/workflows/<span class="search-result-highlight">security</span>-<span class="search-result-highlight">audit</span>.yml</div>
+                  <div class="search-result-meta">2 changes · 11h</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-bar-left">
+          <div class="status-item">
+            <div class="status-dot"></div>
+            Claude Code active
+          </div>
+        </div>
+        <div class="status-bar-right"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

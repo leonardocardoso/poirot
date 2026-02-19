@@ -1,0 +1,1 @@
+../orchestration-partner/commands/validate-agents.md

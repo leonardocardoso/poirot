@@ -1,0 +1,35 @@
+name: Lumno
+options:
+  bundleIdPrefix: com.lumno
+  deploymentTarget:
+    macOS: "15.0"
+  xcodeVersion: "26.1"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: true
+
+targets:
+  Lumno:
+    type: application
+    platform: macOS
+    sources:
+      - path: Lumno/Sources
+    resources:
+      - path: Lumno/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lumno.app
+        PRODUCT_NAME: Lumno
+        INFOPLIST_KEY_CFBundleDisplayName: Lumno
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: 1
+        GENERATE_INFOPLIST_FILE: true
+        CODE_SIGN_ENTITLEMENTS: Lumno/Resources/Lumno.entitlements
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2025 Leonardo Cardoso"
