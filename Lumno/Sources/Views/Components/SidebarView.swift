@@ -268,31 +268,153 @@ private struct ProjectRow: View {
             .padding(.horizontal, LumnoTheme.Spacing.md)
 
             ForEach(project.sessions) { session in
-                @Bindable
-                var state = appState
-                Button {
-                    state.selectedNav = .sessions
-                    state.selectedSession = session
-                } label: {
-                    HStack {
-                        Text(session.title)
-                            .lineLimit(1)
-                            .font(LumnoTheme.Typography.caption)
-
-                        Spacer()
-
-                        Text(session.timeAgo)
-                            .font(LumnoTheme.Typography.tiny)
-                            .foregroundStyle(LumnoTheme.Colors.textTertiary)
-                    }
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, LumnoTheme.Spacing.md)
-                    .padding(.leading, LumnoTheme.Spacing.lg)
-                }
-                .buttonStyle(SessionItemButtonStyle(isActive: appState.selectedSession == session))
+                SessionRow(session: session)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Session Row
+
+private struct SessionRow: View {
+    let session: Session
+    @Environment(AppState.self)
+    private var appState
+    @State
+    private var isHovered = false
+    @State
+    private var isMenuPresented = false
+    @State
+    private var isConfirmingDelete = false
+
+    var body: some View {
+        @Bindable
+        var state = appState
+        Button {
+            state.selectedNav = .sessions
+            state.selectedSession = session
+        } label: {
+            HStack {
+                Text(session.title)
+                    .lineLimit(1)
+                    .font(LumnoTheme.Typography.caption)
+
+                Spacer()
+
+                if isHovered || isMenuPresented {
+                    sessionMenu
+                        .transition(.opacity)
+                } else {
+                    Text(session.timeAgo)
+                        .font(LumnoTheme.Typography.tiny)
+                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                }
+            }
+            .padding(.vertical, 5)
+            .padding(.horizontal, LumnoTheme.Spacing.md)
+            .padding(.leading, LumnoTheme.Spacing.lg)
+        }
+        .buttonStyle(SessionItemButtonStyle(isActive: appState.selectedSession == session))
+        .onHover { hovering in
+            isHovered = hovering
+            if !hovering, !isMenuPresented {
+                isConfirmingDelete = false
+            }
+        }
+    }
+
+    private var sessionMenu: some View {
+        Button {
+            isMenuPresented = true
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                        .fill(LumnoTheme.Colors.bgCard)
+                )
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $isMenuPresented, arrowEdge: .trailing) {
+            VStack(alignment: .leading, spacing: 2) {
+                if isConfirmingDelete {
+                    PopoverMenuItem(
+                        label: "Confirm",
+                        systemImage: "checkmark",
+                        foreground: LumnoTheme.Colors.red
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            appState.deleteSession(session)
+                        }
+                        isMenuPresented = false
+                        isConfirmingDelete = false
+                    }
+                } else {
+                    if let url = session.fileURL {
+                        PopoverMenuItem(
+                            label: "Reveal in Finder",
+                            systemImage: "folder"
+                        ) {
+                            NSWorkspace.shared.activateFileViewerSelecting([url])
+                            isMenuPresented = false
+                        }
+
+                        Divider()
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                    }
+
+                    PopoverMenuItem(
+                        label: "Delete",
+                        systemImage: "trash",
+                        foreground: LumnoTheme.Colors.textSecondary
+                    ) {
+                        isConfirmingDelete = true
+                    }
+                }
+            }
+            .padding(6)
+            .frame(width: 150)
+        }
+        .onChange(of: isMenuPresented) { _, presented in
+            if !presented {
+                isConfirmingDelete = false
+            }
+        }
+    }
+}
+
+// MARK: - Popover Menu Item
+
+private struct PopoverMenuItem: View {
+    let label: String
+    let systemImage: String
+    var foreground: Color = LumnoTheme.Colors.textSecondary
+    let action: () -> Void
+
+    @State
+    private var isItemHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Label(label, systemImage: systemImage)
+                .font(LumnoTheme.Typography.caption)
+                .foregroundStyle(foreground)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                        .fill(isItemHovered ? LumnoTheme.Colors.bgCardHover : .clear)
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isItemHovered = $0 }
     }
 }
 

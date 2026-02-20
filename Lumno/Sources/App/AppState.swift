@@ -72,4 +72,27 @@ final class AppState {
     func clearCache() {
         sessionCache.removeAll()
     }
+
+    func deleteSession(_ session: Session) {
+        // Remove the file
+        if let url = session.fileURL {
+            try? FileManager.default.removeItem(at: url)
+        }
+
+        // Clear selection if needed
+        if selectedSession == session {
+            selectedSession = nil
+        }
+
+        // Remove from cache
+        sessionCache.removeValue(forKey: session.id)
+
+        // Remove from projects
+        projects = projects.compactMap { project in
+            let remaining = project.sessions.filter { $0.id != session.id }
+            if remaining.isEmpty { return nil }
+            if remaining.count == project.sessions.count { return project }
+            return Project(id: project.id, name: project.name, path: project.path, sessions: remaining)
+        }
+    }
 }
