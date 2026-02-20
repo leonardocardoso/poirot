@@ -200,8 +200,44 @@ nonisolated struct SessionLoader: SessionLoading {
     }
 
     private func decodeProjectPath(_ encoded: String) -> String {
-        let decoded = "/" + encoded.replacingOccurrences(of: "-", with: "/")
-        return (decoded as NSString).lastPathComponent
+        let fm = FileManager.default
+
+        // Tokens from the encoded name (skip leading empty from the leading dash)
+        let tokens = encoded.split(separator: "-", omittingEmptySubsequences: false).map(String.init)
+        let parts = tokens.first?.isEmpty == true ? Array(tokens.dropFirst()) : tokens
+
+        guard !parts.isEmpty else { return encoded }
+
+        // Greedily reconstruct the real path by probing the filesystem.
+        // At each position, try increasingly longer hyphenated segments
+        // and pick the longest that exists as a directory on disk.
+        var resolvedPath = ""
+        var i = 0
+
+        while i < parts.count {
+            var bestEnd = -1
+
+            for j in i ..< parts.count {
+                let candidate = parts[i ... j].joined(separator: "-")
+                let testPath = resolvedPath + "/" + candidate
+
+                var isDir: ObjCBool = false
+                if fm.fileExists(atPath: testPath, isDirectory: &isDir), isDir.boolValue {
+                    bestEnd = j
+                }
+            }
+
+            if bestEnd >= 0 {
+                resolvedPath += "/" + parts[i ... bestEnd].joined(separator: "-")
+                i = bestEnd + 1
+            } else {
+                // Remaining tokens form the last component (may no longer exist on disk)
+                resolvedPath += "/" + parts[i...].joined(separator: "-")
+                break
+            }
+        }
+
+        return (resolvedPath as NSString).lastPathComponent
     }
 }
 
