@@ -30,6 +30,11 @@ final class AppState {
     var refreshID: UUID = .init()
     private(set) var sessionCache: [String: Session] = [:]
 
+    var currentProject: Project? {
+        guard let id = selectedProject else { return nil }
+        return projects.first { $0.id == id }
+    }
+
     var filteredSortedProjects: [Project] {
         let nonEmpty = projects.filter { !$0.sessions.isEmpty }
         let searched: [Project]

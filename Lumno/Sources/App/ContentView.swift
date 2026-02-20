@@ -126,6 +126,9 @@ struct ContentView: View {
                     SessionDetailView(session: session)
                         .transition(.opacity)
                 }
+            } else if let project = appState.currentProject {
+                ProjectSessionsView(project: project)
+                    .transition(.opacity)
             } else {
                 HomeView()
             }

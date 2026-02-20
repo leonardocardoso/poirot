@@ -145,6 +145,7 @@ nonisolated struct TranscriptParser {
         let maxLines = 50
 
         var firstUserText: String?
+        var firstAssistantText: String?
         var earliestTimestamp: Date?
 
         outer: while let data = try? handle.read(upToCount: chunkSize), !data.isEmpty {
@@ -168,8 +169,9 @@ nonisolated struct TranscriptParser {
 
                 if record["isSidechain"] as? Bool == true { continue }
 
+                let message = record["message"] as? [String: Any] ?? [:]
+
                 if type == "assistant" {
-                    let message = record["message"] as? [String: Any] ?? [:]
                     if message["model"] as? String == "<synthetic>" { continue }
                 }
 
@@ -180,7 +182,6 @@ nonisolated struct TranscriptParser {
                 }
 
                 if type == "user", firstUserText == nil {
-                    let message = record["message"] as? [String: Any] ?? [:]
                     let content = message["content"]
                     if let str = content as? String, !str.isEmpty {
                         firstUserText = str
@@ -189,7 +190,13 @@ nonisolated struct TranscriptParser {
                     }
                 }
 
-                if firstUserText != nil, earliestTimestamp != nil { break outer }
+                if type == "assistant", firstAssistantText == nil {
+                    if let array = message["content"] as? [[String: Any]] {
+                        firstAssistantText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                    }
+                }
+
+                if firstUserText != nil, firstAssistantText != nil, earliestTimestamp != nil { break outer }
             }
 
             if data.count < chunkSize { break }
@@ -206,6 +213,7 @@ nonisolated struct TranscriptParser {
             totalTokens: 0,
             fileURL: fileURL,
             cachedTitle: firstUserText,
+            cachedPreview: firstAssistantText,
             cachedTurnCount: nil
         )
     }

@@ -9,6 +9,7 @@ nonisolated struct Session: Identifiable, Hashable {
     let totalTokens: Int
     let fileURL: URL?
     let cachedTitle: String?
+    let cachedPreview: String?
     let cachedTurnCount: Int?
 
     init(
@@ -20,6 +21,7 @@ nonisolated struct Session: Identifiable, Hashable {
         totalTokens: Int,
         fileURL: URL? = nil,
         cachedTitle: String? = nil,
+        cachedPreview: String? = nil,
         cachedTurnCount: Int? = nil
     ) {
         self.id = id
@@ -30,6 +32,7 @@ nonisolated struct Session: Identifiable, Hashable {
         self.totalTokens = totalTokens
         self.fileURL = fileURL
         self.cachedTitle = cachedTitle
+        self.cachedPreview = cachedPreview
         self.cachedTurnCount = cachedTurnCount
     }
 
@@ -39,6 +42,10 @@ nonisolated struct Session: Identifiable, Hashable {
 
     var title: String {
         cachedTitle ?? messages.first(where: { $0.role == .user })?.textContent ?? "Untitled session"
+    }
+
+    var preview: String? {
+        cachedPreview ?? messages.first(where: { $0.role == .assistant })?.textContent
     }
 
     var turnCount: Int {
