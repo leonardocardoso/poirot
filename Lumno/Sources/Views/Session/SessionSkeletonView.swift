@@ -16,12 +16,12 @@ struct SessionSkeletonView: View {
     private var headerSkeleton: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                skeletonRect(width: 220, height: 16)
+                skeletonRect(width: 340, height: 16)
 
                 HStack(spacing: LumnoTheme.Spacing.sm) {
-                    skeletonRect(width: 80, height: 18, radius: 4)
-                    skeletonRect(width: 90, height: 18, radius: 4)
-                    skeletonRect(width: 120, height: 14)
+                    skeletonRect(width: 100, height: 18, radius: 4)
+                    skeletonRect(width: 110, height: 18, radius: 4)
+                    skeletonRect(width: 140, height: 14)
                 }
             }
 
@@ -41,8 +41,12 @@ struct SessionSkeletonView: View {
     private var messagesSkeleton: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: LumnoTheme.Spacing.xl) {
-                ForEach(0 ..< 5, id: \.self) { index in
+                ForEach(0 ..< 8, id: \.self) { index in
                     messageRowSkeleton(index: index)
+
+                    if index == 1 || index == 3 {
+                        toolBlockSkeleton()
+                    }
                 }
             }
             .padding(LumnoTheme.Spacing.xxxl)
@@ -71,22 +75,32 @@ struct SessionSkeletonView: View {
         .frame(maxWidth: 820, alignment: .leading)
     }
 
+    private func toolBlockSkeleton() -> some View {
+        skeletonRect(height: 44, radius: LumnoTheme.Radius.md)
+            .frame(maxWidth: 820)
+            .padding(.leading, 40)
+    }
+
     // MARK: - Helpers
 
-    private func skeletonRect(width: CGFloat, height: CGFloat, radius: CGFloat = 6) -> some View {
+    private func skeletonRect(width: CGFloat? = nil, height: CGFloat, radius: CGFloat = 6) -> some View {
         RoundedRectangle(cornerRadius: radius)
             .fill(LumnoTheme.Colors.bgCard)
             .frame(width: width, height: height)
+            .frame(maxWidth: width == nil ? .infinity : nil)
             .shimmer()
     }
 
     private static func lineWidthsForIndex(_ index: Int) -> [CGFloat] {
         switch index {
-        case 0: [320, 280]
-        case 1: [400, 350, 180]
-        case 2: [260, 300]
-        case 3: [380, 340, 220]
-        default: [300, 260]
+        case 0: [520, 380]
+        case 1: [700, 620, 340]
+        case 2: [460, 540]
+        case 3: [660, 580, 420]
+        case 4: [500, 440]
+        case 5: [720, 640, 300]
+        case 6: [480, 560]
+        default: [620, 540, 380]
         }
     }
 }
