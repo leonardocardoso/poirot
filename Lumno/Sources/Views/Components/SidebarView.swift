@@ -9,6 +9,7 @@ struct SidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             navigationItems
+            sidebarSearchBar
             projectsList
             Spacer()
             footer
@@ -35,6 +36,41 @@ struct SidebarView: View {
         .padding(LumnoTheme.Spacing.md)
     }
 
+    // MARK: - Search Bar
+
+    private var sidebarSearchBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+
+            @Bindable
+            var state = appState
+            TextField("Search projects...", text: $state.sidebarSearchQuery)
+                .textFieldStyle(.plain)
+                .font(LumnoTheme.Typography.caption)
+                .foregroundStyle(LumnoTheme.Colors.textPrimary)
+
+            if !appState.sidebarSearchQuery.isEmpty {
+                Button {
+                    appState.sidebarSearchQuery = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                .fill(LumnoTheme.Colors.bgCard)
+        )
+        .padding(.horizontal, LumnoTheme.Spacing.md)
+    }
+
     // MARK: - Projects List
 
     private var projectsList: some View {
@@ -45,6 +81,18 @@ struct SidebarView: View {
                     .foregroundStyle(LumnoTheme.Colors.textTertiary)
                     .tracking(0.5)
 
+                if !appState.isLoadingProjects {
+                    Text("\(appState.filteredSortedProjects.count)")
+                        .font(LumnoTheme.Typography.tiny)
+                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule()
+                                .fill(LumnoTheme.Colors.bgCard)
+                        )
+                }
+
                 if appState.isLoadingMoreProjects {
                     ProgressView()
                         .controlSize(.mini)
@@ -53,6 +101,7 @@ struct SidebarView: View {
 
                 Spacer()
 
+                refreshButton
                 sortMenu
             }
             .padding(.horizontal, LumnoTheme.Spacing.md)
@@ -63,17 +112,32 @@ struct SidebarView: View {
                         .transition(.opacity)
                 } else {
                     LazyVStack(alignment: .leading, spacing: 2) {
-                        ForEach(appState.sortedProjects) { project in
+                        ForEach(appState.filteredSortedProjects) { project in
                             ProjectRow(project: project)
                         }
                     }
                     .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.3), value: appState.sortedProjects.map(\.id))
+                    .animation(.easeInOut(duration: 0.3), value: appState.filteredSortedProjects.map(\.id))
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: appState.isLoadingProjects)
         }
         .padding(.top, LumnoTheme.Spacing.lg)
+    }
+
+    // MARK: - Refresh Button
+
+    private var refreshButton: some View {
+        Button {
+            appState.refreshID = UUID()
+        } label: {
+            Image(systemName: "arrow.clockwise")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                .symbolEffect(.rotate, value: appState.isLoadingMoreProjects)
+        }
+        .buttonStyle(.plain)
+        .disabled(appState.isLoadingMoreProjects)
     }
 
     // MARK: - Sort Menu
@@ -189,11 +253,19 @@ private struct ProjectRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Label(project.name, systemImage: "shippingbox")
-                .font(LumnoTheme.Typography.captionMedium)
-                .foregroundStyle(LumnoTheme.Colors.textPrimary)
-                .padding(.vertical, 4)
-                .padding(.horizontal, LumnoTheme.Spacing.md)
+            HStack {
+                Label(project.name, systemImage: "shippingbox")
+                    .font(LumnoTheme.Typography.captionMedium)
+                    .foregroundStyle(LumnoTheme.Colors.textPrimary)
+
+                Spacer()
+
+                Text("\(project.sessions.count)")
+                    .font(LumnoTheme.Typography.tiny)
+                    .foregroundStyle(LumnoTheme.Colors.textTertiary)
+            }
+            .padding(.vertical, 4)
+            .padding(.horizontal, LumnoTheme.Spacing.md)
 
             ForEach(project.sessions) { session in
                 @Bindable

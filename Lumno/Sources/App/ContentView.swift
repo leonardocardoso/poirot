@@ -19,7 +19,7 @@ struct ContentView: View {
                 SearchOverlayView()
             }
         }
-        .task {
+        .task(id: appState.refreshID) {
             await loadProjectsInBatches()
         }
         .keyboardShortcut(for: .search) {
@@ -62,6 +62,10 @@ struct ContentView: View {
     // MARK: - Batch Loading
 
     private func loadProjectsInBatches() async {
+        appState.projects.removeAll()
+        appState.isLoadingProjects = true
+        appState.isLoadingMoreProjects = true
+
         do {
             // Phase 1: fast directory scan off main thread
             let directories = try await Task.detached {
