@@ -41,11 +41,15 @@ nonisolated struct Session: Identifiable, Hashable {
     }
 
     var title: String {
-        cachedTitle ?? messages.first(where: { $0.role == .user })?.textContent ?? String(localized: "Untitled session")
+        let raw = cachedTitle
+            ?? messages.first(where: { $0.role == .user })?.textContent
+            ?? String(localized: "Untitled session")
+        return raw.strippingXMLTags()
     }
 
     var preview: String? {
-        cachedPreview ?? messages.first(where: { $0.role == .assistant })?.textContent
+        let raw = cachedPreview ?? messages.first(where: { $0.role == .assistant })?.textContent
+        return raw?.strippingXMLTags()
     }
 
     var turnCount: Int {
@@ -64,5 +68,19 @@ nonisolated struct Session: Identifiable, Hashable {
 
     static func == (lhs: Session, rhs: Session) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+// MARK: - Helpers
+
+nonisolated private extension String {
+    nonisolated(unsafe) static let xmlTagRegex = try? NSRegularExpression(pattern: "<[^>]+>")
+
+    func strippingXMLTags() -> String {
+        guard let regex = Self.xmlTagRegex else { return self }
+        let range = NSRange(startIndex..., in: self)
+        let stripped = regex.stringByReplacingMatches(in: self, range: range, withTemplate: "")
+        let trimmed = stripped.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? self : trimmed
     }
 }
