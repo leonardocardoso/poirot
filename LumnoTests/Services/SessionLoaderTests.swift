@@ -382,12 +382,12 @@ struct SessionLoaderTests {
     }
 
     @Test
-    func discoverProjects_fallbackPath_usesParsesSummary() throws {
+    func discoverProjects_fallbackPath_usesHeaderParse() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
         let sessionId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-        // No index — forces fallback path
+        // No index — forces fallback path (header-only parse)
         try makeProjectWithJSONL(
             in: tmpDir,
             projectDirName: "test-project",
@@ -400,7 +400,6 @@ struct SessionLoaderTests {
         let session = projects[0].sessions[0]
         #expect(session.messages.isEmpty)
         #expect(session.title == "Fallback title")
-        #expect(session.turnCount == 1)
         #expect(session.fileURL != nil)
     }
 }

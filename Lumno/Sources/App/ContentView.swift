@@ -72,6 +72,7 @@ struct ContentView: View {
 
             // Phase 2: build projects in batches, yielding to UI between each
             let batchSize = 5
+            var isFirstBatch = true
             for batchStart in stride(from: 0, to: directories.count, by: batchSize) {
                 let batchEnd = min(batchStart + batchSize, directories.count)
                 let batch = Array(directories[batchStart ..< batchEnd])
@@ -82,6 +83,10 @@ struct ContentView: View {
 
                 withAnimation(.easeInOut(duration: 0.3)) {
                     appState.projects.append(contentsOf: projects)
+                    if isFirstBatch {
+                        appState.isLoadingProjects = false
+                        isFirstBatch = false
+                    }
                 }
 
                 if batchEnd < directories.count {
@@ -92,8 +97,10 @@ struct ContentView: View {
             print("Failed to load projects: \(error)")
         }
 
-        withAnimation(.easeInOut(duration: 0.3)) {
-            appState.isLoadingProjects = false
+        if appState.isLoadingProjects {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                appState.isLoadingProjects = false
+            }
         }
     }
 

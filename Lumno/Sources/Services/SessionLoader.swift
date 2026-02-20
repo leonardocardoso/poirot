@@ -149,11 +149,10 @@ nonisolated struct SessionLoader: SessionLoading {
         var sessions: [Session] = []
         for item in jsonlFiles {
             let stem = item.deletingPathExtension().lastPathComponent
-            if let session = parser.parseSummary(
+            if let session = parser.parseHeader(
                 fileURL: item,
                 projectPath: projectPath,
-                sessionId: stem,
-                indexStartedAt: nil
+                sessionId: stem
             ) {
                 sessions.append(session)
             }

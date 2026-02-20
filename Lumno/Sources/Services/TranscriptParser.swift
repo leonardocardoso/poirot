@@ -129,6 +129,87 @@ nonisolated struct TranscriptParser {
         )
     }
 
+    // MARK: - Header Parse (fast — reads only first lines)
+
+    func parseHeader(
+        fileURL: URL,
+        projectPath: String,
+        sessionId: String
+    ) -> Session? {
+        guard let handle = try? FileHandle(forReadingFrom: fileURL) else { return nil }
+        defer { try? handle.close() }
+
+        let chunkSize = 8192
+        var buffer = ""
+        var linesProcessed = 0
+        let maxLines = 50
+
+        var firstUserText: String?
+        var earliestTimestamp: Date?
+
+        outer: while let data = try? handle.read(upToCount: chunkSize), !data.isEmpty {
+            guard let chunk = String(data: data, encoding: .utf8) else { break }
+            buffer += chunk
+
+            while let newlineRange = buffer.range(of: "\n") {
+                let line = String(buffer[buffer.startIndex ..< newlineRange.lowerBound])
+                buffer = String(buffer[newlineRange.upperBound...])
+                linesProcessed += 1
+
+                if linesProcessed > maxLines { break outer }
+                guard !line.isEmpty,
+                      let lineData = line.data(using: .utf8),
+                      let record = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any]
+                else { continue }
+
+                guard let type = record["type"] as? String,
+                      type == "user" || type == "assistant"
+                else { continue }
+
+                if record["isSidechain"] as? Bool == true { continue }
+
+                if type == "assistant" {
+                    let message = record["message"] as? [String: Any] ?? [:]
+                    if message["model"] as? String == "<synthetic>" { continue }
+                }
+
+                if let ts = parseTimestamp(record["timestamp"]) {
+                    if earliestTimestamp == nil || ts < earliestTimestamp! {
+                        earliestTimestamp = ts
+                    }
+                }
+
+                if type == "user", firstUserText == nil {
+                    let message = record["message"] as? [String: Any] ?? [:]
+                    let content = message["content"]
+                    if let str = content as? String, !str.isEmpty {
+                        firstUserText = str
+                    } else if let array = content as? [[String: Any]] {
+                        firstUserText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                    }
+                }
+
+                if firstUserText != nil, earliestTimestamp != nil { break outer }
+            }
+
+            if data.count < chunkSize { break }
+        }
+
+        guard firstUserText != nil || earliestTimestamp != nil else { return nil }
+
+        return Session(
+            id: sessionId,
+            projectPath: projectPath,
+            messages: [],
+            startedAt: earliestTimestamp ?? Date.distantPast,
+            model: nil,
+            totalTokens: 0,
+            fileURL: fileURL,
+            cachedTitle: firstUserText,
+            cachedTurnCount: nil
+        )
+    }
+
     // MARK: - Summary Parse
 
     func parseSummary(
