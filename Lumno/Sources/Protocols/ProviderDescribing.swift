@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftMockKit
+import SwiftUI
 
 @Mockable
 protocol ProviderDescribing {

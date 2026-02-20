@@ -1,8 +1,7 @@
 import Foundation
 
-struct TranscriptParser {
-
-    private let dateFormatter: ISO8601DateFormatter = {
+nonisolated struct TranscriptParser {
+    nonisolated(unsafe) private let dateFormatter: ISO8601DateFormatter = {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return fmt

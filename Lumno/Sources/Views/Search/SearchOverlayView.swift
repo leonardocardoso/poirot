@@ -1,9 +1,12 @@
 import SwiftUI
 
 struct SearchOverlayView: View {
-    @Environment(AppState.self) private var appState
-    @State private var query = ""
-    @FocusState private var isFocused: Bool
+    @Environment(AppState.self)
+    private var appState
+    @State
+    private var query = ""
+    @FocusState
+    private var isFocused: Bool
 
     var body: some View {
         ZStack {
@@ -103,7 +106,8 @@ struct SearchOverlayView: View {
     }
 
     private func dismiss() {
-        @Bindable var state = appState
+        @Bindable
+        var state = appState
         state.isSearchPresented = false
     }
 }

@@ -18,9 +18,12 @@ struct SettingsView: View {
 }
 
 private struct GeneralSettingsView: View {
-    @Environment(\.provider) private var provider
-    @AppStorage("textEditor") private var textEditor = "code"
-    @AppStorage("claudeCodePath") private var claudeCodePath = "/usr/local/bin/claude"
+    @Environment(\.provider)
+    private var provider
+    @AppStorage("textEditor")
+    private var textEditor = "code"
+    @AppStorage("claudeCodePath")
+    private var claudeCodePath = "/usr/local/bin/claude"
 
     var body: some View {
         Form {
@@ -37,7 +40,8 @@ private struct GeneralSettingsView: View {
 }
 
 private struct AppearanceSettingsView: View {
-    @AppStorage("showAnimations") private var showAnimations = true
+    @AppStorage("showAnimations")
+    private var showAnimations = true
 
     var body: some View {
         Form {

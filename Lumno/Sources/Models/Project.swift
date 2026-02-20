@@ -1,6 +1,6 @@
 import Foundation
 
-struct Project: Identifiable, Hashable {
+nonisolated struct Project: Identifiable, Hashable {
     let id: String
     let name: String
     let path: String

@@ -1,10 +1,9 @@
-import Testing
-import Foundation
 @testable import Lumno
+import Foundation
+import Testing
 
 @Suite("SessionLoader")
 struct SessionLoaderTests {
-
     // MARK: - Helpers
 
     private func makeTempProjectDir() throws -> URL {
@@ -42,7 +41,7 @@ struct SessionLoaderTests {
             "uuid": UUID().uuidString,
             "timestamp": timestamp,
             "isSidechain": false,
-            "message": ["role": "user", "content": content]
+            "message": ["role": "user", "content": content],
         ]
         let data = try! JSONSerialization.data(withJSONObject: record) // swiftlint:disable:this force_try
         return String(data: data, encoding: .utf8)!
@@ -66,8 +65,8 @@ struct SessionLoaderTests {
                 "role": "assistant",
                 "model": model,
                 "content": [["type": "text", "text": text]],
-                "usage": ["input_tokens": inputTokens, "output_tokens": outputTokens]
-            ] as [String: Any]
+                "usage": ["input_tokens": inputTokens, "output_tokens": outputTokens],
+            ] as [String: Any],
         ]
         let data = try! JSONSerialization.data(withJSONObject: record) // swiftlint:disable:this force_try
         return String(data: data, encoding: .utf8)!
@@ -81,19 +80,21 @@ struct SessionLoaderTests {
     ) -> String {
         [
             userRecord(content: userText, timestamp: userTimestamp),
-            assistantRecord(text: assistantText, timestamp: assistantTimestamp)
+            assistantRecord(text: assistantText, timestamp: assistantTimestamp),
         ].joined(separator: "\n")
     }
 
     // MARK: - Original Tests
 
-    @Test func discoverProjects_nonExistentPath_returnsEmpty() throws {
+    @Test
+    func discoverProjects_nonExistentPath_returnsEmpty() throws {
         let loader = SessionLoader(claudeProjectsPath: "/nonexistent/path/\(UUID().uuidString)")
         let projects = try loader.discoverProjects()
         #expect(projects.isEmpty)
     }
 
-    @Test func discoverProjects_emptyDirectory_returnsEmpty() throws {
+    @Test
+    func discoverProjects_emptyDirectory_returnsEmpty() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -102,7 +103,8 @@ struct SessionLoaderTests {
         #expect(projects.isEmpty)
     }
 
-    @Test func discoverProjects_withSubdirectories_returnsProjects() throws {
+    @Test
+    func discoverProjects_withSubdirectories_returnsProjects() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -124,7 +126,8 @@ struct SessionLoaderTests {
         #expect(names.contains("beta"))
     }
 
-    @Test func discoverProjects_skipsFiles_onlyIncludesDirectories() throws {
+    @Test
+    func discoverProjects_skipsFiles_onlyIncludesDirectories() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -145,7 +148,8 @@ struct SessionLoaderTests {
 
     // MARK: - JSONL Parsing Integration
 
-    @Test func discoverProjects_withJSONLFiles_parsesSessions() throws {
+    @Test
+    func discoverProjects_withJSONLFiles_parsesSessions() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -170,7 +174,8 @@ struct SessionLoaderTests {
         #expect(session.fileURL != nil)
     }
 
-    @Test func discoverProjects_skipsAgentFiles() throws {
+    @Test
+    func discoverProjects_skipsAgentFiles() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -190,7 +195,8 @@ struct SessionLoaderTests {
         #expect(projects[0].sessions[0].id == validId)
     }
 
-    @Test func discoverProjects_sessionsSortedDescending() throws {
+    @Test
+    func discoverProjects_sessionsSortedDescending() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -215,7 +221,8 @@ struct SessionLoaderTests {
         #expect(sessions[1].id == oldId)
     }
 
-    @Test func discoverProjects_usesOriginalPathFromIndex() throws {
+    @Test
+    func discoverProjects_usesOriginalPathFromIndex() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -255,7 +262,8 @@ struct SessionLoaderTests {
         #expect(session.fileURL != nil)
     }
 
-    @Test func discoverProjects_withMissingIndex_usesFallback() throws {
+    @Test
+    func discoverProjects_withMissingIndex_usesFallback() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -272,7 +280,8 @@ struct SessionLoaderTests {
         #expect(projects[0].name == "app")
     }
 
-    @Test func discoverProjects_emptyJSONLFile_producesNoSession() throws {
+    @Test
+    func discoverProjects_emptyJSONLFile_producesNoSession() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -290,7 +299,8 @@ struct SessionLoaderTests {
 
     // MARK: - Index Fast Path
 
-    @Test func discoverProjects_indexPath_skipsSidechainEntries() throws {
+    @Test
+    func discoverProjects_indexPath_skipsSidechainEntries() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -339,7 +349,8 @@ struct SessionLoaderTests {
         #expect(projects[0].sessions[0].id == mainId)
     }
 
-    @Test func discoverProjects_indexPath_limitsTo20Sessions() throws {
+    @Test
+    func discoverProjects_indexPath_limitsTo20Sessions() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -348,14 +359,14 @@ struct SessionLoaderTests {
 
         // Create 25 sessions via index
         var entries: [[String: Any]] = []
-        for i in 0..<25 {
+        for i in 0 ..< 25 {
             let sessionId = String(format: "00000000-0000-0000-0000-%012d", i)
             let created = String(format: "2026-01-%02dT10:00:00.000Z", i + 1)
             entries.append([
                 "sessionId": sessionId,
                 "created": created,
                 "isSidechain": false,
-                "projectPath": "/test/project"
+                "projectPath": "/test/project",
             ])
             let jsonlFile = projectDir.appendingPathComponent("\(sessionId).jsonl")
             try simpleJSONL(userTimestamp: created).write(to: jsonlFile, atomically: true, encoding: .utf8)
@@ -370,7 +381,8 @@ struct SessionLoaderTests {
         #expect(projects[0].sessions.count == 20)
     }
 
-    @Test func discoverProjects_fallbackPath_usesParsesSummary() throws {
+    @Test
+    func discoverProjects_fallbackPath_usesParsesSummary() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 

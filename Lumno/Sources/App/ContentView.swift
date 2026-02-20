@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(AppState.self) private var appState
-    @Environment(\.sessionLoader) private var sessionLoader
+    @Environment(AppState.self)
+    private var appState
+    @Environment(\.sessionLoader)
+    private var sessionLoader
 
     var body: some View {
         NavigationSplitView {
@@ -10,6 +12,7 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 300)
         } detail: {
             detailView
+                .animation(.easeInOut(duration: 0.25), value: appState.isLoadingSession)
         }
         .overlay {
             if appState.isSearchPresented {
@@ -17,11 +20,7 @@ struct ContentView: View {
             }
         }
         .task {
-            do {
-                appState.projects = try sessionLoader.discoverProjects()
-            } catch {
-                print("Failed to load projects: \(error)")
-            }
+            await loadProjectsInBatches()
         }
         .keyboardShortcut(for: .search) {
             appState.isSearchPresented.toggle()
@@ -31,26 +30,87 @@ struct ContentView: View {
                   session.messages.isEmpty,
                   let url = session.fileURL
             else { return }
+
+            if let cached = appState.cachedSession(for: session.id) {
+                appState.selectedSession = cached
+                return
+            }
+
+            appState.isLoadingSession = true
+            let projectPath = session.projectPath
+            let sessionId = session.id
+            let startedAt = session.startedAt
             Task {
-                let parser = TranscriptParser()
-                if let full = parser.parse(
-                    fileURL: url,
-                    projectPath: session.projectPath,
-                    sessionId: session.id,
-                    indexStartedAt: session.startedAt
-                ) {
+                let full = await Task.detached {
+                    TranscriptParser().parse(
+                        fileURL: url,
+                        projectPath: projectPath,
+                        sessionId: sessionId,
+                        indexStartedAt: startedAt
+                    )
+                }.value
+
+                if let full {
+                    appState.cacheSession(full)
                     appState.selectedSession = full
                 }
+                appState.isLoadingSession = false
             }
         }
     }
+
+    // MARK: - Batch Loading
+
+    private func loadProjectsInBatches() async {
+        do {
+            // Phase 1: fast directory scan off main thread
+            let directories = try await Task.detached {
+                try SessionLoader.projectDirectoryURLs(
+                    at: SessionLoader().claudeProjectsPath
+                )
+            }.value
+
+            // Phase 2: build projects in batches, yielding to UI between each
+            let batchSize = 5
+            for batchStart in stride(from: 0, to: directories.count, by: batchSize) {
+                let batchEnd = min(batchStart + batchSize, directories.count)
+                let batch = Array(directories[batchStart ..< batchEnd])
+
+                let projects = await Task.detached {
+                    batch.compactMap { SessionLoader.loadProject(at: $0) }
+                }.value
+
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    appState.projects.append(contentsOf: projects)
+                }
+
+                if batchEnd < directories.count {
+                    try? await Task.sleep(for: .milliseconds(50))
+                }
+            }
+        } catch {
+            print("Failed to load projects: \(error)")
+        }
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            appState.isLoadingProjects = false
+        }
+    }
+
+    // MARK: - Detail
 
     @ViewBuilder
     private var detailView: some View {
         switch appState.selectedNav.id {
         case NavigationItem.sessions.id:
-            if let session = appState.selectedSession {
-                SessionDetailView(session: session)
+            if appState.selectedSession != nil {
+                if appState.isLoadingSession {
+                    SessionSkeletonView()
+                        .transition(.opacity)
+                } else if let session = appState.selectedSession {
+                    SessionDetailView(session: session)
+                        .transition(.opacity)
+                }
             } else {
                 HomeView()
             }
@@ -67,7 +127,7 @@ struct ContentView: View {
 
 private extension View {
     func keyboardShortcut(for shortcut: KeyEquivalent, action: @escaping () -> Void) -> some View {
-        self.background {
+        background {
             Button("") { action() }
                 .keyboardShortcut(shortcut, modifiers: .command)
                 .hidden()
@@ -75,7 +135,7 @@ private extension View {
     }
 
     func keyboardShortcut(for shortcut: SearchShortcut, action: @escaping () -> Void) -> some View {
-        self.background {
+        background {
             Button("") { action() }
                 .keyboardShortcut("k", modifiers: .command)
                 .hidden()

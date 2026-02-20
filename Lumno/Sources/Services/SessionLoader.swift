@@ -1,7 +1,7 @@
 import Foundation
 
 /// Loads Claude Code session transcripts from ~/.claude/projects/
-struct SessionLoader: SessionLoading {
+nonisolated struct SessionLoader: SessionLoading {
     let claudeProjectsPath: String
 
     init(claudeProjectsPath: String? = nil) {
@@ -33,6 +33,33 @@ struct SessionLoader: SessionLoading {
         }
     }
 
+    // MARK: - Incremental Loading
+
+    /// Returns project directory URLs — lightweight, no JSONL parsing
+    nonisolated static func projectDirectoryURLs(at path: String) throws -> [URL] {
+        let fm = FileManager.default
+        let projectsURL = URL(fileURLWithPath: path)
+
+        guard fm.fileExists(atPath: projectsURL.path) else { return [] }
+
+        let contents = try fm.contentsOfDirectory(
+            at: projectsURL,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        )
+
+        return contents.filter { url in
+            var isDir: ObjCBool = false
+            return fm.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+        }
+    }
+
+    /// Builds a single project from a directory URL — does file I/O
+    nonisolated static func loadProject(at directoryURL: URL) -> Project? {
+        let loader = SessionLoader()
+        return loader.buildProject(at: directoryURL)
+    }
+
     // MARK: - Private
 
     private static let defaultPath: String = {
@@ -44,7 +71,7 @@ struct SessionLoader: SessionLoading {
         pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     )
 
-    private static let dateFormatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let dateFormatter: ISO8601DateFormatter = {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return fmt
@@ -179,7 +206,7 @@ struct SessionLoader: SessionLoading {
     }
 }
 
-private struct SessionsIndex {
+nonisolated private struct SessionsIndex {
     let originalPath: String?
     let entries: [Entry]
 

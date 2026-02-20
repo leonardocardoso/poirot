@@ -12,10 +12,12 @@
 --xcodeindentation enabled
 --swiftversion 6.0
 --funcattributes prev-line
+--typeattributes prev-line
+--varattributes prev-line
 
 # rules
---disable wrapMultilineStatementBraces
---enable blankLinesBetweenImports, blockComments, isEmpty, redundantReturn, redundantSelf, redundantType, redundantRawValues, redundantPattern
+--disable modifierOrder, wrapMultilineStatementBraces
+--enable blankLinesBetweenImports, blockComments, isEmpty, redundantReturn, redundantSelf, redundantType, redundantRawValues, redundantPattern, wrapAttributes
 
 # file options
 --exclude DerivedData, **/*.generated.swift

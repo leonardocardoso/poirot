@@ -1,6 +1,6 @@
 import Foundation
 
-struct Session: Identifiable, Hashable {
+nonisolated struct Session: Identifiable, Hashable {
     let id: String
     let projectPath: String
     let messages: [Message]
@@ -45,8 +45,10 @@ struct Session: Identifiable, Hashable {
         cachedTurnCount ?? messages.filter { $0.role == .user }.count
     }
 
+    nonisolated(unsafe) private static let relativeDateFormatter = RelativeDateTimeFormatter()
+
     var timeAgo: String {
-        RelativeDateTimeFormatter().localizedString(for: startedAt, relativeTo: .now)
+        Self.relativeDateFormatter.localizedString(for: startedAt, relativeTo: .now)
     }
 
     func hash(into hasher: inout Hasher) {

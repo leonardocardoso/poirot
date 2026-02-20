@@ -54,7 +54,7 @@ struct SessionDetailView: View {
             Spacer()
 
             HStack(spacing: 6) {
-                Button {} label: {
+                Button { } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.uturn.forward")
                             .font(.system(size: 10))
@@ -86,6 +86,7 @@ struct SessionDetailView: View {
             LazyVStack(alignment: .leading, spacing: LumnoTheme.Spacing.xl) {
                 ForEach(session.messages) { message in
                     MessageRow(message: message)
+                        .equatable()
                 }
             }
             .padding(LumnoTheme.Spacing.xxxl)
@@ -95,9 +96,14 @@ struct SessionDetailView: View {
 
 // MARK: - Message Row
 
-private struct MessageRow: View {
+private struct MessageRow: View, Equatable {
     let message: Message
-    @Environment(\.provider) private var provider
+    @Environment(\.provider)
+    private var provider
+
+    static func == (lhs: MessageRow, rhs: MessageRow) -> Bool {
+        lhs.message == rhs.message
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: LumnoTheme.Spacing.md) {
@@ -130,6 +136,7 @@ private struct MessageRow: View {
 
                 ForEach(message.toolBlocks) { tool in
                     ToolBlockView(tool: tool)
+                        .equatable()
                 }
             }
         }

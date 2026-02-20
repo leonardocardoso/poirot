@@ -2,7 +2,8 @@ import SwiftUI
 
 struct StatusBarView: View {
     var isSessionEnded: Bool = false
-    @Environment(\.provider) private var provider
+    @Environment(\.provider)
+    private var provider
 
     var body: some View {
         HStack {
