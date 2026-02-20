@@ -4,18 +4,26 @@ struct ProjectSessionsView: View {
     let project: Project
     @Environment(AppState.self)
     private var appState
+    @State
+    private var isRevealed = false
 
-    private let columns = [
-        GridItem(.flexible(), spacing: LumnoTheme.Spacing.lg),
-        GridItem(.flexible(), spacing: LumnoTheme.Spacing.lg),
+    private let gridColumns = [
+        GridItem(.adaptive(minimum: 280), spacing: LumnoTheme.Spacing.lg),
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            sessionsGrid
+            sessionsContent
         }
         .background(LumnoTheme.Colors.bgApp)
+        .task(id: project.id) {
+            isRevealed = false
+            try? await Task.sleep(for: .milliseconds(50))
+            withAnimation(.easeOut(duration: 0.4)) {
+                isRevealed = true
+            }
+        }
     }
 
     // MARK: - Header
@@ -26,11 +34,13 @@ struct ProjectSessionsView: View {
                 .font(LumnoTheme.Typography.title)
                 .foregroundStyle(LumnoTheme.Colors.textPrimary)
 
-            Text("\(project.sessions.count) sessions")
+            Text("\(project.sessions.count) \(project.sessions.count == 1 ? "session" : "sessions")")
                 .font(LumnoTheme.Typography.caption)
                 .foregroundStyle(LumnoTheme.Colors.textTertiary)
 
             Spacer()
+
+            layoutToggle
         }
         .padding(.horizontal, LumnoTheme.Spacing.xxl)
         .padding(.top, LumnoTheme.Spacing.xl)
@@ -40,13 +50,43 @@ struct ProjectSessionsView: View {
         }
     }
 
-    // MARK: - Sessions Grid
+    private var layoutToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                appState.sessionLayout = appState.sessionLayout == .grid ? .list : .grid
+            }
+        } label: {
+            Image(systemName: appState.sessionLayout == .grid ? "list.bullet" : "square.grid.2x2")
+                .font(.system(size: 13))
+                .foregroundStyle(LumnoTheme.Colors.textSecondary)
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Sessions Content
+
+    @ViewBuilder
+    private var sessionsContent: some View {
+        if appState.sessionLayout == .grid {
+            sessionsGrid
+        } else {
+            sessionsList
+        }
+    }
+
+    // MARK: - Grid
 
     private var sessionsGrid: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: LumnoTheme.Spacing.lg) {
-                ForEach(project.sessions) { session in
+            LazyVGrid(columns: gridColumns, spacing: LumnoTheme.Spacing.lg) {
+                ForEach(Array(project.sessions.enumerated()), id: \.element.id) { index, session in
                     SessionCard(session: session)
+                        .shimmerReveal(
+                            isRevealed: isRevealed,
+                            delay: Double(min(index, 7)) * 0.04,
+                            cornerRadius: LumnoTheme.Radius.md
+                        )
                 }
             }
             .padding(.horizontal, LumnoTheme.Spacing.xxl)
@@ -54,9 +94,26 @@ struct ProjectSessionsView: View {
             .padding(.bottom, LumnoTheme.Spacing.xxl)
         }
     }
+
+    // MARK: - List
+
+    private var sessionsList: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(project.sessions.enumerated()), id: \.element.id) { index, session in
+                    SessionListRow(session: session)
+                        .shimmerReveal(
+                            isRevealed: isRevealed,
+                            delay: Double(min(index, 9)) * 0.03
+                        )
+                }
+            }
+            .padding(.horizontal, LumnoTheme.Spacing.xxl)
+        }
+    }
 }
 
-// MARK: - Session Card
+// MARK: - Session Card (Grid)
 
 private struct SessionCard: View {
     let session: Session
@@ -84,13 +141,13 @@ private struct SessionCard: View {
                     Text(preview)
                         .font(LumnoTheme.Typography.caption)
                         .foregroundStyle(LumnoTheme.Colors.textSecondary)
-                        .lineLimit(2)
+                        .lineLimit(4)
                         .multilineTextAlignment(.leading)
                 }
 
                 Spacer(minLength: 0)
 
-                footer
+                cardFooter
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
@@ -114,9 +171,7 @@ private struct SessionCard: View {
         .onHover { isHovered = $0 }
     }
 
-    // MARK: - Footer
-
-    private var footer: some View {
+    private var cardFooter: some View {
         HStack(spacing: LumnoTheme.Spacing.sm) {
             if let model = session.model {
                 badge(formatModel(model), fg: LumnoTheme.Colors.accent, bg: LumnoTheme.Colors.accentDim)
@@ -139,8 +194,6 @@ private struct SessionCard: View {
         }
     }
 
-    // MARK: - Badge
-
     private func badge(_ text: String, fg: Color, bg: Color) -> some View {
         Text(text)
             .font(LumnoTheme.Typography.tiny)
@@ -151,8 +204,6 @@ private struct SessionCard: View {
                 Capsule().fill(bg)
             )
     }
-
-    // MARK: - Formatters
 
     private func formatTokens(_ count: Int) -> String {
         if count >= 1000 {
@@ -179,5 +230,67 @@ private struct SessionCard: View {
         }
 
         return model
+    }
+}
+
+// MARK: - Session List Row
+
+private struct SessionListRow: View {
+    let session: Session
+    @Environment(AppState.self)
+    private var appState
+    @State
+    private var isHovered = false
+
+    private var isSelected: Bool {
+        appState.selectedSession == session
+    }
+
+    var body: some View {
+        Button {
+            appState.selectedSession = session
+        } label: {
+            HStack(spacing: LumnoTheme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: LumnoTheme.Spacing.xs) {
+                    Text(session.title)
+                        .font(LumnoTheme.Typography.bodyMedium)
+                        .foregroundStyle(LumnoTheme.Colors.textPrimary)
+                        .lineLimit(1)
+
+                    if let preview = session.preview {
+                        Text(preview)
+                            .font(LumnoTheme.Typography.caption)
+                            .foregroundStyle(LumnoTheme.Colors.textSecondary)
+                            .lineLimit(2)
+                    }
+                }
+
+                Spacer(minLength: 0)
+
+                Text(session.timeAgo)
+                    .font(LumnoTheme.Typography.tiny)
+                    .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                    .layoutPriority(1)
+            }
+            .padding(.vertical, LumnoTheme.Spacing.md)
+            .padding(.horizontal, LumnoTheme.Spacing.md)
+        }
+        .buttonStyle(.plain)
+        .background(
+            RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                .fill(
+                    isSelected
+                        ? LumnoTheme.Colors.accentDim
+                        : isHovered
+                            ? LumnoTheme.Colors.bgCardHover
+                            : .clear
+                )
+        )
+        .onHover { isHovered = $0 }
+        .overlay(alignment: .bottom) {
+            Divider()
+                .foregroundStyle(LumnoTheme.Colors.border)
+                .padding(.leading, LumnoTheme.Spacing.md)
+        }
     }
 }

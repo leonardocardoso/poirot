@@ -12,8 +12,9 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 300)
         } detail: {
             detailView
-                .animation(.easeInOut(duration: 0.25), value: appState.isLoadingSession)
+                .animation(.easeOut(duration: 0.35), value: appState.isLoadingSession)
         }
+        .frame(minWidth: 900, minHeight: 600)
         .id(appState.fontScale)
         .overlay {
             if appState.isSearchPresented {
