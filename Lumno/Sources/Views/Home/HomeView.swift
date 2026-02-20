@@ -88,6 +88,8 @@ struct HomeView: View {
                     text: "Manage your skills, MCPs, and slash commands"
                 )
             }
+            .frame(maxWidth: 720)
+            .padding(.horizontal, LumnoTheme.Spacing.xxl)
         }
     }
 
@@ -170,7 +172,7 @@ private struct SuggestionCard: View {
                 .foregroundStyle(LumnoTheme.Colors.textSecondary)
                 .lineLimit(3)
         }
-        .frame(width: 210, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(LumnoTheme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)

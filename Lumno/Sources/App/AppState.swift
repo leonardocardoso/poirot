@@ -1,6 +1,11 @@
 import Observation
 import SwiftUI
 
+enum SessionLayout: String {
+    case grid
+    case list
+}
+
 enum ProjectSortOption: String, CaseIterable {
     case recentActivity
     case name
@@ -35,6 +40,18 @@ final class AppState {
     var isLoadingProjects: Bool = true
     var isLoadingMoreProjects: Bool = true
     var isLoadingSession: Bool = false
+    var sessionLayout: SessionLayout = {
+        if let stored = UserDefaults.standard.string(forKey: "sessionLayout"),
+           let layout = SessionLayout(rawValue: stored) {
+            return layout
+        }
+        return .grid
+    }() {
+        didSet {
+            UserDefaults.standard.set(sessionLayout.rawValue, forKey: "sessionLayout")
+        }
+    }
+
     var projectSortOption: ProjectSortOption = .recentActivity
     var sidebarSearchQuery: String = ""
     var refreshID: UUID = .init()

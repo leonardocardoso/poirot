@@ -39,4 +39,37 @@ extension View {
     func shimmer() -> some View {
         modifier(ShimmerModifier())
     }
+
+    func shimmerReveal(isRevealed: Bool, delay: Double = 0, cornerRadius: CGFloat = 0) -> some View {
+        modifier(ShimmerRevealModifier(isRevealed: isRevealed, delay: delay, cornerRadius: cornerRadius))
+    }
+}
+
+// MARK: - Shimmer Reveal
+
+struct ShimmerRevealModifier: ViewModifier {
+    let isRevealed: Bool
+    var delay: Double = 0
+    var cornerRadius: CGFloat = 0
+
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if !reduceMotion {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(LumnoTheme.Colors.bgCard)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .strokeBorder(LumnoTheme.Colors.border, lineWidth: 1)
+                        )
+                        .shimmer()
+                        .opacity(isRevealed ? 0 : 1)
+                        .animation(.easeOut(duration: 0.35).delay(delay), value: isRevealed)
+                        .allowsHitTesting(false)
+                }
+            }
+    }
 }

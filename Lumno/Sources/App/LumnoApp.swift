@@ -11,6 +11,7 @@ struct LumnoApp: App {
                 .environment(appState)
         }
         .windowStyle(.titleBar)
+        .windowResizability(.contentMinSize)
         .defaultSize(width: 1280, height: 820)
         .commands {
             CommandGroup(after: .textFormatting) {
