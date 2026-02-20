@@ -102,6 +102,10 @@ struct ContentView: View {
                 appState.isLoadingProjects = false
             }
         }
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            appState.isLoadingMoreProjects = false
+        }
     }
 
     // MARK: - Detail

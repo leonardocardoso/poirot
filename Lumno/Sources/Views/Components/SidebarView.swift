@@ -38,16 +38,22 @@ struct SidebarView: View {
     // MARK: - Projects List
 
     private var projectsList: some View {
-        let filteredProjects = appState.projects.filter { !$0.sessions.isEmpty }
-
-        return VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {
-            HStack {
+        VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {
+            HStack(spacing: LumnoTheme.Spacing.sm) {
                 Text("PROJECTS")
                     .font(LumnoTheme.Typography.sectionHeader)
                     .foregroundStyle(LumnoTheme.Colors.textTertiary)
                     .tracking(0.5)
 
+                if appState.isLoadingMoreProjects {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .tint(LumnoTheme.Colors.textTertiary)
+                }
+
                 Spacer()
+
+                sortMenu
             }
             .padding(.horizontal, LumnoTheme.Spacing.md)
 
@@ -57,17 +63,44 @@ struct SidebarView: View {
                         .transition(.opacity)
                 } else {
                     LazyVStack(alignment: .leading, spacing: 2) {
-                        ForEach(filteredProjects) { project in
+                        ForEach(appState.sortedProjects) { project in
                             ProjectRow(project: project)
                         }
                     }
                     .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.3), value: filteredProjects.map(\.id))
+                    .animation(.easeInOut(duration: 0.3), value: appState.sortedProjects.map(\.id))
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: appState.isLoadingProjects)
         }
         .padding(.top, LumnoTheme.Spacing.lg)
+    }
+
+    // MARK: - Sort Menu
+
+    private var sortMenu: some View {
+        Menu {
+            ForEach(ProjectSortOption.allCases, id: \.self) { option in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        appState.projectSortOption = option
+                    }
+                } label: {
+                    if appState.projectSortOption == option {
+                        Label(option.label, systemImage: "checkmark")
+                    } else {
+                        Text(option.label)
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
 
     // MARK: - Skeleton
