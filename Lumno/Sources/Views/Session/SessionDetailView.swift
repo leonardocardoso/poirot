@@ -35,15 +35,17 @@ struct SessionDetailView: View {
                             )
                     }
 
-                    Text("\(session.totalTokens.formattedTokens) tokens")
-                        .font(LumnoTheme.Typography.tiny)
-                        .foregroundStyle(LumnoTheme.Colors.blue)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(LumnoTheme.Colors.blue.opacity(0.1))
-                        )
+                    if session.totalTokens > 0 {
+                        Text("\(session.totalTokens.formattedTokens) tokens")
+                            .font(LumnoTheme.Typography.tiny)
+                            .foregroundStyle(LumnoTheme.Colors.blue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(LumnoTheme.Colors.blue.opacity(0.1))
+                            )
+                    }
 
                     Text("\(session.timeAgo) · \(session.turnCount) turns")
                         .font(LumnoTheme.Typography.small)
@@ -83,14 +85,41 @@ struct SessionDetailView: View {
 
     private var messagesList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: LumnoTheme.Spacing.xl) {
-                ForEach(session.messages) { message in
-                    MessageRow(message: message)
-                        .equatable()
+            if session.messages.isEmpty {
+                emptyState
+            } else {
+                LazyVStack(alignment: .leading, spacing: LumnoTheme.Spacing.xl) {
+                    ForEach(session.messages) { message in
+                        MessageRow(message: message)
+                            .equatable()
+                    }
                 }
+                .padding(LumnoTheme.Spacing.xxxl)
             }
-            .padding(LumnoTheme.Spacing.xxxl)
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: LumnoTheme.Spacing.md) {
+            Image(systemName: "text.bubble")
+                .font(.system(size: 32))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+
+            Text("No messages to display")
+                .font(LumnoTheme.Typography.bodyMedium)
+                .foregroundStyle(LumnoTheme.Colors.textSecondary)
+
+            if let preview = session.preview {
+                Text(preview)
+                    .font(LumnoTheme.Typography.caption)
+                    .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(6)
+                    .frame(maxWidth: 400)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 80)
     }
 }
 
