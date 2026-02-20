@@ -122,8 +122,8 @@ struct SessionLoaderTests {
         #expect(projects.count == 2)
 
         let names = Set(projects.map(\.name))
-        #expect(names.contains("alpha"))
-        #expect(names.contains("beta"))
+        #expect(names.contains("project-alpha"))
+        #expect(names.contains("project-beta"))
     }
 
     @Test
@@ -143,7 +143,7 @@ struct SessionLoaderTests {
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
         #expect(projects.count == 1)
-        #expect(projects[0].name == "project")
+        #expect(projects[0].name == "real-project")
     }
 
     // MARK: - JSONL Parsing Integration
@@ -277,7 +277,7 @@ struct SessionLoaderTests {
 
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
-        #expect(projects[0].name == "app")
+        #expect(projects[0].name == "dev-projects-my-app")
     }
 
     @Test

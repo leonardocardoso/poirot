@@ -31,6 +31,7 @@
 		8E5C88512AEDA55F3B784F17 /* ConfigurationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD9E9CAAA9AEFDC566F4F7B /* ConfigurationItem.swift */; };
 		95D1C11C6151C59284E19D9B /* Environment+Services.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84041BC9485193ED6A85E3D2 /* Environment+Services.swift */; };
 		98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307731283D6CD473215E5410 /* ToolBlockView.swift */; };
+		998BFFDD032A2DDFD6174EE2 /* ProjectSessionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C25891AA3D33D128DC54A2 /* ProjectSessionsView.swift */; };
 		AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B8CBA1726156160D0996CE /* LumnoTheme.swift */; };
 		AF8CE28964613DED136703EC /* SearchOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */; };
 		BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */; };
@@ -64,6 +65,7 @@
 		100386EFF129481393BFCB65 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		17A408C825092B7A7D292479 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoApp.swift; sourceTree = "<group>"; };
+		22C25891AA3D33D128DC54A2 /* ProjectSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSessionsView.swift; sourceTree = "<group>"; };
 		28886CD412EB2A60FEE84B2A /* ToolDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDefinition.swift; sourceTree = "<group>"; };
 		2CD9E9CAAA9AEFDC566F4F7B /* ConfigurationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationItem.swift; sourceTree = "<group>"; };
 		2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptParser.swift; sourceTree = "<group>"; };
@@ -198,6 +200,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		49142DFDCDC5BC710AC3E316 /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				22C25891AA3D33D128DC54A2 /* ProjectSessionsView.swift */,
+			);
+			path = Project;
+			sourceTree = "<group>";
+		};
 		4DCF07F3133DA2518E65A15E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,6 +232,7 @@
 				451EBC1993EE6C6F3EF29261 /* Components */,
 				3F7CB0D5B7901F71C7CC94D0 /* Configuration */,
 				B4253289F61DB689BC4565CB /* Home */,
+				49142DFDCDC5BC710AC3E316 /* Project */,
 				AE16C173839C1037247BF946 /* Search */,
 				16CD839F6874681B82724B7A /* Session */,
 			);
@@ -466,6 +477,7 @@
 				6BA1D375175BFBFD869EDFDD /* Message.swift in Sources */,
 				D935D0F65DDC03DD2C21A231 /* NavigationItem.swift in Sources */,
 				FC832FA50B11E101A049CCB1 /* Project.swift in Sources */,
+				998BFFDD032A2DDFD6174EE2 /* ProjectSessionsView.swift in Sources */,
 				11E8D105BF5D57AE1C9FAD1F /* ProviderCapability.swift in Sources */,
 				2F23B4495167093840BBEE47 /* ProviderDescribing+Defaults.swift in Sources */,
 				55177286A7816A03D7AE7502 /* ProviderDescribing.swift in Sources */,

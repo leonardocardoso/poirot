@@ -257,26 +257,37 @@ private struct ProjectRow: View {
     @State
     private var isConfirmingDelete = false
 
+    private var isSelected: Bool {
+        appState.selectedProject == project.id
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack {
-                Label(project.name, systemImage: "shippingbox")
-                    .font(LumnoTheme.Typography.captionMedium)
-                    .foregroundStyle(LumnoTheme.Colors.textPrimary)
+            Button {
+                appState.selectedNav = .sessions
+                appState.selectedSession = nil
+                appState.selectedProject = project.id
+            } label: {
+                HStack {
+                    Label(project.name, systemImage: "shippingbox")
+                        .font(LumnoTheme.Typography.captionMedium)
+                        .foregroundStyle(isSelected ? LumnoTheme.Colors.accent : LumnoTheme.Colors.textPrimary)
 
-                Spacer()
+                    Spacer()
 
-                if isHovered || isMenuPresented {
-                    projectMenu
-                        .transition(.opacity)
-                } else {
-                    Text("\(project.sessions.count)")
-                        .font(LumnoTheme.Typography.tiny)
-                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                    if isHovered || isMenuPresented {
+                        projectMenu
+                            .transition(.opacity)
+                    } else {
+                        Text("\(project.sessions.count)")
+                            .font(LumnoTheme.Typography.tiny)
+                            .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                    }
                 }
+                .padding(.vertical, 4)
+                .padding(.horizontal, LumnoTheme.Spacing.md)
             }
-            .padding(.vertical, 4)
-            .padding(.horizontal, LumnoTheme.Spacing.md)
+            .buttonStyle(.plain)
             .onHover { hovering in
                 isHovered = hovering
                 if !hovering, !isMenuPresented {
