@@ -192,7 +192,13 @@ nonisolated struct TranscriptParser {
 
                 if type == "assistant", firstAssistantText == nil {
                     if let array = message["content"] as? [[String: Any]] {
-                        firstAssistantText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                        for block in array where block["type"] as? String == "text" {
+                            if let text = block["text"] as? String,
+                               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                firstAssistantText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                                break
+                            }
+                        }
                     }
                 }
 
@@ -280,7 +286,13 @@ nonisolated struct TranscriptParser {
                 }
                 if firstAssistantText == nil {
                     if let array = message["content"] as? [[String: Any]] {
-                        firstAssistantText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                        for block in array where block["type"] as? String == "text" {
+                            if let text = block["text"] as? String,
+                               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                firstAssistantText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                                break
+                            }
+                        }
                     }
                 }
                 if !seenMsgIds.contains(msgId) {
