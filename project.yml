@@ -23,9 +23,9 @@ targets:
   Lumno:
     type: application
     platform: macOS
+    defaultLocalization: en
     sources:
       - path: Lumno/Sources
-    resources:
       - path: Lumno/Resources
     dependencies:
       - package: SwiftMockKit
@@ -41,6 +41,8 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Lumno/Resources/Lumno.entitlements
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2025 Leonardo Cardoso"
         ENABLE_USER_SCRIPT_SANDBOXING: false
+        SWIFT_EMIT_LOC_STRINGS: true
+        LOCALIZATION_PREFERS_STRING_CATALOGS: true
     postCompileScripts:
       - script: |
           export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"

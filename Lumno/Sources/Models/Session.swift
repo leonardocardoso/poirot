@@ -41,7 +41,7 @@ nonisolated struct Session: Identifiable, Hashable {
     }
 
     var title: String {
-        cachedTitle ?? messages.first(where: { $0.role == .user })?.textContent ?? "Untitled session"
+        cachedTitle ?? messages.first(where: { $0.role == .user })?.textContent ?? String(localized: "Untitled session")
     }
 
     var preview: String? {

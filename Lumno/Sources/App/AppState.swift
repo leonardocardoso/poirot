@@ -8,9 +8,9 @@ enum ProjectSortOption: String, CaseIterable {
 
     var label: String {
         switch self {
-        case .recentActivity: "Recent Activity"
-        case .name: "Name"
-        case .sessionCount: "Session Count"
+        case .recentActivity: String(localized: "Recent Activity")
+        case .name: String(localized: "Name")
+        case .sessionCount: String(localized: "Session Count")
         }
     }
 }

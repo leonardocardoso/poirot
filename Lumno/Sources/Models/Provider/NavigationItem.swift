@@ -1,3 +1,5 @@
+import Foundation
+
 struct NavigationItem: Identifiable, Hashable, Sendable {
     let id: String
     let title: String
@@ -6,25 +8,25 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
 
     static let sessions = NavigationItem(
         id: "sessions",
-        title: "Sessions",
+        title: String(localized: "Sessions"),
         systemImage: "rectangle.stack",
         requiredCapability: nil
     )
     static let commands = NavigationItem(
         id: "commands",
-        title: "Commands",
+        title: String(localized: "Commands"),
         systemImage: "terminal",
         requiredCapability: .commands
     )
     static let skills = NavigationItem(
         id: "skills",
-        title: "Skills",
+        title: String(localized: "Skills"),
         systemImage: "bolt.circle",
         requiredCapability: .skills
     )
     static let configuration = NavigationItem(
         id: "configuration",
-        title: "Configuration",
+        title: String(localized: "Configuration"),
         systemImage: "gearshape",
         requiredCapability: .configuration
     )
