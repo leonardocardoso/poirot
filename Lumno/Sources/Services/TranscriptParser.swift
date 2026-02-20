@@ -232,6 +232,7 @@ nonisolated struct TranscriptParser {
         let lines = text.components(separatedBy: .newlines)
 
         var firstUserText: String?
+        var firstAssistantText: String?
         var userCount = 0
         var firstAssistantModel: String?
         var earliestTimestamp: Date?
@@ -277,6 +278,11 @@ nonisolated struct TranscriptParser {
                 if firstAssistantModel == nil {
                     firstAssistantModel = message["model"] as? String
                 }
+                if firstAssistantText == nil {
+                    if let array = message["content"] as? [[String: Any]] {
+                        firstAssistantText = array.first(where: { $0["type"] as? String == "text" })?["text"] as? String
+                    }
+                }
                 if !seenMsgIds.contains(msgId) {
                     seenMsgIds.insert(msgId)
                     if let usage = message["usage"] as? [String: Any] {
@@ -299,6 +305,7 @@ nonisolated struct TranscriptParser {
             totalTokens: totalTokens,
             fileURL: fileURL,
             cachedTitle: firstUserText,
+            cachedPreview: firstAssistantText,
             cachedTurnCount: userCount
         )
     }

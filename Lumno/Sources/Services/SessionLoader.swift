@@ -95,30 +95,31 @@ nonisolated struct SessionLoader: SessionLoading {
 
         let projectPath = index?.originalPath ?? ("/" + dirName.replacingOccurrences(of: "-", with: "/"))
 
-        // Index fast path: build sessions from metadata without parsing JSONL
+        // Index fast path: use index to identify sessions, parseSummary for metadata
         if let entries = index?.entries, !entries.isEmpty {
             var sessions: [Session] = []
-            for entry in entries where !entry.isSidechain {
+            let sortedEntries = entries
+                .filter { !$0.isSidechain }
+                .sorted {
+                    (Self.dateFormatter.date(from: $0.created) ?? .distantPast)
+                        > (Self.dateFormatter.date(from: $1.created) ?? .distantPast)
+                }
+                .prefix(Self.maxSessionsPerProject)
+
+            for entry in sortedEntries {
                 let fileURL = directoryURL.appendingPathComponent("\(entry.sessionId).jsonl")
                 guard fm.fileExists(atPath: fileURL.path) else { continue }
-                let startedAt = Self.dateFormatter.date(from: entry.created) ?? Date.distantPast
-                let session = Session(
-                    id: entry.sessionId,
-                    projectPath: projectPath,
-                    messages: [],
-                    startedAt: startedAt,
-                    model: nil,
-                    totalTokens: 0,
+                let indexStartedAt = Self.dateFormatter.date(from: entry.created)
+                if let session = parser.parseSummary(
                     fileURL: fileURL,
-                    cachedTitle: entry.firstPrompt,
-                    cachedTurnCount: nil
-                )
-                sessions.append(session)
+                    projectPath: projectPath,
+                    sessionId: entry.sessionId,
+                    indexStartedAt: indexStartedAt
+                ) {
+                    sessions.append(session)
+                }
             }
             sessions.sort { $0.startedAt > $1.startedAt }
-            if sessions.count > Self.maxSessionsPerProject {
-                sessions = Array(sessions.prefix(Self.maxSessionsPerProject))
-            }
             return Project(id: dirName, name: projectName, path: projectPath, sessions: sessions)
         }
 
@@ -149,10 +150,11 @@ nonisolated struct SessionLoader: SessionLoading {
         var sessions: [Session] = []
         for item in jsonlFiles {
             let stem = item.deletingPathExtension().lastPathComponent
-            if let session = parser.parseHeader(
+            if let session = parser.parseSummary(
                 fileURL: item,
                 projectPath: projectPath,
-                sessionId: stem
+                sessionId: stem,
+                indexStartedAt: nil
             ) {
                 sessions.append(session)
             }

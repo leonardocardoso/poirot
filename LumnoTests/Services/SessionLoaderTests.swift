@@ -255,10 +255,10 @@ struct SessionLoaderTests {
         #expect(projects[0].name == "my-cool-app")
         #expect(projects[0].path == "/Users/dev/projects/my-cool-app")
 
-        // Index fast path: session has cached title from firstPrompt, no messages parsed
+        // Index fast path: session is built via parseSummary — title from JSONL content
         let session = projects[0].sessions[0]
         #expect(session.messages.isEmpty)
-        #expect(session.title == "Hello from index")
+        #expect(session.title == "Hello")
         #expect(session.fileURL != nil)
     }
 

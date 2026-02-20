@@ -7,10 +7,6 @@ struct ProjectSessionsView: View {
     @State
     private var isRevealed = false
 
-    private let gridColumns = [
-        GridItem(.adaptive(minimum: 280), spacing: LumnoTheme.Spacing.lg),
-    ]
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -75,18 +71,22 @@ struct ProjectSessionsView: View {
         }
     }
 
-    // MARK: - Grid
+    // MARK: - Grid (Masonry)
 
     private var sessionsGrid: some View {
         ScrollView {
-            LazyVGrid(columns: gridColumns, spacing: LumnoTheme.Spacing.lg) {
-                ForEach(Array(project.sessions.enumerated()), id: \.element.id) { index, session in
-                    SessionCard(session: session)
-                        .shimmerReveal(
-                            isRevealed: isRevealed,
-                            delay: Double(min(index, 7)) * 0.04,
-                            cornerRadius: LumnoTheme.Radius.md
-                        )
+            HStack(alignment: .top, spacing: LumnoTheme.Spacing.lg) {
+                ForEach(0 ..< 2, id: \.self) { column in
+                    LazyVStack(spacing: LumnoTheme.Spacing.lg) {
+                        ForEach(sessionsForColumn(column), id: \.element.id) { index, session in
+                            SessionCard(session: session)
+                                .shimmerReveal(
+                                    isRevealed: isRevealed,
+                                    delay: Double(min(index, 7)) * 0.04,
+                                    cornerRadius: LumnoTheme.Radius.md
+                                )
+                        }
+                    }
                 }
             }
             .padding(.horizontal, LumnoTheme.Spacing.xxl)
@@ -95,20 +95,27 @@ struct ProjectSessionsView: View {
         }
     }
 
+    private func sessionsForColumn(_ column: Int) -> [(offset: Int, element: Session)] {
+        Array(project.sessions.enumerated()).filter { $0.offset % 2 == column }
+    }
+
     // MARK: - List
 
     private var sessionsList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: LumnoTheme.Spacing.md) {
                 ForEach(Array(project.sessions.enumerated()), id: \.element.id) { index, session in
                     SessionListRow(session: session)
                         .shimmerReveal(
                             isRevealed: isRevealed,
-                            delay: Double(min(index, 9)) * 0.03
+                            delay: Double(min(index, 9)) * 0.03,
+                            cornerRadius: LumnoTheme.Radius.md
                         )
                 }
             }
             .padding(.horizontal, LumnoTheme.Spacing.xxl)
+            .padding(.top, LumnoTheme.Spacing.lg)
+            .padding(.bottom, LumnoTheme.Spacing.xxl)
         }
     }
 }
@@ -145,33 +152,65 @@ private struct SessionCard: View {
                         .multilineTextAlignment(.leading)
                 }
 
-                Spacer(minLength: 0)
-
-                cardFooter
+                SessionBadgeRow(session: session)
+                    .padding(.top, LumnoTheme.Spacing.xs)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
-            .background(
-                RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)
-                    .fill(isHovered ? LumnoTheme.Colors.bgCardHover : LumnoTheme.Colors.bgCard)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)
-                    .strokeBorder(
-                        isSelected
-                            ? LumnoTheme.Colors.accent
-                            : isHovered
-                                ? Color.white.opacity(0.1)
-                                : LumnoTheme.Colors.border,
-                        lineWidth: 1
-                    )
-            )
+            .sessionCardChrome(isHovered: isHovered, isSelected: isSelected)
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
     }
+}
 
-    private var cardFooter: some View {
+// MARK: - Session List Row
+
+private struct SessionListRow: View {
+    let session: Session
+    @Environment(AppState.self)
+    private var appState
+    @State
+    private var isHovered = false
+
+    private var isSelected: Bool {
+        appState.selectedSession == session
+    }
+
+    var body: some View {
+        Button {
+            appState.selectedSession = session
+        } label: {
+            VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {
+                Text(session.title)
+                    .font(LumnoTheme.Typography.bodyMedium)
+                    .foregroundStyle(LumnoTheme.Colors.textPrimary)
+                    .lineLimit(1)
+
+                if let preview = session.preview {
+                    Text(preview)
+                        .font(LumnoTheme.Typography.caption)
+                        .foregroundStyle(LumnoTheme.Colors.textSecondary)
+                        .lineLimit(2)
+                }
+
+                SessionBadgeRow(session: session)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(LumnoTheme.Spacing.lg)
+            .sessionCardChrome(isHovered: isHovered, isSelected: isSelected)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
+}
+
+// MARK: - Shared Badge Row
+
+private struct SessionBadgeRow: View {
+    let session: Session
+
+    var body: some View {
         HStack(spacing: LumnoTheme.Spacing.sm) {
             if let model = session.model {
                 badge(formatModel(model), fg: LumnoTheme.Colors.accent, bg: LumnoTheme.Colors.accentDim)
@@ -185,9 +224,15 @@ private struct SessionCard: View {
                 )
             }
 
+            badge(
+                "\(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")",
+                fg: LumnoTheme.Colors.textTertiary,
+                bg: LumnoTheme.Colors.bgElevated
+            )
+
             Spacer(minLength: 0)
 
-            Text("\(session.timeAgo) · \(session.turnCount) turns")
+            Text(session.timeAgo)
                 .font(LumnoTheme.Typography.tiny)
                 .foregroundStyle(LumnoTheme.Colors.textTertiary)
                 .lineLimit(1)
@@ -233,64 +278,25 @@ private struct SessionCard: View {
     }
 }
 
-// MARK: - Session List Row
+// MARK: - Card Chrome
 
-private struct SessionListRow: View {
-    let session: Session
-    @Environment(AppState.self)
-    private var appState
-    @State
-    private var isHovered = false
-
-    private var isSelected: Bool {
-        appState.selectedSession == session
-    }
-
-    var body: some View {
-        Button {
-            appState.selectedSession = session
-        } label: {
-            HStack(spacing: LumnoTheme.Spacing.lg) {
-                VStack(alignment: .leading, spacing: LumnoTheme.Spacing.xs) {
-                    Text(session.title)
-                        .font(LumnoTheme.Typography.bodyMedium)
-                        .foregroundStyle(LumnoTheme.Colors.textPrimary)
-                        .lineLimit(1)
-
-                    if let preview = session.preview {
-                        Text(preview)
-                            .font(LumnoTheme.Typography.caption)
-                            .foregroundStyle(LumnoTheme.Colors.textSecondary)
-                            .lineLimit(2)
-                    }
-                }
-
-                Spacer(minLength: 0)
-
-                Text(session.timeAgo)
-                    .font(LumnoTheme.Typography.tiny)
-                    .foregroundStyle(LumnoTheme.Colors.textTertiary)
-                    .layoutPriority(1)
-            }
-            .padding(.vertical, LumnoTheme.Spacing.md)
-            .padding(.horizontal, LumnoTheme.Spacing.md)
-        }
-        .buttonStyle(.plain)
-        .background(
-            RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
-                .fill(
-                    isSelected
-                        ? LumnoTheme.Colors.accentDim
-                        : isHovered
-                            ? LumnoTheme.Colors.bgCardHover
-                            : .clear
-                )
-        )
-        .onHover { isHovered = $0 }
-        .overlay(alignment: .bottom) {
-            Divider()
-                .foregroundStyle(LumnoTheme.Colors.border)
-                .padding(.leading, LumnoTheme.Spacing.md)
-        }
+private extension View {
+    func sessionCardChrome(isHovered: Bool, isSelected: Bool) -> some View {
+        self
+            .background(
+                RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)
+                    .fill(isHovered ? LumnoTheme.Colors.bgCardHover : LumnoTheme.Colors.bgCard)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)
+                    .strokeBorder(
+                        isSelected
+                            ? LumnoTheme.Colors.accent
+                            : isHovered
+                                ? Color.white.opacity(0.1)
+                                : LumnoTheme.Colors.border,
+                        lineWidth: 1
+                    )
+            )
     }
 }
