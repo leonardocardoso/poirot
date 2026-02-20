@@ -250,6 +250,12 @@ private struct ProjectRow: View {
     let project: Project
     @Environment(AppState.self)
     private var appState
+    @State
+    private var isHovered = false
+    @State
+    private var isMenuPresented = false
+    @State
+    private var isConfirmingDelete = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -260,18 +266,91 @@ private struct ProjectRow: View {
 
                 Spacer()
 
-                Text("\(project.sessions.count)")
-                    .font(LumnoTheme.Typography.tiny)
-                    .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                if isHovered || isMenuPresented {
+                    projectMenu
+                        .transition(.opacity)
+                } else {
+                    Text("\(project.sessions.count)")
+                        .font(LumnoTheme.Typography.tiny)
+                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                }
             }
             .padding(.vertical, 4)
             .padding(.horizontal, LumnoTheme.Spacing.md)
+            .onHover { hovering in
+                isHovered = hovering
+                if !hovering, !isMenuPresented {
+                    isConfirmingDelete = false
+                }
+            }
 
             ForEach(project.sessions) { session in
                 SessionRow(session: session)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var projectMenu: some View {
+        Button {
+            isMenuPresented = true
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                        .fill(LumnoTheme.Colors.bgCard)
+                )
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $isMenuPresented, arrowEdge: .trailing) {
+            VStack(alignment: .leading, spacing: 2) {
+                if isConfirmingDelete {
+                    PopoverMenuItem(
+                        label: "Confirm",
+                        systemImage: "checkmark",
+                        foreground: LumnoTheme.Colors.red
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            appState.deleteProject(project)
+                        }
+                        isMenuPresented = false
+                        isConfirmingDelete = false
+                    }
+                } else {
+                    PopoverMenuItem(
+                        label: "Reveal in Finder",
+                        systemImage: "folder"
+                    ) {
+                        let url = appState.projectDirectoryURL(for: project)
+                        NSWorkspace.shared.activateFileViewerSelecting([url])
+                        isMenuPresented = false
+                    }
+
+                    Divider()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+
+                    PopoverMenuItem(
+                        label: "Delete",
+                        systemImage: "trash",
+                        foreground: LumnoTheme.Colors.textSecondary
+                    ) {
+                        isConfirmingDelete = true
+                    }
+                }
+            }
+            .padding(6)
+            .frame(width: 150)
+        }
+        .onChange(of: isMenuPresented) { _, presented in
+            if !presented {
+                isConfirmingDelete = false
+            }
+        }
     }
 }
 

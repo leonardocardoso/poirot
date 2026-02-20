@@ -73,6 +73,30 @@ final class AppState {
         sessionCache.removeAll()
     }
 
+    func projectDirectoryURL(for project: Project) -> URL {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return URL(fileURLWithPath: "\(home)/.claude/projects/\(project.id)")
+    }
+
+    func deleteProject(_ project: Project) {
+        // Clear selection if current session belongs to this project
+        if let selected = selectedSession, project.sessions.contains(where: { $0.id == selected.id }) {
+            selectedSession = nil
+        }
+
+        // Remove sessions from cache
+        for session in project.sessions {
+            sessionCache.removeValue(forKey: session.id)
+        }
+
+        // Remove the folder
+        let dirURL = projectDirectoryURL(for: project)
+        try? FileManager.default.removeItem(at: dirURL)
+
+        // Remove from state
+        projects.removeAll { $0.id == project.id }
+    }
+
     func deleteSession(_ session: Session) {
         // Remove the file
         if let url = session.fileURL {
