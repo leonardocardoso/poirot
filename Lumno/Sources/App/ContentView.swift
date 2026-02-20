@@ -14,6 +14,7 @@ struct ContentView: View {
             detailView
                 .animation(.easeInOut(duration: 0.25), value: appState.isLoadingSession)
         }
+        .id(appState.fontScale)
         .overlay {
             if appState.isSearchPresented {
                 SearchOverlayView()

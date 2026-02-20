@@ -9,7 +9,6 @@ struct LumnoApp: App {
         WindowGroup {
             ContentView()
                 .environment(appState)
-                .id(appState.fontScale)
         }
         .windowStyle(.titleBar)
         .defaultSize(width: 1280, height: 820)
