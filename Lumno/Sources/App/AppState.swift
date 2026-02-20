@@ -17,6 +17,16 @@ enum ProjectSortOption: String, CaseIterable {
 
 @Observable
 final class AppState {
+    var fontScale: CGFloat = {
+        let stored = UserDefaults.standard.double(forKey: "fontScale")
+        return stored > 0 ? CGFloat(stored) : 1.0
+    }() {
+        didSet {
+            UserDefaults.standard.set(Double(fontScale), forKey: "fontScale")
+            LumnoTheme.Typography.scale = fontScale
+        }
+    }
+
     var selectedNav: NavigationItem = .sessions
     var selectedSession: Session?
     var selectedProject: String?
@@ -100,6 +110,22 @@ final class AppState {
 
         // Remove from state
         projects.removeAll { $0.id == project.id }
+    }
+
+    init() {
+        LumnoTheme.Typography.scale = fontScale
+    }
+
+    func increaseFontScale() {
+        fontScale = min(fontScale + 0.05, 1.5)
+    }
+
+    func decreaseFontScale() {
+        fontScale = max(fontScale - 0.05, 0.75)
+    }
+
+    func resetFontScale() {
+        fontScale = 1.0
     }
 
     func deleteSession(_ session: Session) {

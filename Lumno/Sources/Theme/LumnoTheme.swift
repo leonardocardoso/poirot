@@ -36,19 +36,21 @@ enum LumnoTheme {
     // MARK: - Typography
 
     enum Typography {
-        static let title = Font.system(size: 28, weight: .semibold, design: .default)
-        static let heading = Font.system(size: 20, weight: .semibold, design: .default)
-        static let subheading = Font.system(size: 15, weight: .medium, design: .default)
-        static let body = Font.system(size: 14, weight: .regular, design: .default)
-        static let bodyMedium = Font.system(size: 14, weight: .medium, design: .default)
-        static let caption = Font.system(size: 13, weight: .regular, design: .default)
-        static let captionMedium = Font.system(size: 13, weight: .medium, design: .default)
-        static let small = Font.system(size: 12, weight: .regular, design: .default)
-        static let smallBold = Font.system(size: 12, weight: .semibold, design: .default)
-        static let tiny = Font.system(size: 11, weight: .regular, design: .default)
-        static let sectionHeader = Font.system(size: 11, weight: .semibold, design: .default)
-        static let code = Font.system(size: 12.5, weight: .regular, design: .monospaced)
-        static let codeSmall = Font.system(size: 11, weight: .regular, design: .monospaced)
+        nonisolated(unsafe) static var scale: CGFloat = 1.0
+
+        static var title: Font { .system(size: round(28 * scale), weight: .semibold) }
+        static var heading: Font { .system(size: round(20 * scale), weight: .semibold) }
+        static var subheading: Font { .system(size: round(15 * scale), weight: .medium) }
+        static var body: Font { .system(size: round(14 * scale), weight: .regular) }
+        static var bodyMedium: Font { .system(size: round(14 * scale), weight: .medium) }
+        static var caption: Font { .system(size: round(13 * scale), weight: .regular) }
+        static var captionMedium: Font { .system(size: round(13 * scale), weight: .medium) }
+        static var small: Font { .system(size: round(12 * scale), weight: .regular) }
+        static var smallBold: Font { .system(size: round(12 * scale), weight: .semibold) }
+        static var tiny: Font { .system(size: round(11 * scale), weight: .regular) }
+        static var sectionHeader: Font { .system(size: round(11 * scale), weight: .semibold) }
+        static var code: Font { .system(size: round(12.5 * scale), weight: .regular, design: .monospaced) }
+        static var codeSmall: Font { .system(size: round(11 * scale), weight: .regular, design: .monospaced) }
     }
 
     // MARK: - Spacing
