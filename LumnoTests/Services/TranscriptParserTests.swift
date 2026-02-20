@@ -1,12 +1,11 @@
-import Testing
-import Foundation
 @testable import Lumno
+import Foundation
+import Testing
 
 // swiftlint:disable file_length type_body_length
 
 @Suite("TranscriptParser")
 struct TranscriptParserTests {
-
     private let parser = TranscriptParser()
 
     // MARK: - Helpers
@@ -32,7 +31,7 @@ struct TranscriptParserTests {
             "uuid": uuid,
             "timestamp": timestamp,
             "isSidechain": isSidechain,
-            "message": message
+            "message": message,
         ]
         let data = try! JSONSerialization.data(withJSONObject: record) // swiftlint:disable:this force_try
         return String(data: data, encoding: .utf8)!
@@ -54,15 +53,15 @@ struct TranscriptParserTests {
             "content": content,
             "usage": [
                 "input_tokens": inputTokens,
-                "output_tokens": outputTokens
-            ]
+                "output_tokens": outputTokens,
+            ],
         ]
         let record: [String: Any] = [
             "type": "assistant",
             "uuid": UUID().uuidString,
             "timestamp": timestamp,
             "isSidechain": isSidechain,
-            "message": message
+            "message": message,
         ]
         let data = try! JSONSerialization.data(withJSONObject: record) // swiftlint:disable:this force_try
         return String(data: data, encoding: .utf8)!
@@ -70,7 +69,8 @@ struct TranscriptParserTests {
 
     // MARK: - Empty / Invalid
 
-    @Test func parse_emptyFile_returnsNil() throws {
+    @Test
+    func parse_emptyFile_returnsNil() throws {
         let (dir, file) = try makeTempFile("")
         defer { try? FileManager.default.removeItem(at: dir) }
 
@@ -78,10 +78,11 @@ struct TranscriptParserTests {
         #expect(result == nil)
     }
 
-    @Test func parse_onlySkippedRecordTypes_returnsNil() throws {
+    @Test
+    func parse_onlySkippedRecordTypes_returnsNil() throws {
         let lines = [
             #"{"type":"progress","data":{"type":"hook_progress"},"timestamp":"2026-01-28T10:00:00.000Z"}"#,
-            #"{"type":"file-history-snapshot","snapshot":{},"timestamp":"2026-01-28T10:00:01.000Z"}"#
+            #"{"type":"file-history-snapshot","snapshot":{},"timestamp":"2026-01-28T10:00:01.000Z"}"#,
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -90,11 +91,12 @@ struct TranscriptParserTests {
         #expect(result == nil)
     }
 
-    @Test func parse_malformedLines_skipsGracefully() throws {
+    @Test
+    func parse_malformedLines_skipsGracefully() throws {
         let lines = [
             "not valid json",
             "{broken json",
-            userRecord(content: "Hello")
+            userRecord(content: "Hello"),
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -104,10 +106,11 @@ struct TranscriptParserTests {
         #expect(result?.messages.count == 1)
     }
 
-    @Test func parse_sidechainRecords_skipped() throws {
+    @Test
+    func parse_sidechainRecords_skipped() throws {
         let lines = [
             userRecord(content: "Hello", isSidechain: true),
-            userRecord(content: "World", isSidechain: false)
+            userRecord(content: "World", isSidechain: false),
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -120,7 +123,8 @@ struct TranscriptParserTests {
 
     // MARK: - User Content
 
-    @Test func parse_userStringContent_createsTextBlock() throws {
+    @Test
+    func parse_userStringContent_createsTextBlock() throws {
         let lines = [userRecord(content: "Hello world")]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -132,13 +136,14 @@ struct TranscriptParserTests {
         #expect(result?.messages[0].content == [.text("Hello world")])
     }
 
-    @Test func parse_userToolResult_createsToolResultBlock() throws {
+    @Test
+    func parse_userToolResult_createsToolResultBlock() throws {
         let toolResult: [[String: Any]] = [
             [
                 "type": "tool_result",
                 "tool_use_id": "toolu_abc",
-                "content": "File created successfully"
-            ]
+                "content": "File created successfully",
+            ],
         ]
         let lines = [userRecord(content: toolResult)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
@@ -148,7 +153,7 @@ struct TranscriptParserTests {
         #expect(result != nil)
         #expect(result?.messages.count == 1)
 
-        if case .toolResult(let tr) = result?.messages[0].content.first {
+        if case let .toolResult(tr) = result?.messages[0].content.first {
             #expect(tr.toolUseId == "toolu_abc")
             #expect(tr.content == "File created successfully")
             #expect(tr.isError == false)
@@ -157,27 +162,29 @@ struct TranscriptParserTests {
         }
     }
 
-    @Test func parse_toolResult_stringContent_normalized() throws {
+    @Test
+    func parse_toolResult_stringContent_normalized() throws {
         let toolResult: [[String: Any]] = [
             [
                 "type": "tool_result",
                 "tool_use_id": "toolu_1",
-                "content": "Simple string content"
-            ]
+                "content": "Simple string content",
+            ],
         ]
         let lines = [userRecord(content: toolResult)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let result = parser.parse(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
-        if case .toolResult(let tr) = result?.messages[0].content.first {
+        if case let .toolResult(tr) = result?.messages[0].content.first {
             #expect(tr.content == "Simple string content")
         } else {
             Issue.record("Expected toolResult block")
         }
     }
 
-    @Test func parse_toolResult_arrayContent_extractsTextOnly() throws {
+    @Test
+    func parse_toolResult_arrayContent_extractsTextOnly() throws {
         let toolResult: [[String: Any]] = [
             [
                 "type": "tool_result",
@@ -185,37 +192,38 @@ struct TranscriptParserTests {
                 "content": [
                     ["type": "text", "text": "Line 1"],
                     ["type": "tool_reference", "ref": "something"],
-                    ["type": "text", "text": "Line 2"]
-                ] as [[String: Any]]
-            ]
+                    ["type": "text", "text": "Line 2"],
+                ] as [[String: Any]],
+            ],
         ]
         let lines = [userRecord(content: toolResult)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let result = parser.parse(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
-        if case .toolResult(let tr) = result?.messages[0].content.first {
+        if case let .toolResult(tr) = result?.messages[0].content.first {
             #expect(tr.content == "Line 1\nLine 2")
         } else {
             Issue.record("Expected toolResult block")
         }
     }
 
-    @Test func parse_toolResult_isError_flagged() throws {
+    @Test
+    func parse_toolResult_isError_flagged() throws {
         let toolResult: [[String: Any]] = [
             [
                 "type": "tool_result",
                 "tool_use_id": "toolu_err",
                 "content": "Error: file not found",
-                "is_error": true
-            ]
+                "is_error": true,
+            ],
         ]
         let lines = [userRecord(content: toolResult)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let result = parser.parse(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
-        if case .toolResult(let tr) = result?.messages[0].content.first {
+        if case let .toolResult(tr) = result?.messages[0].content.first {
             #expect(tr.isError == true)
         } else {
             Issue.record("Expected toolResult block")
@@ -224,7 +232,8 @@ struct TranscriptParserTests {
 
     // MARK: - Assistant Content
 
-    @Test func parse_assistantTextBlock() throws {
+    @Test
+    func parse_assistantTextBlock() throws {
         let content: [[String: Any]] = [["type": "text", "text": "Hello from assistant"]]
         let lines = [assistantRecord(content: content)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
@@ -237,7 +246,8 @@ struct TranscriptParserTests {
         #expect(result?.messages[0].content == [.text("Hello from assistant")])
     }
 
-    @Test func parse_assistantThinkingBlock() throws {
+    @Test
+    func parse_assistantThinkingBlock() throws {
         let content: [[String: Any]] = [["type": "thinking", "thinking": "Let me think about this"]]
         let lines = [assistantRecord(content: content)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
@@ -247,21 +257,22 @@ struct TranscriptParserTests {
         #expect(result?.messages[0].content == [.thinking("Let me think about this")])
     }
 
-    @Test func parse_assistantToolUseBlock() throws {
+    @Test
+    func parse_assistantToolUseBlock() throws {
         let content: [[String: Any]] = [
             [
                 "type": "tool_use",
                 "id": "toolu_xyz",
                 "name": "Read",
-                "input": ["file_path": "/foo/bar.swift"]
-            ]
+                "input": ["file_path": "/foo/bar.swift"],
+            ],
         ]
         let lines = [assistantRecord(content: content)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let result = parser.parse(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
-        if case .toolUse(let tu) = result?.messages[0].content.first {
+        if case let .toolUse(tu) = result?.messages[0].content.first {
             #expect(tu.id == "toolu_xyz")
             #expect(tu.name == "Read")
             #expect(tu.input["file_path"] == "/foo/bar.swift")
@@ -270,7 +281,8 @@ struct TranscriptParserTests {
         }
     }
 
-    @Test func parse_toolUse_nonStringInputsStringified() throws {
+    @Test
+    func parse_toolUse_nonStringInputsStringified() throws {
         let content: [[String: Any]] = [
             [
                 "type": "tool_use",
@@ -279,16 +291,16 @@ struct TranscriptParserTests {
                 "input": [
                     "command": "ls",
                     "timeout": 5000,
-                    "dangerouslyDisableSandbox": true
-                ] as [String: Any]
-            ]
+                    "dangerouslyDisableSandbox": true,
+                ] as [String: Any],
+            ],
         ]
         let lines = [assistantRecord(content: content)]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let result = parser.parse(fileURL: file, projectPath: "/test", sessionId: "s1", indexStartedAt: nil)
-        if case .toolUse(let tu) = result?.messages[0].content.first {
+        if case let .toolUse(tu) = result?.messages[0].content.first {
             #expect(tu.input["command"] == "ls")
             #expect(tu.input["timeout"] == "5000")
             #expect(tu.input["dangerouslyDisableSandbox"] == "true")
@@ -299,7 +311,8 @@ struct TranscriptParserTests {
 
     // MARK: - Filtering
 
-    @Test func parse_syntheticModel_skipped() throws {
+    @Test
+    func parse_syntheticModel_skipped() throws {
         let content: [[String: Any]] = [["type": "text", "text": "Synthetic message"]]
         let syntheticLine = assistantRecord(content: content, model: "<synthetic>")
         let realLine = userRecord(content: "Real user message")
@@ -313,7 +326,8 @@ struct TranscriptParserTests {
 
     // MARK: - Grouping
 
-    @Test func parse_multipleRecordsSameId_grouped() throws {
+    @Test
+    func parse_multipleRecordsSameId_grouped() throws {
         let line1 = assistantRecord(
             content: [["type": "text", "text": "Part 1"]],
             msgId: "msg_grouped",
@@ -334,14 +348,15 @@ struct TranscriptParserTests {
         #expect(msg?.role == .assistant)
         #expect(msg?.content.count == 2)
         #expect(msg?.content[0] == .text("Part 1"))
-        if case .toolUse(let tu) = msg?.content[1] {
+        if case let .toolUse(tu) = msg?.content[1] {
             #expect(tu.name == "Read")
         } else {
             Issue.record("Expected toolUse as second block")
         }
     }
 
-    @Test func parse_usage_deduplicatedPerGroup() throws {
+    @Test
+    func parse_usage_deduplicatedPerGroup() throws {
         let line1 = assistantRecord(
             content: [["type": "text", "text": "A"]],
             msgId: "msg_dup",
@@ -366,7 +381,8 @@ struct TranscriptParserTests {
 
     // MARK: - Session Assembly
 
-    @Test func parse_startedAt_usesEarliestTimestamp() throws {
+    @Test
+    func parse_startedAt_usesEarliestTimestamp() throws {
         let userLine = userRecord(content: "First", timestamp: "2026-01-28T09:00:00.000Z")
         let assistantLine = assistantRecord(
             content: [["type": "text", "text": "Reply"]],
@@ -383,7 +399,8 @@ struct TranscriptParserTests {
         #expect(result?.startedAt == expected)
     }
 
-    @Test func parse_model_fromFirstAssistantGroup() throws {
+    @Test
+    func parse_model_fromFirstAssistantGroup() throws {
         let userLine = userRecord(content: "Hi")
         let a1 = assistantRecord(
             content: [["type": "text", "text": "A"]],
@@ -405,7 +422,8 @@ struct TranscriptParserTests {
         #expect(result?.model == "claude-sonnet-4-5-20250514")
     }
 
-    @Test func parse_totalTokens_summedAcrossGroups() throws {
+    @Test
+    func parse_totalTokens_summedAcrossGroups() throws {
         let userLine = userRecord(content: "Hi")
         let a1 = assistantRecord(
             content: [["type": "text", "text": "A"]],
@@ -429,7 +447,8 @@ struct TranscriptParserTests {
         #expect(result?.totalTokens == 450)
     }
 
-    @Test func parse_interleaved_userAndAssistant_preservesOrder() throws {
+    @Test
+    func parse_interleaved_userAndAssistant_preservesOrder() throws {
         let u1 = userRecord(content: "Q1", uuid: "u1", timestamp: "2026-01-28T10:00:00.000Z")
         let a1 = assistantRecord(
             content: [["type": "text", "text": "A1"]],
@@ -457,9 +476,11 @@ struct TranscriptParserTests {
         #expect(result?.messages[3].role == .assistant)
         #expect(result?.messages[3].textContent == "A2")
     }
+
     // MARK: - parseSummary
 
-    @Test func parseSummary_emptyFile_returnsNil() throws {
+    @Test
+    func parseSummary_emptyFile_returnsNil() throws {
         let (dir, file) = try makeTempFile("")
         defer { try? FileManager.default.removeItem(at: dir) }
 
@@ -467,10 +488,11 @@ struct TranscriptParserTests {
         #expect(result == nil)
     }
 
-    @Test func parseSummary_extractsTitle() throws {
+    @Test
+    func parseSummary_extractsTitle() throws {
         let lines = [
             userRecord(content: "Hello world"),
-            assistantRecord(content: [["type": "text", "text": "Hi"]])
+            assistantRecord(content: [["type": "text", "text": "Hi"]]),
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -482,7 +504,8 @@ struct TranscriptParserTests {
         #expect(result?.fileURL == file)
     }
 
-    @Test func parseSummary_extractsTurnCount() throws {
+    @Test
+    func parseSummary_extractsTurnCount() throws {
         let u1 = userRecord(content: "Q1", uuid: "u1", timestamp: "2026-01-28T10:00:00.000Z")
         let a1 = assistantRecord(
             content: [["type": "text", "text": "A1"]],
@@ -497,10 +520,11 @@ struct TranscriptParserTests {
         #expect(result?.turnCount == 2)
     }
 
-    @Test func parseSummary_extractsModel() throws {
+    @Test
+    func parseSummary_extractsModel() throws {
         let lines = [
             userRecord(content: "Hello"),
-            assistantRecord(content: [["type": "text", "text": "Hi"]], model: "claude-sonnet-4-6")
+            assistantRecord(content: [["type": "text", "text": "Hi"]], model: "claude-sonnet-4-6"),
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -509,7 +533,8 @@ struct TranscriptParserTests {
         #expect(result?.model == "claude-sonnet-4-6")
     }
 
-    @Test func parseSummary_sumsTokensPerGroup() throws {
+    @Test
+    func parseSummary_sumsTokensPerGroup() throws {
         let u1 = userRecord(content: "Hi")
         let a1 = assistantRecord(
             content: [["type": "text", "text": "A"]],
@@ -541,10 +566,11 @@ struct TranscriptParserTests {
         #expect(result?.totalTokens == 600)
     }
 
-    @Test func parseSummary_skipsSidechainRecords() throws {
+    @Test
+    func parseSummary_skipsSidechainRecords() throws {
         let lines = [
             userRecord(content: "Sidechain", isSidechain: true),
-            userRecord(content: "Real message", isSidechain: false)
+            userRecord(content: "Real message", isSidechain: false),
         ]
         let (dir, file) = try makeTempFile(lines.joined(separator: "\n"))
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -554,7 +580,8 @@ struct TranscriptParserTests {
         #expect(result?.turnCount == 1)
     }
 
-    @Test func parseSummary_skipsSyntheticAssistant() throws {
+    @Test
+    func parseSummary_skipsSyntheticAssistant() throws {
         let synth = assistantRecord(content: [["type": "text", "text": "Synthetic"]], model: "<synthetic>")
         let real = userRecord(content: "Real user")
         let (dir, file) = try makeTempFile([synth, real].joined(separator: "\n"))
@@ -565,7 +592,8 @@ struct TranscriptParserTests {
         #expect(result?.turnCount == 1)
     }
 
-    @Test func parseSummary_usesEarliestTimestamp() throws {
+    @Test
+    func parseSummary_usesEarliestTimestamp() throws {
         let u = userRecord(content: "First", timestamp: "2026-01-28T09:00:00.000Z")
         let a = assistantRecord(
             content: [["type": "text", "text": "Reply"]],

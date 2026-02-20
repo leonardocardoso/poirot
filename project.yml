@@ -43,6 +43,7 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: false
     postCompileScripts:
       - script: |
+          export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
           if which swiftlint > /dev/null; then
             swiftlint lint --config "${SRCROOT}/.swiftlint.yml" "${SRCROOT}/Lumno/Sources"
           else

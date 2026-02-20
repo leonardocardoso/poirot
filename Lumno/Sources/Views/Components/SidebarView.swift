@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct SidebarView: View {
-    @Environment(AppState.self) private var appState
-    @Environment(\.provider) private var provider
+    @Environment(AppState.self)
+    private var appState
+    @Environment(\.provider)
+    private var provider
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,7 +21,8 @@ struct SidebarView: View {
     private var navigationItems: some View {
         VStack(spacing: 2) {
             ForEach(provider.navigationItems) { item in
-                @Bindable var state = appState
+                @Bindable
+                var state = appState
                 Button {
                     state.selectedNav = item
                 } label: {
@@ -35,7 +38,9 @@ struct SidebarView: View {
     // MARK: - Projects List
 
     private var projectsList: some View {
-        VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {
+        let filteredProjects = appState.projects.filter { !$0.sessions.isEmpty }
+
+        return VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {
             HStack {
                 Text("PROJECTS")
                     .font(LumnoTheme.Typography.sectionHeader)
@@ -47,15 +52,72 @@ struct SidebarView: View {
             .padding(.horizontal, LumnoTheme.Spacing.md)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 2) {
-                    ForEach(appState.projects.filter { !$0.sessions.isEmpty }) { project in
-                        ProjectRow(project: project)
+                if appState.isLoadingProjects {
+                    projectsSkeletonRows
+                        .transition(.opacity)
+                } else {
+                    LazyVStack(alignment: .leading, spacing: 2) {
+                        ForEach(filteredProjects) { project in
+                            ProjectRow(project: project)
+                        }
+                    }
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.3), value: filteredProjects.map(\.id))
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: appState.isLoadingProjects)
+        }
+        .padding(.top, LumnoTheme.Spacing.lg)
+    }
+
+    // MARK: - Skeleton
+
+    private var projectsSkeletonRows: some View {
+        VStack(alignment: .leading, spacing: LumnoTheme.Spacing.lg) {
+            ForEach(0 ..< 3, id: \.self) { groupIndex in
+                VStack(alignment: .leading, spacing: 2) {
+                    // Project name placeholder
+                    sidebarSkeletonRect(
+                        width: Self.projectNameWidths[groupIndex],
+                        height: 13
+                    )
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, LumnoTheme.Spacing.md)
+
+                    // Session row placeholders
+                    ForEach(0 ..< Self.sessionCounts[groupIndex], id: \.self) { rowIndex in
+                        HStack {
+                            sidebarSkeletonRect(
+                                width: Self.sessionTitleWidths[groupIndex][rowIndex],
+                                height: 11
+                            )
+                            Spacer()
+                            sidebarSkeletonRect(width: 40, height: 9)
+                        }
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, LumnoTheme.Spacing.md)
+                        .padding(.leading, LumnoTheme.Spacing.lg)
                     }
                 }
             }
         }
-        .padding(.top, LumnoTheme.Spacing.lg)
     }
+
+    private func sidebarSkeletonRect(width: CGFloat, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(LumnoTheme.Colors.bgCard)
+            .frame(width: width, height: height)
+            .shimmer()
+    }
+
+    // Fixed widths to avoid re-render jitter
+    private static let projectNameWidths: [CGFloat] = [100, 80, 110]
+    private static let sessionCounts = [3, 2, 4]
+    private static let sessionTitleWidths: [[CGFloat]] = [
+        [140, 110, 130],
+        [120, 150],
+        [130, 100, 145, 115],
+    ]
 
     // MARK: - Footer
 
@@ -87,7 +149,8 @@ struct SidebarView: View {
 
 private struct ProjectRow: View {
     let project: Project
-    @Environment(AppState.self) private var appState
+    @Environment(AppState.self)
+    private var appState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -98,7 +161,8 @@ private struct ProjectRow: View {
                 .padding(.horizontal, LumnoTheme.Spacing.md)
 
             ForEach(project.sessions) { session in
-                @Bindable var state = appState
+                @Bindable
+                var state = appState
                 Button {
                     state.selectedNav = .sessions
                     state.selectedSession = session

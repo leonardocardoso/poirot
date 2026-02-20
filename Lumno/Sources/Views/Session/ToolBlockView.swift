@@ -1,9 +1,15 @@
 import SwiftUI
 
-struct ToolBlockView: View {
+struct ToolBlockView: View, Equatable {
     let tool: ToolUse
-    @Environment(\.provider) private var provider
-    @State private var isExpanded = false
+    @Environment(\.provider)
+    private var provider
+    @State
+    private var isExpanded = false
+
+    static func == (lhs: ToolBlockView, rhs: ToolBlockView) -> Bool {
+        lhs.tool == rhs.tool
+    }
 
     var body: some View {
         VStack(spacing: 0) {

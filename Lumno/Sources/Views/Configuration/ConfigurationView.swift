@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct ConfigurationView: View {
-    @Environment(\.provider) private var provider
+    @Environment(\.provider)
+    private var provider
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,7 +28,7 @@ struct ConfigurationView: View {
                 LazyVGrid(
                     columns: [
                         GridItem(.flexible(), spacing: LumnoTheme.Spacing.lg),
-                        GridItem(.flexible(), spacing: LumnoTheme.Spacing.lg)
+                        GridItem(.flexible(), spacing: LumnoTheme.Spacing.lg),
                     ],
                     spacing: LumnoTheme.Spacing.lg
                 ) {
@@ -48,7 +49,8 @@ struct ConfigurationView: View {
 
 private struct ConfigCard: View {
     let item: ConfigurationItem
-    @State private var isHovered = false
+    @State
+    private var isHovered = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: LumnoTheme.Spacing.sm) {

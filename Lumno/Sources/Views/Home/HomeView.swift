@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(AppState.self) private var appState
-    @Environment(\.provider) private var provider
+    @Environment(AppState.self)
+    private var appState
+    @Environment(\.provider)
+    private var provider
 
     var body: some View {
         VStack(spacing: 0) {
@@ -108,7 +110,7 @@ struct HomeView: View {
                 Spacer()
 
                 HStack(spacing: 6) {
-                    Button {} label: {
+                    Button { } label: {
                         Image(systemName: "mic")
                             .font(.system(size: 12))
                             .foregroundStyle(LumnoTheme.Colors.textSecondary)
@@ -117,7 +119,7 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    Button {} label: {
+                    Button { } label: {
                         Image(systemName: "arrow.up")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(LumnoTheme.Colors.bgApp)
@@ -186,7 +188,7 @@ private struct TagButton: View {
     var isAccent: Bool = false
 
     var body: some View {
-        Button {} label: {
+        Button { } label: {
             HStack(spacing: 5) {
                 Image(systemName: icon)
                     .font(.system(size: 10))

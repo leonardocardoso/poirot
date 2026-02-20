@@ -2,7 +2,8 @@ import SwiftUI
 
 @main
 struct LumnoApp: App {
-    @State private var appState = AppState()
+    @State
+    private var appState = AppState()
 
     var body: some Scene {
         WindowGroup {

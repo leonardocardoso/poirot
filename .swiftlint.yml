@@ -130,6 +130,13 @@ only_rules:
     - weak_delegate
     - yoda_condition
 
+attributes:
+    always_on_line_above:
+        - "@Bindable"
+        - "@FocusState"
+        - "@State"
+        - "@ViewBuilder"
+
 closure_body_length:
     warning: 150
     error: 180

@@ -1,11 +1,11 @@
+@testable import Lumno
 import Foundation
 import Testing
-@testable import Lumno
 
 @Suite("Project Model")
 struct ProjectTests {
-
-    @Test func recentSession_returnsMostRecent() {
+    @Test
+    func recentSession_returnsMostRecent() {
         let older = Session(
             id: "1", projectPath: "/path", messages: [],
             startedAt: Date(timeIntervalSince1970: 1000),
@@ -20,12 +20,14 @@ struct ProjectTests {
         #expect(project.recentSession?.id == "2")
     }
 
-    @Test func recentSession_withNoSessions_returnsNil() {
+    @Test
+    func recentSession_withNoSessions_returnsNil() {
         let project = Project(id: "p1", name: "test", path: "/path", sessions: [])
         #expect(project.recentSession == nil)
     }
 
-    @Test func recentSession_withSingleSession_returnsThatSession() {
+    @Test
+    func recentSession_withSingleSession_returnsThatSession() {
         let session = Session(
             id: "only", projectPath: "/path", messages: [],
             startedAt: .now, model: nil, totalTokens: 0

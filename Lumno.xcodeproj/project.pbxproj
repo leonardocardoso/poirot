@@ -3,11 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */; };
+		0E320F45BAE4F656AF8FFF38 /* AppStateCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76D718865E2EEBB5942610 /* AppStateCacheTests.swift */; };
 		11E8D105BF5D57AE1C9FAD1F /* ProviderCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639ECF7A89EA0B5396499002 /* ProviderCapability.swift */; };
 		12B126ED93402658B44B5C95 /* ProjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051CC38A33328E65D675A2E1 /* ProjectTests.swift */; };
 		26C171F912E800F59B32F392 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */; };
@@ -35,9 +36,11 @@
 		BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */; };
 		C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */; };
 		C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */; };
+		D370E382CD77CE86767DF45C /* SessionSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADB53DB705D19D2E9FE8C61F /* SessionSkeletonView.swift */; };
 		D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E876CA975AFA2E40B4DDBC14 /* HomeView.swift */; };
 		D935D0F65DDC03DD2C21A231 /* NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100386EFF129481393BFCB65 /* NavigationItem.swift */; };
 		E3C04056927AEF474DFD04D6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFB417F5CA27CDEFEF8C31 /* ContentView.swift */; };
+		EC902329A535C4F446B04386 /* ShimmerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C58AABAD45648F6478AA053 /* ShimmerModifier.swift */; };
 		F35C6B7EF8D35AB2326E5ADF /* ClaudeCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A78892B74E07F5BC2596 /* ClaudeCodeProviderTests.swift */; };
 		FA04F2E1F5DC9E65B8DC8F33 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A408C825092B7A7D292479 /* AppState.swift */; };
 		FC832FA50B11E101A049CCB1 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEEF3D3B602D17DFE23FCB1 /* Project.swift */; };
@@ -56,6 +59,7 @@
 
 /* Begin PBXFileReference section */
 		051CC38A33328E65D675A2E1 /* ProjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTests.swift; sourceTree = "<group>"; };
+		0C58AABAD45648F6478AA053 /* ShimmerModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerModifier.swift; sourceTree = "<group>"; };
 		0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		100386EFF129481393BFCB65 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		17A408C825092B7A7D292479 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -65,6 +69,7 @@
 		2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptParser.swift; sourceTree = "<group>"; };
 		3061A613C0DB1C8AA798712F /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		307731283D6CD473215E5410 /* ToolBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBlockView.swift; sourceTree = "<group>"; };
+		3A76D718865E2EEBB5942610 /* AppStateCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateCacheTests.swift; sourceTree = "<group>"; };
 		3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptParserTests.swift; sourceTree = "<group>"; };
 		3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		457EB6CD3ED56881D688D414 /* ProviderDescribing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDescribing.swift; sourceTree = "<group>"; };
@@ -81,6 +86,7 @@
 		9601475B49F6C24ABAF3DE52 /* ConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationView.swift; sourceTree = "<group>"; };
 		988B5C79E5E0DB436276FEB5 /* Lumno.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lumno.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5E4AE89141360C30111032E /* NavigationItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItemTests.swift; sourceTree = "<group>"; };
+		ADB53DB705D19D2E9FE8C61F /* SessionSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSkeletonView.swift; sourceTree = "<group>"; };
 		AE58B67CFE3C7FA05A5EAC76 /* MessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTests.swift; sourceTree = "<group>"; };
 		BCF8A78892B74E07F5BC2596 /* ClaudeCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeProviderTests.swift; sourceTree = "<group>"; };
 		C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -116,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */,
+				ADB53DB705D19D2E9FE8C61F /* SessionSkeletonView.swift */,
 				307731283D6CD473215E5410 /* ToolBlockView.swift */,
 			);
 			path = Session;
@@ -176,10 +183,19 @@
 		451EBC1993EE6C6F3EF29261 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				0C58AABAD45648F6478AA053 /* ShimmerModifier.swift */,
 				C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */,
 				3061A613C0DB1C8AA798712F /* StatusBarView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		46216390EA96AB1FDC46AC7E /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3A76D718865E2EEBB5942610 /* AppStateCacheTests.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 		4DCF07F3133DA2518E65A15E /* Protocols */ = {
@@ -272,6 +288,7 @@
 		C0BC5F7A48955D2E0EDF0964 /* LumnoTests */ = {
 			isa = PBXGroup;
 			children = (
+				46216390EA96AB1FDC46AC7E /* App */,
 				83687CF8D1AA4876A1593608 /* Models */,
 				B216BEC88371607FA8781AEC /* Providers */,
 				2BD006310572BAFA6A7CAC6A /* Services */,
@@ -371,7 +388,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2630;
 			};
 			buildConfigurationList = 13EE1DADF81DE2F9BB23DF7C /* Build configuration list for PBXProject "Lumno" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -386,7 +403,6 @@
 			packageReferences = (
 				630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -414,7 +430,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint > /dev/null; then\n  swiftlint lint --config \"${SRCROOT}/.swiftlint.yml\" \"${SRCROOT}/Lumno/Sources\"\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin:/usr/local/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint lint --config \"${SRCROOT}/.swiftlint.yml\" \"${SRCROOT}/Lumno/Sources\"\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -423,6 +439,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E320F45BAE4F656AF8FFF38 /* AppStateCacheTests.swift in Sources */,
 				F35C6B7EF8D35AB2326E5ADF /* ClaudeCodeProviderTests.swift in Sources */,
 				FCBD3B9445A14D8D43DE211E /* MessageTests.swift in Sources */,
 				2CA4AC257A3F7676EB60C998 /* NavigationItemTests.swift in Sources */,
@@ -457,7 +474,9 @@
 				26C171F912E800F59B32F392 /* SessionDetailView.swift in Sources */,
 				56683DF85C4BEB40C240992C /* SessionLoader.swift in Sources */,
 				52D39E0E4B5C75B1B899B312 /* SessionLoading.swift in Sources */,
+				D370E382CD77CE86767DF45C /* SessionSkeletonView.swift in Sources */,
 				2C102F530BCAD366E45A7EFD /* SettingsView.swift in Sources */,
+				EC902329A535C4F446B04386 /* ShimmerModifier.swift in Sources */,
 				5A7A6F058A9E22079657E1E4 /* SidebarView.swift in Sources */,
 				60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */,
 				98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */,
@@ -511,6 +530,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -534,6 +554,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -547,6 +568,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -566,6 +588,7 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
@@ -589,6 +612,7 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
@@ -610,6 +634,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -656,6 +681,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -672,6 +698,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
