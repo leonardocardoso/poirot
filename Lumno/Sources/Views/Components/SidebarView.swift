@@ -74,7 +74,7 @@ struct SidebarView: View {
 
     private var projectsSkeletonRows: some View {
         VStack(alignment: .leading, spacing: LumnoTheme.Spacing.lg) {
-            ForEach(0 ..< 3, id: \.self) { groupIndex in
+            ForEach(0 ..< 5, id: \.self) { groupIndex in
                 VStack(alignment: .leading, spacing: 2) {
                     // Project name placeholder
                     sidebarSkeletonRect(
@@ -111,12 +111,14 @@ struct SidebarView: View {
     }
 
     // Fixed widths to avoid re-render jitter
-    private static let projectNameWidths: [CGFloat] = [100, 80, 110]
-    private static let sessionCounts = [3, 2, 4]
+    private static let projectNameWidths: [CGFloat] = [100, 80, 110, 90, 105]
+    private static let sessionCounts = [4, 3, 5, 2, 4]
     private static let sessionTitleWidths: [[CGFloat]] = [
-        [140, 110, 130],
-        [120, 150],
-        [130, 100, 145, 115],
+        [140, 110, 130, 100],
+        [120, 150, 135],
+        [130, 100, 145, 115, 125],
+        [140, 110],
+        [125, 135, 105, 145],
     ]
 
     // MARK: - Footer
