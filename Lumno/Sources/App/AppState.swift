@@ -26,21 +26,38 @@ final class AppState {
     var isLoadingMoreProjects: Bool = true
     var isLoadingSession: Bool = false
     var projectSortOption: ProjectSortOption = .recentActivity
+    var sidebarSearchQuery: String = ""
+    var refreshID: UUID = .init()
     private(set) var sessionCache: [String: Session] = [:]
 
-    var sortedProjects: [Project] {
-        let filtered = projects.filter { !$0.sessions.isEmpty }
+    var filteredSortedProjects: [Project] {
+        let nonEmpty = projects.filter { !$0.sessions.isEmpty }
+        let searched: [Project]
+        let trimmed = sidebarSearchQuery.trimmingCharacters(in: .whitespaces)
+        if trimmed.isEmpty {
+            searched = nonEmpty
+        } else {
+            let query = trimmed.lowercased()
+            searched = nonEmpty.compactMap { project in
+                if project.name.lowercased().contains(query) { return project }
+                let matchingSessions = project.sessions.filter {
+                    $0.title.lowercased().contains(query)
+                }
+                if matchingSessions.isEmpty { return nil }
+                return Project(id: project.id, name: project.name, path: project.path, sessions: matchingSessions)
+            }
+        }
         switch projectSortOption {
         case .recentActivity:
-            return filtered.sorted {
+            return searched.sorted {
                 ($0.recentSession?.startedAt ?? .distantPast) > ($1.recentSession?.startedAt ?? .distantPast)
             }
         case .name:
-            return filtered.sorted {
+            return searched.sorted {
                 $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
             }
         case .sessionCount:
-            return filtered.sorted { $0.sessions.count > $1.sessions.count }
+            return searched.sorted { $0.sessions.count > $1.sessions.count }
         }
     }
 
