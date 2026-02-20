@@ -40,12 +40,32 @@ private struct GeneralSettingsView: View {
 }
 
 private struct AppearanceSettingsView: View {
+    @Environment(AppState.self)
+    private var appState
     @AppStorage("showAnimations")
     private var showAnimations = true
 
     var body: some View {
+        @Bindable
+        var appState = appState
         Form {
             Toggle("Message streaming animations", isOn: $showAnimations)
+
+            HStack {
+                Text("Font Size")
+                Spacer()
+                Button { appState.decreaseFontScale() } label: {
+                    Image(systemName: "minus")
+                }
+                Text("\(Int(round(appState.fontScale * 100)))%")
+                    .monospacedDigit()
+                    .frame(width: 44, alignment: .center)
+                Button { appState.increaseFontScale() } label: {
+                    Image(systemName: "plus")
+                }
+                Button("Reset") { appState.resetFontScale() }
+                    .disabled(appState.fontScale == 1.0)
+            }
         }
         .padding()
     }
