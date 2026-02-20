@@ -273,16 +273,18 @@ private struct ProjectRow: View {
                         .font(LumnoTheme.Typography.captionMedium)
                         .foregroundStyle(isSelected ? LumnoTheme.Colors.accent : LumnoTheme.Colors.textPrimary)
 
-                    Spacer()
+                    Spacer(minLength: LumnoTheme.Spacing.sm)
 
-                    if isHovered || isMenuPresented {
-                        projectMenu
-                            .transition(.opacity)
-                    } else {
+                    ZStack {
                         Text("\(project.sessions.count)")
                             .font(LumnoTheme.Typography.tiny)
                             .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                            .opacity(isHovered || isMenuPresented ? 0 : 1)
+
+                        projectMenu
+                            .opacity(isHovered || isMenuPresented ? 1 : 0)
                     }
+                    .fixedSize()
                 }
                 .padding(.vertical, 4)
                 .padding(.horizontal, LumnoTheme.Spacing.md)
@@ -355,7 +357,7 @@ private struct ProjectRow: View {
                 }
             }
             .padding(6)
-            .frame(width: 150)
+            .frame(width: 170)
         }
         .onChange(of: isMenuPresented) { _, presented in
             if !presented {
@@ -468,7 +470,7 @@ private struct SessionRow: View {
                 }
             }
             .padding(6)
-            .frame(width: 150)
+            .frame(width: 170)
         }
         .onChange(of: isMenuPresented) { _, presented in
             if !presented {
