@@ -1,15 +1,17 @@
 import SwiftUI
 
-struct ToolBlockView: View, Equatable {
+struct ToolBlockView: View {
     let tool: ToolUse
+    var result: ToolResult?
+
     @Environment(\.provider)
     private var provider
     @State
     private var isExpanded = false
+    @State
+    private var copied = false
 
-    static func == (lhs: ToolBlockView, rhs: ToolBlockView) -> Bool {
-        lhs.tool == rhs.tool
-    }
+    private var isError: Bool { result?.isError == true }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -37,20 +39,21 @@ struct ToolBlockView: View, Equatable {
 
                     Spacer()
 
-                    Text("Done")
+                    Text(isError ? "Error" : "Done")
                         .font(.system(size: 10, weight: .semibold))
                         .textCase(.uppercase)
-                        .foregroundStyle(LumnoTheme.Colors.green)
+                        .foregroundStyle(isError ? LumnoTheme.Colors.red : LumnoTheme.Colors.green)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1)
                         .background(
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(LumnoTheme.Colors.green.opacity(0.1))
+                                .fill((isError ? LumnoTheme.Colors.red : LumnoTheme.Colors.green).opacity(0.1))
                         )
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                        .contentTransition(.symbolEffect(.replace))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
@@ -61,19 +64,67 @@ struct ToolBlockView: View, Equatable {
             if isExpanded {
                 Divider().opacity(0.3)
 
-                // Placeholder for tool content (diffs, command output, etc.)
-                Text("Tool output content")
-                    .font(LumnoTheme.Typography.code)
-                    .foregroundStyle(LumnoTheme.Colors.textSecondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(14)
+                if let content = result?.content, !content.isEmpty {
+                    ZStack(alignment: .topTrailing) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            Text(content)
+                                .font(LumnoTheme.Typography.code)
+                                .foregroundStyle(
+                                    isError
+                                        ? LumnoTheme.Colors.red.opacity(0.8)
+                                        : LumnoTheme.Colors.textSecondary
+                                )
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(14)
+                        .padding(.trailing, 30)
+
+                        copyButton(content: content)
+                            .padding(8)
+                    }
                     .background(LumnoTheme.Colors.bgCode)
+                } else {
+                    Text("No output")
+                        .font(LumnoTheme.Typography.code)
+                        .foregroundStyle(LumnoTheme.Colors.textTertiary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .background(LumnoTheme.Colors.bgCode)
+                }
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: LumnoTheme.Radius.md))
         .overlay(
             RoundedRectangle(cornerRadius: LumnoTheme.Radius.md)
-                .stroke(LumnoTheme.Colors.border)
+                .stroke(isError ? LumnoTheme.Colors.red.opacity(0.2) : LumnoTheme.Colors.border)
         )
+    }
+
+    private func copyButton(content: String) -> some View {
+        Button {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(content, forType: .string)
+            copied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                copied = false
+            }
+        } label: {
+            Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                .font(.system(size: 11))
+                .foregroundStyle(copied ? LumnoTheme.Colors.green : LumnoTheme.Colors.textTertiary)
+                .contentTransition(.symbolEffect(.replace))
+                .frame(width: 26, height: 26)
+                .background(
+                    RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                        .fill(LumnoTheme.Colors.bgElevated)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: LumnoTheme.Radius.sm)
+                                .stroke(copied ? LumnoTheme.Colors.green.opacity(0.3) : LumnoTheme.Colors.border)
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.2), value: copied)
     }
 }

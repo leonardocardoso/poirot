@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		023DB7C2F0A7D73515E73F24 /* SystemContentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1190EA820EA4BDF3FA3961C0 /* SystemContentParser.swift */; };
 		0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */; };
 		0E320F45BAE4F656AF8FFF38 /* AppStateCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76D718865E2EEBB5942610 /* AppStateCacheTests.swift */; };
 		11E8D105BF5D57AE1C9FAD1F /* ProviderCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639ECF7A89EA0B5396499002 /* ProviderCapability.swift */; };
@@ -14,6 +15,7 @@
 		26C171F912E800F59B32F392 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */; };
 		2BBCA2EB25AF5B45E4ED476C /* SwiftMockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 012DEC4F48F3572155658765 /* SwiftMockKit */; };
 		2C102F530BCAD366E45A7EFD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */; };
+		2C980EE504C60B983AB4C578 /* SystemContentParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F1A041382275A225E5110B /* SystemContentParserTests.swift */; };
 		2CA4AC257A3F7676EB60C998 /* NavigationItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E4AE89141360C30111032E /* NavigationItemTests.swift */; };
 		2F23B4495167093840BBEE47 /* ProviderDescribing+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F47A84F9DCA0A367C74C7 /* ProviderDescribing+Defaults.swift */; };
 		3B19D69F6427207782F6F54F /* TranscriptParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD2B2D9C710343418D0E84C /* TranscriptParser.swift */; };
@@ -25,8 +27,11 @@
 		5A7A6F058A9E22079657E1E4 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */; };
 		5E6EC27EC4A08AC64E388879 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9037065BDCD04E4E9E76BEA /* Session.swift */; };
 		60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3061A613C0DB1C8AA798712F /* StatusBarView.swift */; };
+		63B4251B7611D807A1B5EDCD /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = D87CE8454F4211FBE6ADD142 /* MarkdownUI */; };
 		6B61003B582CF2ED6236A6E7 /* SwiftMockKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6AD65A09BE1FE71B5CD3CA89 /* SwiftMockKit */; };
 		6BA1D375175BFBFD869EDFDD /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 708F35B9F72515D84EEB70C4 /* Message.swift */; };
+		75794BA610E4979C35C2ED28 /* TerminalLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6008163C9D4C6AED61B61D4 /* TerminalLauncher.swift */; };
+		8897537D0FBC9E361BDC0100 /* HighlightSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C4764D8C96FD00D2CDDE9ED7 /* HighlightSwift */; };
 		8AC8BC83CDF4EFC3359ECB55 /* ToolDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28886CD412EB2A60FEE84B2A /* ToolDefinition.swift */; };
 		8E5C88512AEDA55F3B784F17 /* ConfigurationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD9E9CAAA9AEFDC566F4F7B /* ConfigurationItem.swift */; };
 		8F3756044667E9FA2297BBE7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71431170E3B810AA44107D61 /* Assets.xcassets */; };
@@ -36,6 +41,7 @@
 		998BFFDD032A2DDFD6174EE2 /* ProjectSessionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C25891AA3D33D128DC54A2 /* ProjectSessionsView.swift */; };
 		AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B8CBA1726156160D0996CE /* LumnoTheme.swift */; };
 		AF8CE28964613DED136703EC /* SearchOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */; };
+		B6AF7BF9D2D9668D6D4F7CF7 /* LumnoMarkdownTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A34E48CD77D3005DEDC7E5B /* LumnoMarkdownTheme.swift */; };
 		BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC9EF5047FC94E9E90EFD68 /* TranscriptParserTests.swift */; };
 		C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */; };
 		C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */; };
@@ -43,6 +49,7 @@
 		D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E876CA975AFA2E40B4DDBC14 /* HomeView.swift */; };
 		D935D0F65DDC03DD2C21A231 /* NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100386EFF129481393BFCB65 /* NavigationItem.swift */; };
 		E3C04056927AEF474DFD04D6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AFB417F5CA27CDEFEF8C31 /* ContentView.swift */; };
+		E9E4892F61697CBBE6BCBB94 /* SystemContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59AF509663B760B493381163 /* SystemContentView.swift */; };
 		EC902329A535C4F446B04386 /* ShimmerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C58AABAD45648F6478AA053 /* ShimmerModifier.swift */; };
 		F35C6B7EF8D35AB2326E5ADF /* ClaudeCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF8A78892B74E07F5BC2596 /* ClaudeCodeProviderTests.swift */; };
 		FA04F2E1F5DC9E65B8DC8F33 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A408C825092B7A7D292479 /* AppState.swift */; };
@@ -66,6 +73,7 @@
 		0C58AABAD45648F6478AA053 /* ShimmerModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerModifier.swift; sourceTree = "<group>"; };
 		0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		100386EFF129481393BFCB65 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
+		1190EA820EA4BDF3FA3961C0 /* SystemContentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemContentParser.swift; sourceTree = "<group>"; };
 		17A408C825092B7A7D292479 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		1FB517C4D73A5922CE2C71E5 /* LumnoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoApp.swift; sourceTree = "<group>"; };
 		22C25891AA3D33D128DC54A2 /* ProjectSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSessionsView.swift; sourceTree = "<group>"; };
@@ -79,12 +87,15 @@
 		3EFAA0DE7B3DC19CF40266F3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		457EB6CD3ED56881D688D414 /* ProviderDescribing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderDescribing.swift; sourceTree = "<group>"; };
 		4C231C1559C1333FE6DB7F0A /* SessionLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoaderTests.swift; sourceTree = "<group>"; };
+		55F1A041382275A225E5110B /* SystemContentParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemContentParserTests.swift; sourceTree = "<group>"; };
 		56C3551FBDF9B29879A6063D /* LumnoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LumnoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		59052D971EFD463145948C58 /* SessionLoading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLoading.swift; sourceTree = "<group>"; };
+		59AF509663B760B493381163 /* SystemContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemContentView.swift; sourceTree = "<group>"; };
 		59E5E92BB56B08305622B044 /* ClaudeCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeProvider.swift; sourceTree = "<group>"; };
 		639ECF7A89EA0B5396499002 /* ProviderCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderCapability.swift; sourceTree = "<group>"; };
 		708F35B9F72515D84EEB70C4 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		71431170E3B810AA44107D61 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7A34E48CD77D3005DEDC7E5B /* LumnoMarkdownTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoMarkdownTheme.swift; sourceTree = "<group>"; };
 		7AEEF3D3B602D17DFE23FCB1 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		84041BC9485193ED6A85E3D2 /* Environment+Services.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Services.swift"; sourceTree = "<group>"; };
 		8B5DB03AF7CF5BD6007383E1 /* SearchOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchOverlayView.swift; sourceTree = "<group>"; };
@@ -99,6 +110,7 @@
 		C0ED071768CEB67D2BFCCE27 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		C14F47A84F9DCA0A367C74C7 /* ProviderDescribing+Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProviderDescribing+Defaults.swift"; sourceTree = "<group>"; };
 		C40E23F1D1FED7DC4E5C2515 /* SessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTests.swift; sourceTree = "<group>"; };
+		C6008163C9D4C6AED61B61D4 /* TerminalLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLauncher.swift; sourceTree = "<group>"; };
 		D3B8CBA1726156160D0996CE /* LumnoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumnoTheme.swift; sourceTree = "<group>"; };
 		E876CA975AFA2E40B4DDBC14 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		F9037065BDCD04E4E9E76BEA /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -111,6 +123,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BBCA2EB25AF5B45E4ED476C /* SwiftMockKit in Frameworks */,
+				63B4251B7611D807A1B5EDCD /* MarkdownUI in Frameworks */,
+				8897537D0FBC9E361BDC0100 /* HighlightSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +144,7 @@
 			children = (
 				0DF37F39FB1BAEE4AA537F2B /* SessionDetailView.swift */,
 				ADB53DB705D19D2E9FE8C61F /* SessionSkeletonView.swift */,
+				59AF509663B760B493381163 /* SystemContentView.swift */,
 				307731283D6CD473215E5410 /* ToolBlockView.swift */,
 			);
 			path = Session;
@@ -144,6 +159,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		1B9519119F85DF00C55C67C4 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				55F1A041382275A225E5110B /* SystemContentParserTests.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		1CE240ECC35BD2D230B140DD /* Providers */ = {
 			isa = PBXGroup;
 			children = (
@@ -155,6 +178,8 @@
 		20AFABEE0359DCBDFAF6FADA /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				1190EA820EA4BDF3FA3961C0 /* SystemContentParser.swift */,
+				C6008163C9D4C6AED61B61D4 /* TerminalLauncher.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -226,6 +251,7 @@
 		681EADB8ADFEDE72F23B775A /* Theme */ = {
 			isa = PBXGroup;
 			children = (
+				7A34E48CD77D3005DEDC7E5B /* LumnoMarkdownTheme.swift */,
 				D3B8CBA1726156160D0996CE /* LumnoTheme.swift */,
 			);
 			path = Theme;
@@ -318,6 +344,7 @@
 				83687CF8D1AA4876A1593608 /* Models */,
 				B216BEC88371607FA8781AEC /* Providers */,
 				2BD006310572BAFA6A7CAC6A /* Services */,
+				1B9519119F85DF00C55C67C4 /* Utilities */,
 			);
 			path = LumnoTests;
 			sourceTree = "<group>";
@@ -404,6 +431,8 @@
 			name = Lumno;
 			packageProductDependencies = (
 				012DEC4F48F3572155658765 /* SwiftMockKit */,
+				D87CE8454F4211FBE6ADD142 /* MarkdownUI */,
+				C4764D8C96FD00D2CDDE9ED7 /* HighlightSwift */,
 			);
 			productName = Lumno;
 			productReference = 988B5C79E5E0DB436276FEB5 /* Lumno.app */;
@@ -416,7 +445,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2630;
+				LastUpgradeCheck = 2610;
 			};
 			buildConfigurationList = 13EE1DADF81DE2F9BB23DF7C /* Build configuration list for PBXProject "Lumno" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -429,8 +458,11 @@
 			mainGroup = FA224C14499CF9AEF0E91E27;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				89365241123042BC359E72A6 /* XCRemoteSwiftPackageReference "HighlightSwift" */,
+				E2BDF82833AFBB6690E771F2 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -486,6 +518,7 @@
 				12B126ED93402658B44B5C95 /* ProjectTests.swift in Sources */,
 				C025CF0085BE83FBF66BA2AE /* SessionLoaderTests.swift in Sources */,
 				0CF8DC8CAC57D2A29AEFBE43 /* SessionTests.swift in Sources */,
+				2C980EE504C60B983AB4C578 /* SystemContentParserTests.swift in Sources */,
 				BF6034BBD011DC415578086D /* TranscriptParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -502,6 +535,7 @@
 				95D1C11C6151C59284E19D9B /* Environment+Services.swift in Sources */,
 				D70B1D20BC38754386B8FA84 /* HomeView.swift in Sources */,
 				C31AA31BA95ECFF5F9ECC4F1 /* LumnoApp.swift in Sources */,
+				B6AF7BF9D2D9668D6D4F7CF7 /* LumnoMarkdownTheme.swift in Sources */,
 				AC89D8F56EB3C085DD80C38B /* LumnoTheme.swift in Sources */,
 				6BA1D375175BFBFD869EDFDD /* Message.swift in Sources */,
 				D935D0F65DDC03DD2C21A231 /* NavigationItem.swift in Sources */,
@@ -520,6 +554,9 @@
 				EC902329A535C4F446B04386 /* ShimmerModifier.swift in Sources */,
 				5A7A6F058A9E22079657E1E4 /* SidebarView.swift in Sources */,
 				60C22761A6DDE99DA945DC33 /* StatusBarView.swift in Sources */,
+				023DB7C2F0A7D73515E73F24 /* SystemContentParser.swift in Sources */,
+				E9E4892F61697CBBE6BCBB94 /* SystemContentView.swift in Sources */,
+				75794BA610E4979C35C2ED28 /* TerminalLauncher.swift in Sources */,
 				98E5C011C38CFB5BDE750066 /* ToolBlockView.swift in Sources */,
 				8AC8BC83CDF4EFC3359ECB55 /* ToolDefinition.swift in Sources */,
 				3B19D69F6427207782F6F54F /* TranscriptParser.swift in Sources */,
@@ -541,7 +578,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -572,7 +608,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -596,7 +631,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -610,7 +644,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -630,7 +663,6 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
@@ -656,7 +688,6 @@
 				CODE_SIGN_ENTITLEMENTS = Lumno/Resources/Lumno.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Lumno;
@@ -680,7 +711,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -697,7 +727,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -728,7 +757,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -745,7 +773,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -795,6 +822,22 @@
 				kind = branch;
 			};
 		};
+		89365241123042BC359E72A6 /* XCRemoteSwiftPackageReference "HighlightSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appstefan/HighlightSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
+		E2BDF82833AFBB6690E771F2 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -807,6 +850,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 630B82B8CC381F5550316D14 /* XCRemoteSwiftPackageReference "SwiftMockKit-mirror" */;
 			productName = SwiftMockKit;
+		};
+		C4764D8C96FD00D2CDDE9ED7 /* HighlightSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89365241123042BC359E72A6 /* XCRemoteSwiftPackageReference "HighlightSwift" */;
+			productName = HighlightSwift;
+		};
+		D87CE8454F4211FBE6ADD142 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2BDF82833AFBB6690E771F2 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

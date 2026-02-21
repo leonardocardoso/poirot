@@ -33,6 +33,15 @@ nonisolated struct Message: Identifiable, Hashable {
             return nil
         }
     }
+
+    var toolResultBlocks: [ToolResult] {
+        content.compactMap { block in
+            if case let .toolResult(result) = block {
+                return result
+            }
+            return nil
+        }
+    }
 }
 
 nonisolated enum ContentBlock: Hashable {

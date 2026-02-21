@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ShimmerModifier: ViewModifier {
+    var cornerRadius: CGFloat = 0
+
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
     @State
@@ -23,7 +25,7 @@ struct ShimmerModifier: ViewModifier {
                         .frame(width: gradientWidth)
                         .offset(x: -gradientWidth + phase * (width + gradientWidth))
                     }
-                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                 }
             }
             .onAppear {
@@ -36,8 +38,8 @@ struct ShimmerModifier: ViewModifier {
 }
 
 extension View {
-    func shimmer() -> some View {
-        modifier(ShimmerModifier())
+    func shimmer(cornerRadius: CGFloat = 0) -> some View {
+        modifier(ShimmerModifier(cornerRadius: cornerRadius))
     }
 
     func shimmerReveal(isRevealed: Bool, delay: Double = 0, cornerRadius: CGFloat = 0) -> some View {
@@ -65,7 +67,7 @@ struct ShimmerRevealModifier: ViewModifier {
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .strokeBorder(LumnoTheme.Colors.border, lineWidth: 1)
                         )
-                        .shimmer()
+                        .shimmer(cornerRadius: cornerRadius)
                         .opacity(isRevealed ? 0 : 1)
                         .animation(.easeOut(duration: 0.35).delay(delay), value: isRevealed)
                         .allowsHitTesting(false)
