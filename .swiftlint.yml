@@ -133,6 +133,7 @@ only_rules:
 attributes:
     always_on_line_above:
         - "@Bindable"
+        - "@Binding"
         - "@FocusState"
         - "@State"
         - "@ViewBuilder"

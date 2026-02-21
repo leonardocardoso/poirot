@@ -74,7 +74,7 @@ nonisolated struct Session: Identifiable, Hashable {
 // MARK: - Helpers
 
 nonisolated private extension String {
-    nonisolated(unsafe) static let xmlTagRegex = try? NSRegularExpression(pattern: "<[^>]+>")
+    static let xmlTagRegex = try? NSRegularExpression(pattern: "<[^>]+>")
 
     func strippingXMLTags() -> String {
         guard let regex = Self.xmlTagRegex else { return self }

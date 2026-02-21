@@ -204,7 +204,7 @@ struct SidebarView: View {
         RoundedRectangle(cornerRadius: 4)
             .fill(LumnoTheme.Colors.bgCard)
             .frame(width: width, height: height)
-            .shimmer()
+            .shimmer(cornerRadius: 4)
     }
 
     // Fixed widths to avoid re-render jitter
@@ -321,43 +321,47 @@ private struct ProjectRow: View {
         .buttonStyle(.plain)
         .popover(isPresented: $isMenuPresented, arrowEdge: .trailing) {
             VStack(alignment: .leading, spacing: 2) {
-                if isConfirmingDelete {
-                    PopoverMenuItem(
-                        label: "Confirm",
-                        systemImage: "checkmark",
-                        foreground: LumnoTheme.Colors.red
-                    ) {
+                PopoverMenuItem(
+                    label: "Copy Folder Name",
+                    systemImage: "doc.on.doc"
+                ) {
+                    let url = appState.projectDirectoryURL(for: project)
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(url.lastPathComponent, forType: .string)
+                    isMenuPresented = false
+                }
+
+                PopoverMenuItem(
+                    label: "Reveal in Finder",
+                    systemImage: "folder"
+                ) {
+                    let url = appState.projectDirectoryURL(for: project)
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                    isMenuPresented = false
+                }
+
+                Divider()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+
+                PopoverMenuItem(
+                    label: isConfirmingDelete ? "Confirm Delete" : "Delete",
+                    systemImage: isConfirmingDelete ? "checkmark" : "trash",
+                    foreground: LumnoTheme.Colors.red
+                ) {
+                    if isConfirmingDelete {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             appState.deleteProject(project)
                         }
                         isMenuPresented = false
                         isConfirmingDelete = false
-                    }
-                } else {
-                    PopoverMenuItem(
-                        label: "Reveal in Finder",
-                        systemImage: "folder"
-                    ) {
-                        let url = appState.projectDirectoryURL(for: project)
-                        NSWorkspace.shared.activateFileViewerSelecting([url])
-                        isMenuPresented = false
-                    }
-
-                    Divider()
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-
-                    PopoverMenuItem(
-                        label: "Delete",
-                        systemImage: "trash",
-                        foreground: LumnoTheme.Colors.textSecondary
-                    ) {
+                    } else {
                         isConfirmingDelete = true
                     }
                 }
             }
             .padding(6)
-            .frame(width: 170)
+            .frame(width: 190)
         }
         .onChange(of: isMenuPresented) { _, presented in
             if !presented {
@@ -373,6 +377,8 @@ private struct SessionRow: View {
     let session: Session
     @Environment(AppState.self)
     private var appState
+    @Environment(\.provider)
+    private var provider
     @State
     private var isHovered = false
     @State
@@ -433,50 +439,74 @@ private struct SessionRow: View {
         .buttonStyle(.plain)
         .popover(isPresented: $isMenuPresented, arrowEdge: .trailing) {
             VStack(alignment: .leading, spacing: 2) {
-                if isConfirmingDelete {
+                PopoverMenuItem(
+                    label: "Resume",
+                    systemImage: "arrow.uturn.forward"
+                ) {
+                    Self.openTerminalWithResume(
+                        cliPath: provider.cliPath,
+                        sessionId: session.id,
+                        projectPath: session.projectPath
+                    )
+                    isMenuPresented = false
+                }
+
+                if let url = session.fileURL {
                     PopoverMenuItem(
-                        label: "Confirm",
-                        systemImage: "checkmark",
-                        foreground: LumnoTheme.Colors.red
+                        label: "Copy File Name",
+                        systemImage: "doc.on.doc"
                     ) {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(url.lastPathComponent, forType: .string)
+                        isMenuPresented = false
+                    }
+
+                    PopoverMenuItem(
+                        label: "Reveal in Finder",
+                        systemImage: "folder"
+                    ) {
+                        NSWorkspace.shared.activateFileViewerSelecting([url])
+                        isMenuPresented = false
+                    }
+                }
+
+                Divider()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+
+                PopoverMenuItem(
+                    label: isConfirmingDelete ? "Confirm Delete" : "Delete",
+                    systemImage: isConfirmingDelete ? "checkmark" : "trash",
+                    foreground: LumnoTheme.Colors.red
+                ) {
+                    if isConfirmingDelete {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             appState.deleteSession(session)
                         }
                         isMenuPresented = false
                         isConfirmingDelete = false
-                    }
-                } else {
-                    if let url = session.fileURL {
-                        PopoverMenuItem(
-                            label: "Reveal in Finder",
-                            systemImage: "folder"
-                        ) {
-                            NSWorkspace.shared.activateFileViewerSelecting([url])
-                            isMenuPresented = false
-                        }
-
-                        Divider()
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                    }
-
-                    PopoverMenuItem(
-                        label: "Delete",
-                        systemImage: "trash",
-                        foreground: LumnoTheme.Colors.textSecondary
-                    ) {
+                    } else {
                         isConfirmingDelete = true
                     }
                 }
             }
             .padding(6)
-            .frame(width: 170)
+            .frame(width: 190)
         }
         .onChange(of: isMenuPresented) { _, presented in
             if !presented {
                 isConfirmingDelete = false
             }
         }
+    }
+
+    private static func openTerminalWithResume(
+        cliPath: String,
+        sessionId: String,
+        projectPath: String
+    ) {
+        let command = "cd \(projectPath.shellEscaped) && \(cliPath) --resume \(sessionId)"
+        TerminalLauncher.launch(command: command, clipboardText: "\(cliPath) --resume \(sessionId)")
     }
 }
 

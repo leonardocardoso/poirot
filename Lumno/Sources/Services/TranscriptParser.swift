@@ -125,7 +125,8 @@ nonisolated struct TranscriptParser {
             messages: messages,
             startedAt: startedAt,
             model: firstModel,
-            totalTokens: totalTokens
+            totalTokens: totalTokens,
+            fileURL: fileURL
         )
     }
 

@@ -11,6 +11,12 @@ packages:
   SwiftMockKit:
     url: https://github.com/leocardz/SwiftMockKit-mirror
     branch: main
+  MarkdownUI:
+    url: https://github.com/gonzalezreal/swift-markdown-ui
+    from: "2.4.0"
+  HighlightSwift:
+    url: https://github.com/appstefan/HighlightSwift
+    from: "1.1.0"
 
 settings:
   base:
@@ -29,6 +35,8 @@ targets:
       - path: Lumno/Resources
     dependencies:
       - package: SwiftMockKit
+      - package: MarkdownUI
+      - package: HighlightSwift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lumno.app
