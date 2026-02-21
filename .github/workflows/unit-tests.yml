@@ -30,7 +30,7 @@ on:
       xcode_version:
         description: 'Xcode Version'
         required: false
-        default: 'Xcode-16.3.0.app'
+        default: 'Xcode-26.0.0.app'
         type: string
 
   # ==========================================
@@ -42,10 +42,10 @@ on:
       xcode_version:
         description: 'Xcode Version'
         required: false
-        default: 'Xcode-16.3.0.app'
+        default: 'Xcode-26.0.0.app'
         type: choice
         options:
-          - 'Xcode-16.3.0.app'
+          - 'Xcode-26.0.0.app'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -71,7 +71,7 @@ jobs:
     # ==========================================
     - name: Setup Xcode
       run: |
-        XCODE_PATH="/Applications/${{ inputs.xcode_version || 'Xcode-16.3.0.app' }}"
+        XCODE_PATH="/Applications/${{ inputs.xcode_version || 'Xcode-26.0.0.app' }}"
         if [ -d "$XCODE_PATH" ]; then
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
         else
@@ -181,7 +181,7 @@ jobs:
         echo "### Configuration:" >> $GITHUB_STEP_SUMMARY
         echo "- **Scheme:** Lumno" >> $GITHUB_STEP_SUMMARY
         echo "- **Platform:** macOS" >> $GITHUB_STEP_SUMMARY
-        echo "- **Xcode:** ${{ inputs.xcode_version || 'Xcode-16.3.0.app' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Xcode:** ${{ inputs.xcode_version || 'Xcode-26.0.0.app' }}" >> $GITHUB_STEP_SUMMARY
 
     # ==========================================
     # STEP 11: CALCULATE DURATION
