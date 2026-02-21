@@ -110,7 +110,7 @@ struct SessionDetailView: View {
                 }
                 headerIconButton(
                     revealTapped ? "checkmark" : "folder",
-                    tooltip: "Reveal in Finder",
+                    tooltip: "Show in Finder",
                     active: revealTapped
                 ) {
                     revealInFinder()

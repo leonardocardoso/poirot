@@ -332,7 +332,7 @@ private struct ProjectRow: View {
                 }
 
                 PopoverMenuItem(
-                    label: "Reveal in Finder",
+                    label: "Show in Finder",
                     systemImage: "folder"
                 ) {
                     let url = appState.projectDirectoryURL(for: project)
@@ -462,7 +462,7 @@ private struct SessionRow: View {
                     }
 
                     PopoverMenuItem(
-                        label: "Reveal in Finder",
+                        label: "Show in Finder",
                         systemImage: "folder"
                     ) {
                         NSWorkspace.shared.activateFileViewerSelecting([url])
