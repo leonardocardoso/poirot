@@ -5,9 +5,10 @@
 - [x] **0. Architecture & Best Practices** — Establish project conventions for open-source readiness: Swift 6 language mode with `@MainActor` default isolation, MVVM with Observation, dependency injection via SwiftUI Environment, protocol-driven services, unit test target (Swift Testing), SwiftLint strict profile, SwiftFormat, CONTRIBUTING.md, code documentation standards, CI pipeline (GitHub Actions for build/test/lint), and semantic versioning.
 - [x] **1. Provider Configuration System** — Scalable LLM provider architecture. Each provider (Claude, future: GPT, Gemini, etc.) defines its supported models, feature capabilities (skills, commands, MCPs, sub-agents), file system paths (history, config), and UI adaptations. Loaded from a `Providers/` configuration directory. The UI adapts based on provider capabilities (e.g., hide Skills tab if provider doesn't support them).
 
-- [ ] **CI & GitHub Rules** — Set up CI pipelines and branch protection for open-source contributions. All workflows must run on GitHub-hosted runners (no self-hosted) to prevent abuse.
-  - [ ] Unit Tests workflow — Build and run all Swift Testing tests on `macos-latest`.
-  - [ ] Claude Code Review workflow — Automated code review on PRs using Claude.
+- [ ] **CI & GitHub Rules** — Set up CI pipelines and branch protection for open-source contributions. Open-source repo uses GitHub-hosted runners only (to prevent abuse). Private repo uses self-hosted runners.
+  - [ ] Self-hosted runner — Set up a self-hosted macOS runner for the private repo workflows.
+  - [x] Unit Tests workflow — Build and run all Swift Testing tests.
+  - [x] Claude Code Review workflow — Automated code review on PRs using Claude.
   - [ ] Branch protection — Require PRs to merge into `main` (no direct pushes).
   - [ ] Required status checks — PRs must pass Unit Tests and Claude Code Review before merging.
   - [ ] Restrict workflow triggers — Only owner and maintainers can approve/run CI checks to prevent abuse from external contributors.
