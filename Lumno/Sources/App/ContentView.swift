@@ -6,6 +6,9 @@ struct ContentView: View {
     @Environment(\.sessionLoader)
     private var sessionLoader
 
+    @State
+    private var sessionLoadTask: Task<Void, Never>?
+
     var body: some View {
         NavigationSplitView {
             SidebarView()
@@ -28,13 +31,21 @@ struct ContentView: View {
             appState.isSearchPresented.toggle()
         }
         .onChange(of: appState.selectedSession) { _, newSession in
+            // Cancel any in-flight loading task
+            sessionLoadTask?.cancel()
+            sessionLoadTask = nil
+
             guard let session = newSession,
                   session.messages.isEmpty,
                   let url = session.fileURL
-            else { return }
+            else {
+                appState.isLoadingSession = false
+                return
+            }
 
             if let cached = appState.cachedSession(for: session.id) {
                 appState.selectedSession = cached
+                appState.isLoadingSession = false
                 return
             }
 
@@ -42,7 +53,13 @@ struct ContentView: View {
             let projectPath = session.projectPath
             let sessionId = session.id
             let startedAt = session.startedAt
-            Task {
+            sessionLoadTask = Task {
+                defer {
+                    if appState.selectedSession?.id == sessionId {
+                        appState.isLoadingSession = false
+                    }
+                }
+
                 let full = await Task.detached {
                     TranscriptParser().parse(
                         fileURL: url,
@@ -52,11 +69,14 @@ struct ContentView: View {
                     )
                 }.value
 
+                // Discard result if cancelled or user already navigated away
+                guard !Task.isCancelled else { return }
+                guard appState.selectedSession?.id == sessionId else { return }
+
                 if let full {
                     appState.cacheSession(full)
                     appState.selectedSession = full
                 }
-                appState.isLoadingSession = false
             }
         }
     }
@@ -120,11 +140,11 @@ struct ContentView: View {
     private var detailView: some View {
         switch appState.selectedNav.id {
         case NavigationItem.sessions.id:
-            if appState.selectedSession != nil {
-                if appState.isLoadingSession {
+            if let session = appState.selectedSession {
+                if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
                     SessionSkeletonView()
                         .transition(.opacity)
-                } else if let session = appState.selectedSession {
+                } else {
                     SessionDetailView(session: session)
                         .transition(.opacity)
                 }
