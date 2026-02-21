@@ -1,0 +1,116 @@
+name: Claude Code Review
+
+on:
+  workflow_call:
+
+jobs:
+  claude-review:
+    runs-on: [self-hosted, macOS]
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request thoroughly. Use `gh pr diff` to read all changes, then analyze every file for issues.
+
+            Use the repository's CLAUDE.md for guidance on style and conventions.
+
+            ## Review Format
+
+            Structure your review using EXACTLY this format:
+
+            ```
+            # Code Review: PR #<number> - <title>
+
+            ## Summary
+            <1-2 sentence description of what the PR does>
+
+            ## 🔴 Critical Issues
+            Issues that MUST be fixed before merge: bugs, security vulnerabilities, data loss risks, race conditions, unsafe type casts that cause runtime errors.
+
+            ### 1. <Issue Title>
+            **File:** `<file>:<line>`
+            **Issue:** <description>
+            **Recommendation:** <how to fix>
+
+            ## 🟡 Medium Priority Issues
+            Should be addressed but won't cause immediate problems.
+
+            ## 🟢 Low Priority Issues
+            Style, minor improvements, nice-to-haves.
+
+            ## ✅ Positive Observations
+            Good patterns, well-written code, security practices.
+
+            ## 📊 Test Coverage Gaps
+            Missing tests for new functionality.
+
+            ## Recommendation
+            **Status:** ✅ **Approved** OR ⚠️ **Changes Requested**
+            ```
+
+            ## Review Checklist
+
+            Check for:
+            - Code quality and best practices
+            - Potential bugs or logic errors
+            - Race conditions and concurrency issues
+            - Unsafe type casts without validation
+            - Security concerns (OWASP Top 10)
+            - Performance considerations
+            - Test coverage for new code
+            - Fragile patterns (hardcoded values, missing error handling)
+
+            ## Posting Instructions
+
+            1. Post the full review as a PR comment:
+               ```
+               gh pr comment <PR_NUMBER> -b "<review body>"
+               ```
+
+            2. Then set the review verdict:
+               - If there are ANY 🔴 Critical Issues:
+                 ```
+                 gh pr review <PR_NUMBER> --request-changes -b "Critical issues found that must be fixed before merge. See review comment for details."
+                 ```
+               - If there are NO 🔴 Critical Issues:
+                 ```
+                 gh pr review <PR_NUMBER> --comment -b "No critical issues found. See review comment for details."
+                 ```
+
+            3. Finally, write the verdict to a file:
+               - If critical issues: `echo "CRITICAL" > /tmp/claude-review-verdict.txt`
+               - If no critical issues: `echo "PASS" > /tmp/claude-review-verdict.txt`
+
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr review:*),Bash(echo:*)"'
+
+      - name: Check for critical issues
+        if: always() && steps.claude-review.outcome == 'success'
+        run: |
+          if [ -f /tmp/claude-review-verdict.txt ]; then
+            VERDICT=$(cat /tmp/claude-review-verdict.txt | tr -d '[:space:]')
+            echo "Review verdict: $VERDICT"
+            if [ "$VERDICT" = "CRITICAL" ]; then
+              echo "::error::Claude Code Review found critical issues that must be fixed before merging. Check PR comments for details."
+              exit 1
+            fi
+            echo "Review passed — no critical issues found."
+          else
+            echo "::warning::No review verdict file found. Review may not have completed successfully."
+          fi

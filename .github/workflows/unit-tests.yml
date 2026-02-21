@@ -1,0 +1,47 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen || true
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -scheme Lumno \
+            -destination 'platform=macOS' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Test
+        run: |
+          xcodebuild -scheme Lumno \
+            -destination 'platform=macOS' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Lint
+        run: |
+          brew install swiftlint || true
+          swiftlint lint \
+            --config .swiftlint.yml \
+            Lumno/Sources \
+            --reporter github-actions-logging
