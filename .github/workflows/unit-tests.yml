@@ -1,47 +1,209 @@
+# ==========================================
+# UNIT TESTS WORKFLOW
+# ==========================================
+# This workflow runs the macOS app's unit test suite and lints the codebase.
+# It can be triggered in three ways:
+# 1. Automatically on pushes to main
+# 2. Automatically on pull requests to main
+# 3. Manually via workflow_dispatch with custom Xcode version
+#
+# The workflow uses XcodeGen for project generation and xcodebuild for
+# building and testing, with SwiftLint for code quality enforcement.
+
 name: Unit Tests
 
 on:
+  # ==========================================
+  # AUTOMATIC TRIGGERS
+  # ==========================================
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
+  # ==========================================
+  # REUSABLE WORKFLOW TRIGGER
+  # ==========================================
+  # Allows this workflow to be called by other workflows
+  workflow_call:
+    inputs:
+      xcode_version:
+        description: 'Xcode Version'
+        required: false
+        default: 'Xcode-16.3.0.app'
+        type: string
+
+  # ==========================================
+  # MANUAL TRIGGER
+  # ==========================================
+  # Allows manual execution with custom parameters
+  workflow_dispatch:
+    inputs:
+      xcode_version:
+        description: 'Xcode Version'
+        required: false
+        default: 'Xcode-16.3.0.app'
+        type: choice
+        options:
+          - 'Xcode-16.3.0.app'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  unit-tests:
+  test:
+    name: macOS Tests
     runs-on: [self-hosted, macOS]
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
+    # ==========================================
+    # STEP 1: CHECKOUT CODE
+    # ==========================================
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Install XcodeGen
-        run: brew install xcodegen || true
+    # ==========================================
+    # STEP 2: SETUP XCODE
+    # ==========================================
+    - name: Setup Xcode
+      run: |
+        XCODE_PATH="/Applications/${{ inputs.xcode_version || 'Xcode-16.3.0.app' }}"
+        if [ -d "$XCODE_PATH" ]; then
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+        else
+          echo "::warning::$XCODE_PATH not found, using default Xcode"
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        fi
+        echo "Using Xcode: $(xcode-select -p)"
+        echo "Xcode version: $(xcodebuild -version | head -1)"
 
-      - name: Generate Xcode project
-        run: xcodegen generate
+    # ==========================================
+    # STEP 3: INSTALL DEPENDENCIES
+    # ==========================================
+    - name: Install XcodeGen
+      run: brew install xcodegen || true
 
-      - name: Build
-        run: |
-          xcodebuild -scheme Lumno \
-            -destination 'platform=macOS' \
-            -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO \
-            build
+    - name: Install SwiftLint
+      run: brew install swiftlint || true
 
-      - name: Test
-        run: |
-          xcodebuild -scheme Lumno \
-            -destination 'platform=macOS' \
-            -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO \
-            test
+    # ==========================================
+    # STEP 4: GENERATE PROJECT
+    # ==========================================
+    - name: Generate Xcode project
+      run: xcodegen generate
 
-      - name: Lint
-        run: |
-          brew install swiftlint || true
-          swiftlint lint \
-            --config .swiftlint.yml \
-            Lumno/Sources \
-            --reporter github-actions-logging
+    # ==========================================
+    # STEP 5: COMPUTE METADATA
+    # ==========================================
+    - name: Compute short SHA and start time
+      run: |
+        echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+        echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
+
+    # ==========================================
+    # STEP 6: BUILD
+    # ==========================================
+    - name: Build
+      run: |
+        xcodebuild -scheme Lumno \
+          -destination 'platform=macOS' \
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          build
+
+    # ==========================================
+    # STEP 7: RUN TESTS
+    # ==========================================
+    - name: Test
+      id: test
+      run: |
+        xcodebuild -scheme Lumno \
+          -destination 'platform=macOS' \
+          -skipMacroValidation \
+          CODE_SIGNING_ALLOWED=NO \
+          -resultBundlePath TestResults/Lumno.xcresult \
+          test
+
+    # ==========================================
+    # STEP 8: LINT
+    # ==========================================
+    - name: Lint
+      if: always() && steps.test.outcome != 'cancelled'
+      run: |
+        swiftlint lint \
+          --config .swiftlint.yml \
+          Lumno/Sources \
+          --reporter github-actions-logging
+
+    # ==========================================
+    # STEP 9: UPLOAD TEST ARTIFACTS
+    # ==========================================
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ github.run_number }}
+        path: |
+          TestResults/*.xcresult
+        retention-days: 21
+
+    # ==========================================
+    # STEP 10: POST WORKFLOW SUMMARY
+    # ==========================================
+    - name: Post test summary
+      if: always()
+      run: |
+        echo "## 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [ "${{ steps.test.outcome }}" = "success" ]; then
+          echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ steps.test.outcome }}" = "failure" ]; then
+          echo "❌ **Tests failed**" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "TestResults" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Failure Details:" >> $GITHUB_STEP_SUMMARY
+            XCRESULT=$(find TestResults -name "*.xcresult" -type d | head -n 1)
+            if [ -n "$XCRESULT" ]; then
+              xcrun xcresulttool get test-results summary --path "$XCRESULT" >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "Could not extract detailed test results" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+        else
+          echo "⚠️ **Tests did not complete**" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Configuration:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Scheme:** Lumno" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platform:** macOS" >> $GITHUB_STEP_SUMMARY
+        echo "- **Xcode:** ${{ inputs.xcode_version || 'Xcode-16.3.0.app' }}" >> $GITHUB_STEP_SUMMARY
+
+    # ==========================================
+    # STEP 11: CALCULATE DURATION
+    # ==========================================
+    - name: Calculate duration
+      if: always()
+      run: |
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+        MINUTES=$((DURATION / 60))
+        SECONDS=$((DURATION % 60))
+        if [ $MINUTES -gt 0 ]; then
+          echo "⏱️ Duration: ${MINUTES}m ${SECONDS}s" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⏱️ Duration: ${SECONDS}s" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    # ==========================================
+    # STEP 12: FAIL JOB IF TESTS FAILED
+    # ==========================================
+    - name: Fail job if tests failed
+      if: always() && steps.test.outcome == 'failure'
+      run: |
+        echo "❌ Tests failed - failing the job"
+        exit 1
