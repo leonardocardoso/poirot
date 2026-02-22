@@ -1,0 +1,68 @@
+{
+  "images": [
+    {
+      "filename": "macOS_16pt_1x.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "16x16"
+    },
+    {
+      "filename": "macOS_16pt_2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "16x16"
+    },
+    {
+      "filename": "macOS_32pt_1x.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "32x32"
+    },
+    {
+      "filename": "macOS_32pt_2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "32x32"
+    },
+    {
+      "filename": "macOS_128pt_1x.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "128x128"
+    },
+    {
+      "filename": "macOS_128pt_2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "128x128"
+    },
+    {
+      "filename": "macOS_256pt_1x.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "256x256"
+    },
+    {
+      "filename": "macOS_256pt_2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "256x256"
+    },
+    {
+      "filename": "macOS_512pt_1x.png",
+      "idiom": "mac",
+      "scale": "1x",
+      "size": "512x512"
+    },
+    {
+      "filename": "macOS_512pt_2x.png",
+      "idiom": "mac",
+      "scale": "2x",
+      "size": "512x512"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}
