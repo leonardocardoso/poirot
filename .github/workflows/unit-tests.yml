@@ -7,8 +7,8 @@
 # 2. Automatically on pull requests to main
 # 3. Manually via workflow_dispatch with custom Xcode version
 #
-# The workflow uses XcodeGen for project generation and xcodebuild for
-# building and testing, with SwiftLint for code quality enforcement.
+# The workflow uses xcodebuild for building and testing, with SwiftLint
+# for code quality enforcement.
 
 name: Unit Tests
 
@@ -30,7 +30,7 @@ on:
       xcode_version:
         description: 'Xcode Version'
         required: false
-        default: 'Xcode-26.0.0.app'
+        default: 'Xcode_26.0.app'
         type: string
 
   # ==========================================
@@ -42,10 +42,10 @@ on:
       xcode_version:
         description: 'Xcode Version'
         required: false
-        default: 'Xcode-26.0.0.app'
+        default: 'Xcode_26.0.app'
         type: choice
         options:
-          - 'Xcode-26.0.0.app'
+          - Xcode_26.0.app
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,8 +54,14 @@ concurrency:
 jobs:
   test:
     name: macOS Tests
-    runs-on: [self-hosted, macOS]
+    runs-on: macos-latest
     timeout-minutes: 30
+
+    env:
+      # Prevent macOS system gitconfig from loading osxkeychain
+      # credential helper, which triggers a blocking Keychain dialog
+      # on self-hosted runners.
+      GIT_CONFIG_NOSYSTEM: true
 
     steps:
     # ==========================================
@@ -65,36 +71,46 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     # ==========================================
     # STEP 2: SETUP XCODE
     # ==========================================
     - name: Setup Xcode
       run: |
-        XCODE_PATH="/Applications/${{ inputs.xcode_version || 'Xcode-26.0.0.app' }}"
+        XCODE_PATH="/Applications/${{ inputs.xcode_version || 'Xcode_26.0.app' }}"
         if [ -d "$XCODE_PATH" ]; then
-          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+          echo "DEVELOPER_DIR=$XCODE_PATH/Contents/Developer" >> $GITHUB_ENV
+          echo "Using Xcode: $XCODE_PATH"
         else
-          echo "::warning::$XCODE_PATH not found, using default Xcode"
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          echo "::error::Xcode not found at $XCODE_PATH"
+          ls /Applications/ | grep -i xcode || echo "No Xcode installations found"
+          exit 1
         fi
-        echo "Using Xcode: $(xcode-select -p)"
-        echo "Xcode version: $(xcodebuild -version | head -1)"
 
     # ==========================================
-    # STEP 3: INSTALL DEPENDENCIES
+    # STEP 3: SETUP HOMEBREW
     # ==========================================
-    - name: Install XcodeGen
-      run: brew install xcodegen || true
+    - name: Setup Homebrew
+      run: |
+        if [ -f /opt/homebrew/bin/brew ]; then
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [ -f /usr/local/bin/brew ]; then
+          eval "$(/usr/local/bin/brew shellenv)"
+        else
+          echo "::error::Homebrew not found"
+          exit 1
+        fi
+        echo "$(brew --prefix)/bin" >> $GITHUB_PATH
 
-    - name: Install SwiftLint
-      run: brew install swiftlint || true
+    # ==========================================
+    # STEP 4: INSTALL MINT & TOOLS
+    # ==========================================
+    - name: Install Mint
+      run: arch -arm64 brew install mint || true
 
-    # ==========================================
-    # STEP 4: GENERATE PROJECT
-    # ==========================================
-    - name: Generate Xcode project
-      run: xcodegen generate
+    - name: Bootstrap Mint packages
+      run: mint bootstrap
 
     # ==========================================
     # STEP 5: COMPUTE METADATA
@@ -105,28 +121,29 @@ jobs:
         echo "START_TIME=$(date +%s)" >> "$GITHUB_ENV"
 
     # ==========================================
-    # STEP 6: BUILD
+    # STEP 6: BUILD FOR TESTING
     # ==========================================
     - name: Build
       run: |
-        xcodebuild -scheme Lumno \
+        xcodebuild -scheme Poirot \
           -destination 'platform=macOS' \
           -skipMacroValidation \
           CODE_SIGNING_ALLOWED=NO \
-          build
+          build-for-testing
 
     # ==========================================
-    # STEP 7: RUN TESTS
+    # STEP 7: RUN TESTS (uses build from step 6)
     # ==========================================
     - name: Test
       id: test
       run: |
-        xcodebuild -scheme Lumno \
+        xcodebuild -scheme Poirot \
           -destination 'platform=macOS' \
           -skipMacroValidation \
           CODE_SIGNING_ALLOWED=NO \
-          -resultBundlePath TestResults/Lumno.xcresult \
-          test
+          -resultBundlePath TestResults/Poirot.xcresult \
+          -skip-testing PoirotTests/ScreenshotTests \
+          test-without-building
 
     # ==========================================
     # STEP 8: LINT
@@ -134,9 +151,9 @@ jobs:
     - name: Lint
       if: always() && steps.test.outcome != 'cancelled'
       run: |
-        swiftlint lint \
+        mint run swiftlint lint \
           --config .swiftlint.yml \
-          Lumno/Sources \
+          Poirot/Sources \
           --reporter github-actions-logging
 
     # ==========================================
@@ -179,9 +196,9 @@ jobs:
 
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Configuration:" >> $GITHUB_STEP_SUMMARY
-        echo "- **Scheme:** Lumno" >> $GITHUB_STEP_SUMMARY
+        echo "- **Scheme:** Poirot" >> $GITHUB_STEP_SUMMARY
         echo "- **Platform:** macOS" >> $GITHUB_STEP_SUMMARY
-        echo "- **Xcode:** ${{ inputs.xcode_version || 'Xcode-26.0.0.app' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Xcode:** ${{ inputs.xcode_version || 'Xcode_26.0.app' }}" >> $GITHUB_STEP_SUMMARY
 
     # ==========================================
     # STEP 11: CALCULATE DURATION

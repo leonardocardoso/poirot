@@ -1,14 +1,19 @@
 name: Claude Code Review
 
 on:
-  workflow_call:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    paths:
+      - "Poirot/Sources/**/*.swift"
+      - "PoirotTests/**/*.swift"
+      - "project.yml"
 
 jobs:
   claude-review:
-    runs-on: [self-hosted, macOS]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       issues: read
       id-token: write
 
@@ -23,94 +28,48 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
           prompt: |
-            REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
-            Review this pull request thoroughly. Use `gh pr diff` to read all changes, then analyze every file for issues.
+            ## macOS / Swift Review Focus
 
-            Use the repository's CLAUDE.md for guidance on style and conventions.
+            This is a native macOS SwiftUI app (macOS 15.0+, Swift 6, Xcode 16+).
+            Use the repository's CLAUDE.md for full project conventions.
+            Pay special attention to these areas:
 
-            ## Review Format
+            ### Concurrency & Actor Isolation
+            - Default actor isolation is `@MainActor` (project setting). No explicit annotations needed.
+            - File I/O and heavy computation must be marked `nonisolated`.
+            - Flag `@unchecked Sendable` without a documented safety invariant.
+            - Flag unstructured `Task.detached` without clear justification.
+            - Flag assumptions that state is unchanged after `await` (actor reentrancy).
 
-            Structure your review using EXACTLY this format:
+            ### SwiftUI State & Performance
+            - Must use `@Observable` with `@State` (not `ObservableObject` / `@StateObject`).
+            - `@State` and `@StateObject` must be `private`.
+            - Flag deprecated APIs: `foregroundColor()`, `cornerRadius()`, `NavigationView`, `onChange(of:) { value in }`.
+            - Flag `AnyView` in list rows, inline filtering in `ForEach`, objects created in `body`.
+            - Flag `GeometryReader` when `containerRelativeFrame()` or `visualEffect()` suffices.
+            - Prefer `.animation(_:value:)` over the deprecated implicit form.
 
-            ```
-            # Code Review: PR #<number> - <title>
+            ### SF Symbols
+            - All icons must use SF Symbols (`Image(systemName:)`). No custom assets or emoji.
+            - Size with `.font(.system(size:))`, never `.resizable().frame()`.
+            - Animations must be gated behind `@Environment(\.accessibilityReduceMotion)`.
+            - Flag indefinite symbol effects inside `List` / `LazyVStack` rows (expensive).
 
-            ## Summary
-            <1-2 sentence description of what the PR does>
+            ### macOS 26 Compatibility
+            - Deployment target is macOS 15.0. APIs only on macOS 26+ (e.g. `.glassEffect`) must use `#available(macOS 26.0, *)` or the `GlassBackground` wrapper.
+            - Flag any macOS 26-only API used without an availability check.
 
-            ## 🔴 Critical Issues
-            Issues that MUST be fixed before merge: bugs, security vulnerabilities, data loss risks, race conditions, unsafe type casts that cause runtime errors.
+            ### Testing
+            - Tests must use Swift Testing (`@Test`, `#expect`, `#require`), not XCTest.
+            - Flag `@available` on suite types (only allowed on test functions).
+            - Flag shared mutable state in test suites — prefer `struct` suites.
 
-            ### 1. <Issue Title>
-            **File:** `<file>:<line>`
-            **Issue:** <description>
-            **Recommendation:** <how to fix>
-
-            ## 🟡 Medium Priority Issues
-            Should be addressed but won't cause immediate problems.
-
-            ## 🟢 Low Priority Issues
-            Style, minor improvements, nice-to-haves.
-
-            ## ✅ Positive Observations
-            Good patterns, well-written code, security practices.
-
-            ## 📊 Test Coverage Gaps
-            Missing tests for new functionality.
-
-            ## Recommendation
-            **Status:** ✅ **Approved** OR ⚠️ **Changes Requested**
-            ```
-
-            ## Review Checklist
-
-            Check for:
-            - Code quality and best practices
-            - Potential bugs or logic errors
-            - Race conditions and concurrency issues
-            - Unsafe type casts without validation
-            - Security concerns (OWASP Top 10)
-            - Performance considerations
-            - Test coverage for new code
-            - Fragile patterns (hardcoded values, missing error handling)
-
-            ## Posting Instructions
-
-            1. Post the full review as a PR comment:
-               ```
-               gh pr comment <PR_NUMBER> -b "<review body>"
-               ```
-
-            2. Then set the review verdict:
-               - If there are ANY 🔴 Critical Issues:
-                 ```
-                 gh pr review <PR_NUMBER> --request-changes -b "Critical issues found that must be fixed before merge. See review comment for details."
-                 ```
-               - If there are NO 🔴 Critical Issues:
-                 ```
-                 gh pr review <PR_NUMBER> --comment -b "No critical issues found. See review comment for details."
-                 ```
-
-            3. Finally, write the verdict to a file:
-               - If critical issues: `echo "CRITICAL" > /tmp/claude-review-verdict.txt`
-               - If no critical issues: `echo "PASS" > /tmp/claude-review-verdict.txt`
-
-          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr review:*),Bash(echo:*)"'
-
-      - name: Check for critical issues
-        if: always() && steps.claude-review.outcome == 'success'
-        run: |
-          if [ -f /tmp/claude-review-verdict.txt ]; then
-            VERDICT=$(cat /tmp/claude-review-verdict.txt | tr -d '[:space:]')
-            echo "Review verdict: $VERDICT"
-            if [ "$VERDICT" = "CRITICAL" ]; then
-              echo "::error::Claude Code Review found critical issues that must be fixed before merging. Check PR comments for details."
-              exit 1
-            fi
-            echo "Review passed — no critical issues found."
-          else
-            echo "::warning::No review verdict file found. Review may not have completed successfully."
-          fi
+            ### Design System
+            - All colors and spacing must come from `PoirotTheme`. Flag hardcoded colors or magic numbers.
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://code.claude.com/docs/en/cli-reference for available options
