@@ -50,3 +50,15 @@ Package.resolved
 
 # Codex
 .codex/
+
+# Snapshot test reference images (generated locally)
+**/__Snapshots__/
+
+# Private project files (keep local, not tracked)
+.claude/
+design/
+docs/PLANS/
+docs/FEATURES.md
+docs/screenshots/SCREENSHOT_LIST.md
+scripts/generate_icons.py
+CLAUDE.md

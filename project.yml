@@ -1,6 +1,6 @@
-name: Lumno
+name: Poirot
 options:
-  bundleIdPrefix: com.lumno
+  bundleIdPrefix: com.poirot
   deploymentTarget:
     macOS: "15.0"
   xcodeVersion: "26.1"
@@ -8,15 +8,15 @@ options:
   generateEmptyDirectories: true
 
 packages:
-  SwiftMockKit:
-    url: https://github.com/leocardz/SwiftMockKit-mirror
-    branch: main
   MarkdownUI:
     url: https://github.com/gonzalezreal/swift-markdown-ui
     from: "2.4.0"
   HighlightSwift:
     url: https://github.com/appstefan/HighlightSwift
     from: "1.1.0"
+  swift-snapshot-testing:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    from: "1.17.0"
 
 settings:
   base:
@@ -26,27 +26,26 @@ settings:
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
 
 targets:
-  Lumno:
+  Poirot:
     type: application
     platform: macOS
     defaultLocalization: en
     sources:
-      - path: Lumno/Sources
-      - path: Lumno/Resources
+      - path: Poirot/Sources
+      - path: Poirot/Resources
     dependencies:
-      - package: SwiftMockKit
       - package: MarkdownUI
       - package: HighlightSwift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.lumno.app
-        PRODUCT_NAME: Lumno
-        INFOPLIST_KEY_CFBundleDisplayName: Lumno
+        PRODUCT_BUNDLE_IDENTIFIER: com.poirot.app
+        PRODUCT_NAME: Poirot
+        INFOPLIST_KEY_CFBundleDisplayName: Poirot
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: 1
         GENERATE_INFOPLIST_FILE: true
-        CODE_SIGN_ENTITLEMENTS: Lumno/Resources/Lumno.entitlements
+        CODE_SIGN_ENTITLEMENTS: Poirot/Resources/Poirot.entitlements
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2025 Leonardo Cardoso"
         ENABLE_USER_SCRIPT_SANDBOXING: false
         SWIFT_EMIT_LOC_STRINGS: true
@@ -55,33 +54,36 @@ targets:
       - script: |
           export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
           if which swiftlint > /dev/null; then
-            swiftlint lint --config "${SRCROOT}/.swiftlint.yml" "${SRCROOT}/Lumno/Sources"
+            swiftlint lint --config "${SRCROOT}/.swiftlint.yml" "${SRCROOT}/Poirot/Sources"
           else
             echo "warning: SwiftLint not installed"
           fi
         name: SwiftLint
         basedOnDependencyAnalysis: false
 
-  LumnoTests:
+  PoirotTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: LumnoTests
+      - path: PoirotTests
+        excludes:
+          - "**/__Snapshots__/**"
     dependencies:
-      - target: Lumno
-      - package: SwiftMockKit
+      - target: Poirot
+      - package: swift-snapshot-testing
+        product: SnapshotTesting
     settings:
       base:
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lumno.app/Contents/MacOS/Lumno"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Poirot.app/Contents/MacOS/Poirot"
         BUNDLE_LOADER: "$(TEST_HOST)"
         GENERATE_INFOPLIST_FILE: true
 
 schemes:
-  Lumno:
+  Poirot:
     build:
       targets:
-        Lumno: all
-        LumnoTests: [test]
+        Poirot: all
+        PoirotTests: [test]
     test:
       targets:
-        - LumnoTests
+        - PoirotTests
