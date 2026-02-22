@@ -1,1 +1,0 @@
-../orchestration-partner/commands/create-event-signal.md

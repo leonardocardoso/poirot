@@ -1,1 +1,0 @@
-../orchestration-partner/commands/init-orchestration-partner.md
