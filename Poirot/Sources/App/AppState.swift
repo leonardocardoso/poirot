@@ -43,6 +43,7 @@ struct ConfigDetailInfo: Equatable {
     let name: String
     let markdownContent: String
     let filePath: String
+    let scope: ConfigScope?
 }
 
 enum NavigationEntry: Equatable {
@@ -194,6 +195,30 @@ final class AppState {
     var configAddTrigger = UUID()
     var sidebarCounts: [String: Int] = [:]
 
+    var configProjectPath: String? = {
+        guard let stored = UserDefaults.standard.string(forKey: "configProjectPath") else { return nil }
+        var isDir: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: stored, isDirectory: &isDir), isDir.boolValue else { return nil }
+        return stored
+    }() {
+        didSet {
+            if let path = configProjectPath {
+                UserDefaults.standard.set(path, forKey: "configProjectPath")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "configProjectPath")
+            }
+        }
+    }
+
+    var configProjectName: String? {
+        guard let path = configProjectPath else { return nil }
+        return URL(fileURLWithPath: path).lastPathComponent
+    }
+
+    var effectiveConfigProjectPath: String? {
+        configProjectPath ?? currentProject?.path
+    }
+
     nonisolated static func computeSidebarCounts(
         supportedModelsCount: Int,
         projectPath: String? = nil
@@ -201,7 +226,7 @@ final class AppState {
         [
             "commands": ClaudeConfigLoader.loadCommands(projectPath: projectPath).count,
             "skills": ClaudeConfigLoader.loadSkills(projectPath: projectPath).count,
-            "mcpServers": ClaudeConfigLoader.loadMCPServers().count,
+            "mcpServers": ClaudeConfigLoader.loadMCPServers(projectPath: projectPath).count,
             "models": supportedModelsCount,
             "subAgents": 4, // SubAgent.builtIn is a fixed set
             "plugins": ClaudeConfigLoader.loadPlugins().count,
