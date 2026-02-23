@@ -5,7 +5,7 @@ import Testing
 struct NavigationItemTests {
     @Test
     func allItems_hasSevenItems() {
-        #expect(NavigationItem.allItems.count == 7)
+        #expect(NavigationItem.allItems.count == 8)
     }
 
     @Test

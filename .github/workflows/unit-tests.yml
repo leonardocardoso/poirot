@@ -139,7 +139,15 @@ jobs:
           -skipMacroValidation \
           CODE_SIGNING_ALLOWED=NO \
           -resultBundlePath TestResults/Poirot.xcresult \
-          -skip-testing PoirotTests/ScreenshotTests \
+          -skip-testing PoirotTests/ScreenshotTests_ConfigScreens \
+          -skip-testing PoirotTests/ScreenshotTests_EditDiff \
+          -skip-testing PoirotTests/ScreenshotTests_FullViews \
+          -skip-testing PoirotTests/ScreenshotTests_SessionDetail \
+          -skip-testing PoirotTests/ScreenshotTests_Sidebar \
+          -skip-testing PoirotTests/ScreenshotTests_Standalone \
+          -skip-testing PoirotTests/ScreenshotTests_ThinkingBlocks \
+          -skip-testing PoirotTests/ScreenshotTests_ToolBlocks \
+          -skip-testing PoirotTests/ScreenshotTests_Windows \
           test-without-building
 
     # ==========================================
