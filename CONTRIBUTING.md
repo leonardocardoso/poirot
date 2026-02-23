@@ -7,16 +7,20 @@ Thanks for your interest in contributing to Poirot! Here's how to get started.
 - macOS 15.0+
 - Xcode 16.0+
 
-SwiftLint and SwiftFormat versions are pinned in the `Mintfile`. If you use [Mint](https://github.com/yonaskolb/Mint), run `mint bootstrap` to install them. Otherwise install via Homebrew (`brew install swiftlint swiftformat`).
+Install SwiftLint and SwiftFormat via Homebrew:
 
-> **Note:** The Xcode project is checked into git, so you don't need XcodeGen to build. Only run `mint run xcodegen` if you modify `project.yml`.
+```bash
+brew install swiftlint swiftformat
+```
+
+> **Note:** The Xcode project is checked into git, so you don't need XcodeGen to build. Only run `xcodegen generate` if you modify `project.yml`.
 
 ## Building
 
 ```bash
 git clone https://github.com/LeonardoCardoso/Poirot.git
 cd Poirot
-mint bootstrap        # install SwiftLint & SwiftFormat from Mintfile
+brew install swiftlint swiftformat
 open Poirot.xcodeproj
 ```
 

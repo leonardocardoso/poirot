@@ -129,14 +129,14 @@ Search across all sessions, commands, and file paths. A spotlight-style overlay 
 | macOS | 15.0+ | — |
 | Xcode | 16.0+ | Mac App Store |
 
-SwiftLint and SwiftFormat versions are pinned in the `Mintfile`. Install via [Mint](https://github.com/yonaskolb/Mint) (`mint bootstrap`) or Homebrew (`brew install swiftlint swiftformat`).
+Install SwiftLint and SwiftFormat via Homebrew: `brew install swiftlint swiftformat`.
 
 ### Build & Run
 
 ```bash
 git clone https://github.com/LeonardoCardoso/Poirot.git
 cd Poirot
-mint bootstrap        # install SwiftLint & SwiftFormat from Mintfile
+brew install swiftlint swiftformat
 open Poirot.xcodeproj
 ```
 
