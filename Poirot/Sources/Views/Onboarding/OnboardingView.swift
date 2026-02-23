@@ -51,12 +51,14 @@ struct OnboardingView: View {
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 // swiftlint:disable:next line_length
-                Text("A native macOS companion for Claude Code.\nBrowse sessions, explore configurations, and search across your entire Claude Code history.")
-                    .font(PoirotTheme.Typography.body)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(PoirotTheme.Spacing.xxs)
-                    .frame(maxWidth: 380)
+                Text(
+                    "A native macOS companion for Claude Code.\nBrowse sessions, explore configurations, and search across your entire Claude Code history."
+                )
+                .font(PoirotTheme.Typography.body)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(PoirotTheme.Spacing.xxs)
+                .frame(maxWidth: 380)
             }
 
             Spacer()

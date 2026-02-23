@@ -96,7 +96,7 @@ final class AppState {
                 // (e.g. ContentView re-set it with a cached/loaded version)
                 if navigationHistoryIndex >= 0,
                    navigationHistoryIndex < navigationHistory.count,
-                   case .session(let existing) = navigationHistory[navigationHistoryIndex],
+                   case let .session(existing) = navigationHistory[navigationHistoryIndex],
                    existing.id == session.id {
                     // Update the entry in-place (may have loaded messages now)
                     navigationHistory[navigationHistoryIndex] = .session(session)
@@ -107,7 +107,7 @@ final class AppState {
                     navigationHistory.removeSubrange((navigationHistoryIndex + 1)...)
                 }
                 // Avoid duplicates at the top
-                if case .session(let last) = navigationHistory.last, last.id == session.id {
+                if case let .session(last) = navigationHistory.last, last.id == session.id {
                     // skip
                 } else {
                     navigationHistory.append(.session(session))
@@ -156,7 +156,7 @@ final class AppState {
 
     private func restoreEntry(_ entry: NavigationEntry) {
         switch entry {
-        case .session(let session):
+        case let .session(session):
             selectedNav = .sessions
             activeConfigDetail = nil
             selectedSession = session

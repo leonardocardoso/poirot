@@ -2,9 +2,9 @@ import AppKit
 
 enum PreferredEditor: String, CaseIterable {
     case vscode = "code"
-    case cursor = "cursor"
-    case xcode = "xcode"
-    case zed = "zed"
+    case cursor
+    case xcode
+    case zed
 
     var displayName: String {
         switch self {

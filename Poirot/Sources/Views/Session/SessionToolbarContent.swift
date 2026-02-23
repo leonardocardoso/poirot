@@ -113,10 +113,12 @@ struct SessionToolbarFilter: View {
                 appState.activeToolFilters.removeAll()
             }
         } label: {
-            Image(systemName: appState.isToolFilterActive
-                  ? "line.3.horizontal.decrease.circle.fill"
-                  : "line.3.horizontal.decrease.circle")
-                .contentTransition(.symbolEffect(.replace))
+            Image(
+                systemName: appState.isToolFilterActive
+                    ? "line.3.horizontal.decrease.circle.fill"
+                    : "line.3.horizontal.decrease.circle"
+            )
+            .contentTransition(.symbolEffect(.replace))
         }
         .help("Filter by Tool (⌘T)")
     }

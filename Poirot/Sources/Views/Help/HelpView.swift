@@ -102,16 +102,20 @@ struct HelpView: View {
 
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
                 // swiftlint:disable:next line_length
-                Text("Poirot reads session transcripts from **~/.claude/projects/**. Use Claude Code CLI normally — Poirot will automatically discover and display your sessions.")
-                    .font(PoirotTheme.Typography.caption)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                    .lineSpacing(PoirotTheme.Spacing.xxs)
+                Text(
+                    "Poirot reads session transcripts from **~/.claude/projects/**. Use Claude Code CLI normally — Poirot will automatically discover and display your sessions."
+                )
+                .font(PoirotTheme.Typography.caption)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                .lineSpacing(PoirotTheme.Spacing.xxs)
 
                 // swiftlint:disable:next line_length
-                Text("Configure your preferred text editor and terminal in **Settings** (\u{2318},) to enable one-click file opening and command re-runs.")
-                    .font(PoirotTheme.Typography.caption)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                    .lineSpacing(PoirotTheme.Spacing.xxs)
+                Text(
+                    "Configure your preferred text editor and terminal in **Settings** (\u{2318},) to enable one-click file opening and command re-runs."
+                )
+                .font(PoirotTheme.Typography.caption)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                .lineSpacing(PoirotTheme.Spacing.xxs)
             }
             .padding(PoirotTheme.Spacing.lg)
             .background(

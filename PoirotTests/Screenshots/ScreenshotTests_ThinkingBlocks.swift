@@ -1,8 +1,7 @@
+@testable import Poirot
 import SnapshotTesting
 import SwiftUI
 import Testing
-
-@testable import Poirot
 
 @Suite("Thinking Block Screenshots")
 struct ScreenshotTests_ThinkingBlocks {
@@ -59,7 +58,7 @@ struct ScreenshotTests_ThinkingBlocks {
         UserDefaults.standard.set(true, forKey: "autoExpandBlocks")
         defer { UserDefaults.standard.removeObject(forKey: "autoExpandBlocks") }
 
-        var lines: [String] = ["Analyzing the codebase structure:\n"]
+        var lines = ["Analyzing the codebase structure:\n"]
         for i in 1 ... 80 {
             lines.append("\(i). Checking module dependency_\(String(format: "%03d", i)): resolved")
         }

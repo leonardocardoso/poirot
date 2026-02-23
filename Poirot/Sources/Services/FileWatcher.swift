@@ -10,7 +10,8 @@ final class FileWatcher {
     private var fileDescriptor: Int32 = -1
     private var debounceTask: Task<Void, Never>?
     private let debounceInterval: Duration
-    private let onChange: @MainActor () -> Void
+    private let onChange: @MainActor ()
+        -> Void
 
     init(debounceInterval: Duration = .seconds(1), onChange: @escaping @MainActor () -> Void) {
         self.debounceInterval = debounceInterval

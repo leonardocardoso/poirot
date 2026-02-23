@@ -3,7 +3,8 @@ import HighlightSwift
 import SwiftUI
 
 extension Theme {
-    @MainActor static let poirot = Theme()
+    @MainActor
+    static let poirot = Theme()
         .text {
             ForegroundColor(PoirotTheme.Colors.textPrimary)
             FontSize(14 * PoirotTheme.Typography.scale)

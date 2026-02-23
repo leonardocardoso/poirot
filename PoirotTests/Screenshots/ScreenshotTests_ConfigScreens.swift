@@ -1,8 +1,7 @@
+@testable import Poirot
 import SnapshotTesting
 import SwiftUI
 import Testing
-
-@testable import Poirot
 
 @Suite("Config Screen Screenshots")
 struct ScreenshotTests_ConfigScreens {
