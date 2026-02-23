@@ -51,6 +51,7 @@ jobs:
             -destination 'platform=macOS' \
             -archivePath build/Poirot.xcarchive \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            ENABLE_HARDENED_RUNTIME=YES \
             archive
 
       - name: Export App
