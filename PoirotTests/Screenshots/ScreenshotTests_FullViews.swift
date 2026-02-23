@@ -1,0 +1,163 @@
+import SnapshotTesting
+import SwiftUI
+import Testing
+
+@testable import Poirot
+
+@Suite("Full View Screenshots")
+struct ScreenshotTests_FullViews {
+    private let isRecording = false
+
+    // MARK: - Hero (Full App — Sidebar + Session Detail)
+
+    @Test
+    func testHero() async throws {
+        UserDefaults.standard.set(true, forKey: "autoExpandBlocks")
+        defer { UserDefaults.standard.removeObject(forKey: "autoExpandBlocks") }
+
+        let state = makeAppState(
+            selectedSession: ScreenshotData.conversationSession,
+            selectedProject: ScreenshotData.projects.first?.id
+        )
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                SessionDetailView(session: ScreenshotData.conversationSession)
+            },
+            size: ScreenshotSize.fullApp,
+            named: "testHero",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    // MARK: - Session Browser (Sidebar + Project Grid)
+
+    @Test
+    func testSessionBrowser() async throws {
+        let state = makeAppState(
+            selectedProject: ScreenshotData.projects.first?.id
+        )
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                ProjectSessionsView(project: ScreenshotData.projects.first!)
+            },
+            size: ScreenshotSize.fullApp,
+            named: "testSessionBrowser",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    // MARK: - Conversation View
+
+    @Test
+    func testConversationView() async throws {
+        UserDefaults.standard.set(true, forKey: "autoExpandBlocks")
+        defer { UserDefaults.standard.removeObject(forKey: "autoExpandBlocks") }
+
+        try await snapshotView(
+            withEnvironment(SessionDetailView(session: ScreenshotData.conversationSession)),
+            size: ScreenshotSize.mainContent,
+            named: "testConversationView",
+            record: isRecording,
+            delay: 0.5
+        )
+    }
+
+    // MARK: - Tool Blocks
+
+    @Test
+    func testToolBlocks() async throws {
+        UserDefaults.standard.set(true, forKey: "autoExpandBlocks")
+        defer { UserDefaults.standard.removeObject(forKey: "autoExpandBlocks") }
+
+        try await snapshotView(
+            withEnvironment(SessionDetailView(session: ScreenshotData.toolBlocksSession)),
+            size: ScreenshotSize.mainContent,
+            named: "testToolBlocks",
+            record: isRecording,
+            delay: 0.5
+        )
+    }
+
+    // MARK: - Thinking Blocks
+
+    @Test
+    func testThinkingBlocks() async throws {
+        UserDefaults.standard.set(true, forKey: "autoExpandBlocks")
+        defer { UserDefaults.standard.removeObject(forKey: "autoExpandBlocks") }
+
+        try await snapshotView(
+            withEnvironment(SessionDetailView(session: ScreenshotData.thinkingSession)),
+            size: ScreenshotSize.mainContent,
+            named: "testThinkingBlocks",
+            record: isRecording,
+            delay: 0.5
+        )
+    }
+
+    // MARK: - Search Overlay (Sidebar + Home + Overlay)
+
+    @Test
+    func testSearch() async throws {
+        let state = makeAppState(isSearchPresented: true)
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                HomeView()
+                    .overlay {
+                        SearchOverlayView()
+                    }
+            },
+            size: ScreenshotSize.fullApp,
+            named: "testSearch",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    // MARK: - Config Screen
+
+    @Test
+    func testConfigScreen() async throws {
+        let provider = ClaudeCodeProvider()
+
+        try await snapshotView(
+            CommandsListView(item: provider.configurationItems.first { $0.id == "commands" }!)
+                .environment(makeAppState())
+                .environment(\.provider, provider),
+            size: ScreenshotSize.mainContent,
+            named: "testConfigScreen",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    // MARK: - Home
+
+    @Test
+    func testHome() async throws {
+        try await snapshotView(
+            withEnvironment(HomeView()),
+            size: ScreenshotSize.mainContent,
+            named: "testHome",
+            record: isRecording,
+            delay: 0.5
+        )
+    }
+
+    // MARK: - Settings
+
+    @Test
+    func testSettings() async throws {
+        try await snapshotView(
+            withEnvironment(SettingsView()),
+            size: CGSize(width: 500, height: 400),
+            named: "testSettings",
+            record: isRecording,
+            delay: 1
+        )
+    }
+}
