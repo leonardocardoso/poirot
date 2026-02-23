@@ -10,6 +10,8 @@ struct ModelsListView: View {
     private var isRevealed = false
     @State
     private var currentDefault: String?
+    @State
+    private var projectModel: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,7 +19,8 @@ struct ModelsListView: View {
                 item: item,
                 dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")",
                 screenID: item.id,
-                showLayoutToggle: true
+                showLayoutToggle: true,
+                showProjectPicker: true
             )
 
             configContent
@@ -25,11 +28,15 @@ struct ModelsListView: View {
         .background(PoirotTheme.Colors.bgApp)
         .task {
             currentDefault = provider.defaultModelName
+            loadProjectModel()
             isRevealed = false
             try? await Task.sleep(for: .milliseconds(50))
             withAnimation(.easeOut(duration: 0.4)) {
                 isRevealed = true
             }
+        }
+        .onChange(of: appState.configProjectPath) {
+            loadProjectModel()
         }
     }
 
@@ -54,7 +61,11 @@ struct ModelsListView: View {
                                 ModelCard(
                                     name: model,
                                     isDefault: model == (currentDefault ?? provider.defaultModelName),
-                                    onSetDefault: { setDefault(model) }
+                                    isProjectDefault: model == projectModel,
+                                    hasProject: appState.configProjectPath != nil,
+                                    onSetDefault: { setDefault(model) },
+                                    onSetProjectDefault: { setProjectDefault(model) },
+                                    onClearProjectDefault: { clearProjectDefault() }
                                 )
                                 .shimmerReveal(
                                     isRevealed: isRevealed,
@@ -86,7 +97,11 @@ struct ModelsListView: View {
                         ModelCard(
                             name: model,
                             isDefault: model == (currentDefault ?? provider.defaultModelName),
-                            onSetDefault: { setDefault(model) }
+                            isProjectDefault: model == projectModel,
+                            hasProject: appState.configProjectPath != nil,
+                            onSetDefault: { setDefault(model) },
+                            onSetProjectDefault: { setProjectDefault(model) },
+                            onClearProjectDefault: { clearProjectDefault() }
                         )
                         .shimmerReveal(
                             isRevealed: isRevealed,
@@ -130,6 +145,14 @@ struct ModelsListView: View {
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
 
+    private func loadProjectModel() {
+        guard let path = appState.configProjectPath else {
+            projectModel = nil
+            return
+        }
+        projectModel = ClaudeConfigLoader.loadProjectModel(projectPath: path)
+    }
+
     private func setDefault(_ model: String) {
         Task.detached {
             SettingsWriter.setDefaultModel(model)
@@ -141,6 +164,35 @@ struct ModelsListView: View {
             }
         }
     }
+
+    private func setProjectDefault(_ model: String) {
+        guard let path = appState.configProjectPath else { return }
+        Task.detached {
+            SettingsWriter.setProjectModel(model, projectPath: path)
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    projectModel = model
+                }
+                appState.showToast(
+                    "Set **\(model)** as project default",
+                    icon: "folder.fill"
+                )
+            }
+        }
+    }
+
+    private func clearProjectDefault() {
+        guard let path = appState.configProjectPath else { return }
+        Task.detached {
+            SettingsWriter.setProjectModel(nil, projectPath: path)
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    projectModel = nil
+                }
+                appState.showToast("Cleared project model override", icon: "folder.badge.minus")
+            }
+        }
+    }
 }
 
 // MARK: - Model Card
@@ -148,7 +200,11 @@ struct ModelsListView: View {
 private struct ModelCard: View {
     let name: String
     let isDefault: Bool
+    let isProjectDefault: Bool
+    let hasProject: Bool
     let onSetDefault: () -> Void
+    let onSetProjectDefault: () -> Void
+    let onClearProjectDefault: () -> Void
     @State
     private var isHovered = false
 
@@ -189,13 +245,26 @@ private struct ModelCard: View {
                     HStack(spacing: PoirotTheme.Spacing.xs) {
                         Image(systemName: "star.fill")
                             .font(PoirotTheme.Typography.nano)
-                        Text("Default")
+                        Text("Global Default")
                             .font(PoirotTheme.Typography.tiny)
                     }
                     .foregroundStyle(PoirotTheme.Colors.accent)
                     .padding(.horizontal, PoirotTheme.Spacing.sm)
                     .padding(.vertical, 3)
                     .background(Capsule().fill(PoirotTheme.Colors.accentDim))
+                }
+
+                if isProjectDefault {
+                    HStack(spacing: PoirotTheme.Spacing.xs) {
+                        Image(systemName: "folder.fill")
+                            .font(PoirotTheme.Typography.nano)
+                        Text("Project Default")
+                            .font(PoirotTheme.Typography.tiny)
+                    }
+                    .foregroundStyle(PoirotTheme.Colors.green)
+                    .padding(.horizontal, PoirotTheme.Spacing.sm)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(PoirotTheme.Colors.green.opacity(0.12)))
                 }
 
                 Spacer()
@@ -224,21 +293,55 @@ private struct ModelCard: View {
                 .padding(.top, PoirotTheme.Spacing.xs)
             }
 
-            if !isDefault {
+            if !isDefault || (hasProject && !isProjectDefault) || isProjectDefault {
                 Divider().opacity(0.2)
 
-                Button {
-                    onSetDefault()
-                } label: {
-                    HStack(spacing: PoirotTheme.Spacing.xs) {
-                        Image(systemName: "star")
-                            .font(PoirotTheme.Typography.micro)
-                        Text("Set as Default")
-                            .font(PoirotTheme.Typography.tiny)
+                HStack(spacing: PoirotTheme.Spacing.md) {
+                    if !isDefault {
+                        Button {
+                            onSetDefault()
+                        } label: {
+                            HStack(spacing: PoirotTheme.Spacing.xs) {
+                                Image(systemName: "star")
+                                    .font(PoirotTheme.Typography.micro)
+                                Text("Set as Default")
+                                    .font(PoirotTheme.Typography.tiny)
+                            }
+                            .foregroundStyle(PoirotTheme.Colors.accent)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .foregroundStyle(PoirotTheme.Colors.accent)
+
+                    if hasProject, !isProjectDefault {
+                        Button {
+                            onSetProjectDefault()
+                        } label: {
+                            HStack(spacing: PoirotTheme.Spacing.xs) {
+                                Image(systemName: "folder.badge.plus")
+                                    .font(PoirotTheme.Typography.micro)
+                                Text("Set as Project Default")
+                                    .font(PoirotTheme.Typography.tiny)
+                            }
+                            .foregroundStyle(PoirotTheme.Colors.green)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if isProjectDefault {
+                        Button {
+                            onClearProjectDefault()
+                        } label: {
+                            HStack(spacing: PoirotTheme.Spacing.xs) {
+                                Image(systemName: "folder.badge.minus")
+                                    .font(PoirotTheme.Typography.micro)
+                                Text("Clear Project Override")
+                                    .font(PoirotTheme.Typography.tiny)
+                            }
+                            .foregroundStyle(PoirotTheme.Colors.red)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

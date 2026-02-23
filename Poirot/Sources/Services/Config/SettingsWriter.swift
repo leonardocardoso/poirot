@@ -50,6 +50,31 @@ enum SettingsWriter {
         writeSettingsDict(dict)
     }
 
+    // MARK: - Project Model
+
+    nonisolated static func setProjectModel(_ model: String?, projectPath: String) {
+        let url = URL(fileURLWithPath: projectPath)
+            .appendingPathComponent(".claude")
+            .appendingPathComponent("settings.json")
+        var dict: [String: Any] = [:]
+        if let data = try? Data(contentsOf: url),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            dict = json
+        }
+        if let model {
+            dict["model"] = model
+        } else {
+            dict.removeValue(forKey: "model")
+        }
+        let dir = URL(fileURLWithPath: projectPath).appendingPathComponent(".claude")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        guard let data = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+
     // MARK: - Line Number Lookup
 
     nonisolated static func lineNumber(forMCPServer serverKey: String) -> Int? {

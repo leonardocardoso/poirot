@@ -86,9 +86,24 @@ enum ClaudeConfigLoader {
 
     // MARK: - MCP Servers
 
-    nonisolated static func loadMCPServers() -> [MCPServer] {
-        guard let settings = loadSettings() else { return [] }
-        guard let allowed = settings.permissions?.allow else { return [] }
+    nonisolated static func loadMCPServers(projectPath: String? = nil) -> [MCPServer] {
+        var results = loadMCPServersFrom(settings: loadSettings(), scope: .global)
+
+        if let projectPath {
+            let projectSettingsURL = URL(fileURLWithPath: projectPath)
+                .appendingPathComponent(".claude")
+                .appendingPathComponent("settings.json")
+            if let data = try? Data(contentsOf: projectSettingsURL),
+               let projectSettings = try? JSONDecoder().decode(ClaudeSettings.self, from: data) {
+                results += loadMCPServersFrom(settings: projectSettings, scope: .project)
+            }
+        }
+
+        return results.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    nonisolated private static func loadMCPServersFrom(settings: ClaudeSettings?, scope: ConfigScope) -> [MCPServer] {
+        guard let allowed = settings?.permissions?.allow else { return [] }
 
         var serverTools: [String: [String]] = [:]
 
@@ -103,13 +118,14 @@ enum ClaudeConfigLoader {
 
         return serverTools.map { name, tools in
             MCPServer(
-                id: name,
+                id: "\(scope.rawValue)-\(name)",
                 name: formatServerName(name),
+                rawName: name,
                 tools: tools.sorted(),
-                isWildcard: tools.isEmpty
+                isWildcard: tools.isEmpty,
+                scope: scope
             )
         }
-        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     // MARK: - Plugins
@@ -189,6 +205,18 @@ enum ClaudeConfigLoader {
         let url = claudeDir.appendingPathComponent("settings.json")
         guard let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(ClaudeSettings.self, from: data)
+    }
+
+    // MARK: - Project Model
+
+    nonisolated static func loadProjectModel(projectPath: String) -> String? {
+        let url = URL(fileURLWithPath: projectPath)
+            .appendingPathComponent(".claude")
+            .appendingPathComponent("settings.json")
+        guard let data = try? Data(contentsOf: url),
+              let settings = try? JSONDecoder().decode(ClaudeSettings.self, from: data)
+        else { return nil }
+        return settings.model
     }
 
     // MARK: - Template Creation
