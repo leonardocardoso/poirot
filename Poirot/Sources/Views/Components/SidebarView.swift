@@ -51,16 +51,23 @@ struct SidebarView: View {
         }
         .padding(PoirotTheme.Spacing.md)
         .task {
-            let modelsCount = provider.supportedModels.count
-            let projectPath = appState.currentProject?.path
-            let counts = await Task.detached {
-                AppState.computeSidebarCounts(
-                    supportedModelsCount: modelsCount,
-                    projectPath: projectPath
-                )
-            }.value
-            appState.sidebarCounts = counts
+            await recomputeSidebarCounts()
         }
+        .onChange(of: appState.configProjectPath) {
+            Task { await recomputeSidebarCounts() }
+        }
+    }
+
+    private func recomputeSidebarCounts() async {
+        let modelsCount = provider.supportedModels.count
+        let projectPath = appState.effectiveConfigProjectPath
+        let counts = await Task.detached {
+            AppState.computeSidebarCounts(
+                supportedModelsCount: modelsCount,
+                projectPath: projectPath
+            )
+        }.value
+        appState.sidebarCounts = counts
     }
 
     // MARK: - Search Bar
