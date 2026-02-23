@@ -86,6 +86,7 @@ jobs:
             --wait --timeout 10m
 
       - name: Staple notarization ticket
+        continue-on-error: true
         run: |
           for i in $(seq 1 10); do
             if xcrun stapler staple build/Poirot-${GITHUB_REF_NAME}.dmg; then
@@ -95,8 +96,7 @@ jobs:
             echo "Staple attempt $i/10 failed, waiting 30s for ticket propagation..."
             sleep 30
           done
-          echo "Stapling failed after 10 attempts"
-          exit 1
+          echo "Warning: stapling failed, DMG is still notarized (Gatekeeper checks online)"
 
       - name: Compute SHA256
         id: sha
