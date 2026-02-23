@@ -550,6 +550,57 @@ struct AppStateTests {
 
     // MARK: - Cache Overwrites
 
+    // MARK: - Config Project Path
+
+    @Test
+    func effectiveConfigProjectPath_prefersExplicitPicker() {
+        let state = AppState()
+        let project = makeProject(id: "p1", path: "/projects/alpha")
+        state.projects = [project]
+        state.selectedProject = "p1"
+        state.configProjectPath = "/projects/beta"
+
+        #expect(state.effectiveConfigProjectPath == "/projects/beta")
+    }
+
+    @Test
+    func effectiveConfigProjectPath_fallsBackToCurrentProject() {
+        let state = AppState()
+        let project = makeProject(id: "p1", path: "/projects/alpha")
+        state.projects = [project]
+        state.selectedProject = "p1"
+        state.configProjectPath = nil
+
+        #expect(state.effectiveConfigProjectPath == "/projects/alpha")
+    }
+
+    @Test
+    func effectiveConfigProjectPath_nilWhenNeitherSet() {
+        let state = AppState()
+        state.configProjectPath = nil
+        state.selectedProject = nil
+
+        #expect(state.effectiveConfigProjectPath == nil)
+    }
+
+    @Test
+    func configProjectName_extractsLastPathComponent() {
+        let state = AppState()
+        state.configProjectPath = "/Users/test/Dev/my-project"
+
+        #expect(state.configProjectName == "my-project")
+    }
+
+    @Test
+    func configProjectName_nilWhenNoPath() {
+        let state = AppState()
+        state.configProjectPath = nil
+
+        #expect(state.configProjectName == nil)
+    }
+
+    // MARK: - Cache Overwrites
+
     @Test
     func cacheSession_overwritesExistingEntry() {
         let state = AppState()
