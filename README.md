@@ -72,6 +72,27 @@ Search across all sessions, commands, and file paths. A spotlight-style overlay 
   <img src="assets/showcase/08-search.png" alt="Fuzzy Search" width="720" />
 </p>
 
+### Slash Commands
+Browse and inspect all your slash commands — global ones from `~/.claude/commands/` and project-scoped ones from `.claude/commands/`. See descriptions, arguments, model assignments, and tool permissions at a glance.
+
+<p align="center">
+  <img src="assets/showcase/10-commands.png" alt="Slash Commands" width="720" />
+</p>
+
+### Skills
+Explore reusable skill modules with their full documentation. Skills are rendered with markdown frontmatter parsed into structured cards showing descriptions and references.
+
+<p align="center">
+  <img src="assets/showcase/12-skills.png" alt="Skills" width="720" />
+</p>
+
+### MCP Servers
+See all configured Model Context Protocol servers with their connection details, tool counts, and scope badges. Quickly check which servers are available globally vs. per-project.
+
+<p align="center">
+  <img src="assets/showcase/11-mcp-servers.png" alt="MCP Servers" width="720" />
+</p>
+
 ---
 
 ## Capabilities
