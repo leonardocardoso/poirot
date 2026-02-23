@@ -237,7 +237,6 @@ Poirot/Sources/
 | Syntax Highlighting | [HighlightSwift](https://github.com/nicklawls/HighlightSwift) |
 | Linting | SwiftLint (strict profile) |
 | Formatting | SwiftFormat |
-| Project Gen | XcodeGen |
 | Testing | Swift Testing with hand-written mocks |
 
 ### Design System
@@ -316,7 +315,6 @@ Poirot is early. There's a lot to build and we'd love your help. Track what's pl
 - Built with [Claude Code](https://claude.ai/code) — the tool this app is built to complement
 - [MarkdownUI](https://github.com/gonzalezreal/swift-markdown-ui) for rich text rendering
 - [HighlightSwift](https://github.com/nicklawls/HighlightSwift) for code syntax highlighting
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) for declarative project configuration
 - Every SF Symbol that made the UI feel native
 
 ---

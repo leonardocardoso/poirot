@@ -13,8 +13,6 @@ Install SwiftLint and SwiftFormat via Homebrew:
 brew install swiftlint swiftformat
 ```
 
-> **Note:** The Xcode project is checked into git, so you don't need XcodeGen to build. Only run `xcodegen generate` if you modify `project.yml`.
-
 ## Building
 
 ```bash
