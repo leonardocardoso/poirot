@@ -85,7 +85,16 @@ jobs:
             --wait
 
       - name: Staple notarization ticket
-        run: xcrun stapler staple build/Poirot-${GITHUB_REF_NAME}.dmg
+        run: |
+          for i in 1 2 3 4 5; do
+            if xcrun stapler staple build/Poirot-${GITHUB_REF_NAME}.dmg; then
+              exit 0
+            fi
+            echo "Staple attempt $i failed, waiting 15s for ticket propagation..."
+            sleep 15
+          done
+          echo "Stapling failed after 5 attempts"
+          exit 1
 
       - name: Compute SHA256
         id: sha
