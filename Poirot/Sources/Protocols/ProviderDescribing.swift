@@ -1,4 +1,4 @@
-protocol ProviderDescribing {
+protocol ProviderDescribing: Sendable {
     var name: String { get }
     var assistantName: String { get }
     var assistantAvatarLetter: String { get }
