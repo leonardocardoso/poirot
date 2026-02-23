@@ -109,6 +109,13 @@ jobs:
     - name: Install Mint
       run: arch -arm64 brew install mint || true
 
+    - name: Cache Mint packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.mint
+        key: mint-${{ runner.os }}-${{ hashFiles('Mintfile') }}
+        restore-keys: mint-${{ runner.os }}-
+
     - name: Bootstrap Mint packages
       run: mint bootstrap
 
