@@ -55,7 +55,6 @@ jobs:
             -configuration Release \
             -destination 'platform=macOS' \
             -archivePath build/Poirot.xcarchive \
-            CODE_SIGN_IDENTITY="Developer ID Application" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             archive
 

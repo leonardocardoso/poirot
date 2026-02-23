@@ -50,6 +50,10 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: false
         SWIFT_EMIT_LOC_STRINGS: true
         LOCALIZATION_PREFERS_STRING_CATALOGS: true
+      configs:
+        Release:
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          CODE_SIGN_STYLE: Manual
     postCompileScripts:
       - script: |
           export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
