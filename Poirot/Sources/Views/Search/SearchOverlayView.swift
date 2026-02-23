@@ -188,7 +188,8 @@ struct SearchOverlayView: View {
                     ConfigDetailInfo(
                         name: cmd.name,
                         markdownContent: cmd.body,
-                        filePath: cmd.filePath
+                        filePath: cmd.filePath,
+                        scope: cmd.scope
                     )
                 )
             ))
@@ -219,7 +220,8 @@ struct SearchOverlayView: View {
                     ConfigDetailInfo(
                         name: skill.name,
                         markdownContent: skill.body,
-                        filePath: skill.filePath
+                        filePath: skill.filePath,
+                        scope: skill.scope
                     )
                 )
             ))
@@ -302,7 +304,8 @@ struct SearchOverlayView: View {
                     ConfigDetailInfo(
                         name: style.name,
                         markdownContent: style.body,
-                        filePath: style.filePath
+                        filePath: style.filePath,
+                        scope: style.scope
                     )
                 )
             ))
@@ -667,13 +670,14 @@ struct SearchOverlayView: View {
     }
 
     private func loadConfigItems() async {
+        let projectPath = appState.effectiveConfigProjectPath
         let result = await Task.detached {
             (
-                ClaudeConfigLoader.loadCommands(),
-                ClaudeConfigLoader.loadSkills(),
-                ClaudeConfigLoader.loadMCPServers(),
+                ClaudeConfigLoader.loadCommands(projectPath: projectPath),
+                ClaudeConfigLoader.loadSkills(projectPath: projectPath),
+                ClaudeConfigLoader.loadMCPServers(projectPath: projectPath),
                 ClaudeConfigLoader.loadPlugins(),
-                ClaudeConfigLoader.loadOutputStyles()
+                ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath)
             )
         }.value
         commands = result.0

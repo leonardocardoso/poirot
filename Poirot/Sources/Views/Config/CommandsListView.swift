@@ -30,7 +30,8 @@ struct CommandsListView: View {
                     icon: "apple.terminal.fill",
                     iconColor: PoirotTheme.Colors.blue,
                     markdownBody: command.body,
-                    filePath: command.filePath
+                    filePath: command.filePath,
+                    scope: command.scope
                 ) {
                     HStack(spacing: PoirotTheme.Spacing.sm) {
                         if let model = command.model {
@@ -102,7 +103,8 @@ struct CommandsListView: View {
                 item: item,
                 dynamicCount: "\(commands.count) \(commands.count == 1 ? "command" : "commands")",
                 screenID: item.id,
-                showLayoutToggle: true
+                showLayoutToggle: true,
+                showProjectPicker: true
             )
 
             if !isLoaded {
@@ -136,6 +138,9 @@ struct CommandsListView: View {
         }
         .onChange(of: appState.configAddTrigger) {
             createAndOpen()
+        }
+        .onChange(of: appState.configProjectPath) {
+            reloadCommands()
         }
     }
 
@@ -203,7 +208,8 @@ struct CommandsListView: View {
         let detail = ConfigDetailInfo(
             name: command.name,
             markdownContent: command.body,
-            filePath: command.filePath
+            filePath: command.filePath,
+            scope: command.scope
         )
         appState.activeConfigDetail = detail
         appState.pushConfigDetail(navItemID: NavigationItem.commands.id, detail: detail)
@@ -222,7 +228,7 @@ struct CommandsListView: View {
     }
 
     private func reloadCommands() {
-        commands = ClaudeConfigLoader.loadCommands(projectPath: appState.currentProject?.path)
+        commands = ClaudeConfigLoader.loadCommands(projectPath: appState.effectiveConfigProjectPath)
     }
 }
 

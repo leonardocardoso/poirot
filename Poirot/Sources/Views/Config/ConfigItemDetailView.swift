@@ -7,8 +7,27 @@ struct ConfigItemDetailView<Badges: View>: View {
     let iconColor: Color
     let markdownBody: String
     let filePath: String?
+    let scope: ConfigScope?
     @ViewBuilder
     let badges: () -> Badges
+
+    init(
+        title: String,
+        icon: String,
+        iconColor: Color,
+        markdownBody: String,
+        filePath: String?,
+        scope: ConfigScope? = nil,
+        @ViewBuilder badges: @escaping () -> Badges
+    ) {
+        self.title = title
+        self.icon = icon
+        self.iconColor = iconColor
+        self.markdownBody = markdownBody
+        self.filePath = filePath
+        self.scope = scope
+        self.badges = badges
+    }
 
     @State
     private var isRevealed = false
@@ -49,7 +68,12 @@ struct ConfigItemDetailView<Badges: View>: View {
                 Spacer()
             }
 
-            badges()
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                if let scope {
+                    ConfigScopeBadge(scope: scope)
+                }
+                badges()
+            }
         }
         .padding(.horizontal, PoirotTheme.Spacing.lg)
         .padding(.vertical, PoirotTheme.Spacing.md)

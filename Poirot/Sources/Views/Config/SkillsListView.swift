@@ -30,7 +30,8 @@ struct SkillsListView: View {
                     icon: "bolt.fill",
                     iconColor: PoirotTheme.Colors.accent,
                     markdownBody: skill.body,
-                    filePath: skill.filePath
+                    filePath: skill.filePath,
+                    scope: skill.scope
                 ) {
                     HStack(spacing: PoirotTheme.Spacing.sm) {
                         if let model = skill.model {
@@ -90,7 +91,8 @@ struct SkillsListView: View {
                 item: item,
                 dynamicCount: "\(skills.count) \(skills.count == 1 ? "skill" : "skills")",
                 screenID: item.id,
-                showLayoutToggle: true
+                showLayoutToggle: true,
+                showProjectPicker: true
             )
 
             if !isLoaded {
@@ -124,6 +126,9 @@ struct SkillsListView: View {
         }
         .onChange(of: appState.configAddTrigger) {
             createAndOpen()
+        }
+        .onChange(of: appState.configProjectPath) {
+            reloadSkills()
         }
     }
 
@@ -191,7 +196,8 @@ struct SkillsListView: View {
         let detail = ConfigDetailInfo(
             name: skill.name,
             markdownContent: skill.body,
-            filePath: skill.filePath
+            filePath: skill.filePath,
+            scope: skill.scope
         )
         appState.activeConfigDetail = detail
         appState.pushConfigDetail(navItemID: NavigationItem.skills.id, detail: detail)
@@ -210,7 +216,7 @@ struct SkillsListView: View {
     }
 
     private func reloadSkills() {
-        skills = ClaudeConfigLoader.loadSkills(projectPath: appState.currentProject?.path)
+        skills = ClaudeConfigLoader.loadSkills(projectPath: appState.effectiveConfigProjectPath)
     }
 }
 
