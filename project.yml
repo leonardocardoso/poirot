@@ -38,7 +38,7 @@ targets:
       - package: HighlightSwift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.poirot.app
+        PRODUCT_BUNDLE_IDENTIFIER: fyi.poirot
         PRODUCT_NAME: Poirot
         INFOPLIST_KEY_CFBundleDisplayName: Poirot
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
