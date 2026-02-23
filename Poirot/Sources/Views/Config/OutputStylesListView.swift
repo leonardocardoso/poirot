@@ -30,7 +30,8 @@ struct OutputStylesListView: View {
                     icon: "speaker.wave.3.fill",
                     iconColor: PoirotTheme.Colors.red,
                     markdownBody: style.body,
-                    filePath: style.filePath
+                    filePath: style.filePath,
+                    scope: style.scope
                 ) {
                     HStack(spacing: PoirotTheme.Spacing.sm) {
                         if !style.description.isEmpty {
@@ -88,7 +89,8 @@ struct OutputStylesListView: View {
                 item: item,
                 dynamicCount: "\(styles.count) \(styles.count == 1 ? "style" : "styles")",
                 screenID: item.id,
-                showLayoutToggle: true
+                showLayoutToggle: true,
+                showProjectPicker: true
             )
 
             if !isLoaded {
@@ -122,6 +124,9 @@ struct OutputStylesListView: View {
         }
         .onChange(of: appState.configAddTrigger) {
             createAndOpen()
+        }
+        .onChange(of: appState.configProjectPath) {
+            reloadStyles()
         }
     }
 
@@ -189,7 +194,8 @@ struct OutputStylesListView: View {
         let detail = ConfigDetailInfo(
             name: style.name,
             markdownContent: style.body,
-            filePath: style.filePath
+            filePath: style.filePath,
+            scope: style.scope
         )
         appState.activeConfigDetail = detail
         appState.pushConfigDetail(navItemID: NavigationItem.outputStyles.id, detail: detail)
@@ -208,7 +214,7 @@ struct OutputStylesListView: View {
     }
 
     private func reloadStyles() {
-        styles = ClaudeConfigLoader.loadOutputStyles(projectPath: appState.currentProject?.path)
+        styles = ClaudeConfigLoader.loadOutputStyles(projectPath: appState.effectiveConfigProjectPath)
     }
 }
 

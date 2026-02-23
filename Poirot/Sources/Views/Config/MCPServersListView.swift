@@ -25,7 +25,8 @@ struct MCPServersListView: View {
                 item: item,
                 dynamicCount: "\(servers.count) \(servers.count == 1 ? "server" : "servers")",
                 screenID: item.id,
-                showLayoutToggle: true
+                showLayoutToggle: true,
+                showProjectPicker: true
             )
 
             if !isLoaded {
@@ -56,6 +57,9 @@ struct MCPServersListView: View {
             withAnimation(.easeOut(duration: 0.4)) {
                 isRevealed = true
             }
+        }
+        .onChange(of: appState.configProjectPath) {
+            reloadServers()
         }
     }
 
@@ -157,7 +161,7 @@ struct MCPServersListView: View {
 
     private func openServerInEditor(_ server: MCPServer) {
         let path = SettingsWriter.settingsFileURL().path
-        if let line = SettingsWriter.lineNumber(forMCPServer: server.id) {
+        if let line = SettingsWriter.lineNumber(forMCPServer: server.rawName) {
             EditorLauncher.open(filePath: path, line: line, editor: editor)
         } else {
             EditorLauncher.open(filePath: path, editor: editor)
@@ -171,7 +175,7 @@ struct MCPServersListView: View {
 
     private func removeServer(_ server: MCPServer) {
         Task.detached {
-            SettingsWriter.removeMCPPermissions(serverName: server.id)
+            SettingsWriter.removeMCPPermissions(serverName: server.rawName)
             await MainActor.run {
                 reloadServers()
                 appState.showToast("Removed \(server.name)", icon: "trash", style: .info)
@@ -180,7 +184,7 @@ struct MCPServersListView: View {
     }
 
     private func reloadServers() {
-        servers = ClaudeConfigLoader.loadMCPServers()
+        servers = ClaudeConfigLoader.loadMCPServers(projectPath: appState.effectiveConfigProjectPath)
     }
 }
 
@@ -208,6 +212,8 @@ private struct MCPServerCard: View {
                 Text(server.name)
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+                ConfigScopeBadge(scope: server.scope)
 
                 Spacer()
 
