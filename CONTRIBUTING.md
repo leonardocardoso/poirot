@@ -1,27 +1,29 @@
-# Contributing to LUMNO
+# Contributing to Poirot
 
-Thanks for your interest in contributing to LUMNO! Here's how to get started.
+Thanks for your interest in contributing to Poirot! Here's how to get started.
 
 ## Prerequisites
 
 - macOS 15.0+
 - Xcode 16.0+
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) — `brew install xcodegen`
-- [SwiftLint](https://github.com/realm/SwiftLint) — `brew install swiftlint`
+
+SwiftLint and SwiftFormat versions are pinned in the `Mintfile`. If you use [Mint](https://github.com/yonaskolb/Mint), run `mint bootstrap` to install them. Otherwise install via Homebrew (`brew install swiftlint swiftformat`).
+
+> **Note:** The Xcode project is checked into git, so you don't need XcodeGen to build. Only run `mint run xcodegen` if you modify `project.yml`.
 
 ## Building
 
 ```bash
-git clone https://github.com/leocardz/lumno.git
-cd lumno
-xcodegen generate
-open Lumno.xcodeproj
+git clone https://github.com/LeonardoCardoso/Poirot.git
+cd Poirot
+mint bootstrap        # install SwiftLint & SwiftFormat from Mintfile
+open Poirot.xcodeproj
 ```
 
 Build with **Cmd+B** in Xcode, or from the command line:
 
 ```bash
-xcodebuild -scheme Lumno -destination 'platform=macOS' -skipMacroValidation build
+xcodebuild -scheme Poirot -destination 'platform=macOS' -skipMacroValidation build
 ```
 
 ## Testing
@@ -29,7 +31,7 @@ xcodebuild -scheme Lumno -destination 'platform=macOS' -skipMacroValidation buil
 Run the full test suite:
 
 ```bash
-xcodebuild test -scheme Lumno -destination 'platform=macOS' -skipMacroValidation
+xcodebuild test -scheme Poirot -destination 'platform=macOS' -skipMacroValidation
 ```
 
 Tests use [Swift Testing](https://developer.apple.com/documentation/testing/) (`@Test`, `#expect`, `#require`). We do not use XCTest for new tests.
@@ -40,17 +42,17 @@ Tests use [Swift Testing](https://developer.apple.com/documentation/testing/) (`
 - **SwiftLint** runs automatically during build (see `.swiftlint.yml`)
 - **SwiftFormat** for formatting (see `.swiftformat`)
 - Use `nonisolated` only for file I/O or heavy computation
-- New service protocols use `@Mockable` macro for auto-generated mocks
+- New service protocols get hand-written mocks in `PoirotTests/Mocks/`
 
 ## Architecture
 
 ```
-Lumno/Sources/
+Poirot/Sources/
 ├── App/           # App entry point, ContentView, AppState
 ├── Models/        # Value-type structs (Project, Session, Message)
-├── Protocols/     # Service protocols with @Mockable
+├── Protocols/     # Service protocols
 ├── Services/      # Concrete implementations + Environment DI
-├── Theme/         # Design tokens (LumnoTheme)
+├── Theme/         # Design tokens (PoirotTheme)
 └── Views/         # SwiftUI views organized by feature
 ```
 
