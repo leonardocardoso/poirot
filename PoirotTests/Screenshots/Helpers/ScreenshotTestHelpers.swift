@@ -96,7 +96,8 @@ func makeAppState(
     sessionSearchQuery: String = "",
     isToolFilterActive: Bool = false,
     activeToolFilters: Set<String> = [],
-    toastQueue: [Toast] = []
+    toastQueue: [Toast] = [],
+    configProjectPath: String? = nil
 ) -> AppState {
     let state = AppState()
     state.projects = projects
@@ -111,6 +112,7 @@ func makeAppState(
     state.isToolFilterActive = isToolFilterActive
     state.activeToolFilters = activeToolFilters
     state.toastQueue = toastQueue
+    state.configProjectPath = configProjectPath
     return state
 }
 

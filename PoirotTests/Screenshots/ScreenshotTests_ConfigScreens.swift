@@ -114,6 +114,56 @@ struct ScreenshotTests_ConfigScreens {
         )
     }
 
+    // MARK: - Config List Views (with project selected)
+
+    @Test
+    func testCommandsListWithProject() async throws {
+        let state = makeAppState(configProjectPath: "/Users/leonardocardoso/Dev/git/business/lumno")
+        try await snapshotView(
+            withEnvironment(
+                CommandsListView(item: configItem(id: "commands")),
+                state: state,
+                provider: provider
+            ),
+            size: ScreenshotSize.mainContent,
+            named: "testCommandsListWithProject",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    @Test
+    func testSkillsListWithProject() async throws {
+        let state = makeAppState(configProjectPath: "/Users/leonardocardoso/Dev/git/business/lumno")
+        try await snapshotView(
+            withEnvironment(
+                SkillsListView(item: configItem(id: "skills")),
+                state: state,
+                provider: provider
+            ),
+            size: ScreenshotSize.mainContent,
+            named: "testSkillsListWithProject",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
+    @Test
+    func testMCPServersListWithProject() async throws {
+        let state = makeAppState(configProjectPath: "/Users/leonardocardoso/Dev/git/business/lumno")
+        try await snapshotView(
+            withEnvironment(
+                MCPServersListView(item: configItem(id: "mcpServers")),
+                state: state,
+                provider: provider
+            ),
+            size: ScreenshotSize.mainContent,
+            named: "testMCPServersListWithProject",
+            record: isRecording,
+            delay: 1
+        )
+    }
+
     // MARK: - Config Screen Header
 
     @Test
