@@ -35,12 +35,6 @@ jobs:
             -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security list-keychains -d user -s $KEYCHAIN_PATH login.keychain-db
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Generate Xcode Project
-        run: xcodegen generate
-
       - name: Prepare ExportOptions
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
