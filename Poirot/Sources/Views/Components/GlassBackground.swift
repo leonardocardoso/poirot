@@ -14,13 +14,18 @@ struct GlassBackground: View {
     }
 
     var body: some View {
+        #if compiler(>=6.2)
         if #available(macOS 26.0, *) {
             glassView
         } else {
             materialView
         }
+        #else
+        materialView
+        #endif
     }
 
+    #if compiler(>=6.2)
     @available(macOS 26.0, *)
     @ViewBuilder
     private var glassView: some View {
@@ -33,6 +38,7 @@ struct GlassBackground: View {
             Color.clear.glassEffect(.regular, in: .capsule)
         }
     }
+    #endif
 
     @ViewBuilder
     private var materialView: some View {

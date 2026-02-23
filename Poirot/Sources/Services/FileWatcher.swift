@@ -3,7 +3,7 @@ import Foundation
 /// Monitors a directory for file system changes using GCD dispatch sources.
 /// Triggers a callback when files are created, modified, or deleted.
 @Observable
-final class FileWatcher {
+final class FileWatcher: @unchecked Sendable {
     private(set) var lastChangeDate: Date?
 
     private var source: DispatchSourceFileSystemObject?
@@ -62,7 +62,7 @@ final class FileWatcher {
             try? await Task.sleep(for: debounceInterval)
             guard !Task.isCancelled else { return }
             lastChangeDate = Date()
-            onChange()
+            await onChange()
         }
     }
 }
