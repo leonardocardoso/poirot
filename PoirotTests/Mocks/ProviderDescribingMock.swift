@@ -1,6 +1,6 @@
 @testable import Poirot
 
-final class ProviderDescribingMock: ProviderDescribing {
+final class ProviderDescribingMock: ProviderDescribing, @unchecked Sendable {
     var name: String = ""
     var assistantName: String = ""
     var assistantAvatarLetter: String = ""
