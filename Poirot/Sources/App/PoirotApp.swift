@@ -1,7 +1,23 @@
+import AppKit
 import SwiftUI
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let menu = NSMenu()
+        menu.addItem(withTitle: "New Window", action: #selector(newWindow(_:)), keyEquivalent: "")
+        return menu
+    }
+
+    @objc private func newWindow(_ sender: Any?) {
+        NSApp.activate()
+        NSApp.sendAction(Selector(("newWindowForTab:")), to: nil, from: nil)
+    }
+}
 
 @main
 struct PoirotApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self)
+    private var appDelegate
     @State
     private var appState = AppState()
     @Environment(\.openWindow)
