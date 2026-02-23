@@ -104,20 +104,10 @@ jobs:
         echo "$(brew --prefix)/bin" >> $GITHUB_PATH
 
     # ==========================================
-    # STEP 4: INSTALL MINT & TOOLS
+    # STEP 4: INSTALL LINT & FORMAT TOOLS
     # ==========================================
-    - name: Install Mint
-      run: arch -arm64 brew install mint || true
-
-    - name: Cache Mint packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.mint
-        key: mint-${{ runner.os }}-${{ hashFiles('Mintfile') }}
-        restore-keys: mint-${{ runner.os }}-
-
-    - name: Bootstrap Mint packages
-      run: mint bootstrap
+    - name: Install SwiftLint & SwiftFormat
+      run: brew install swiftlint swiftformat
 
     # ==========================================
     # STEP 5: COMPUTE METADATA
@@ -158,7 +148,7 @@ jobs:
     - name: Lint
       if: always() && steps.test.outcome != 'cancelled'
       run: |
-        mint run swiftlint lint \
+        swiftlint lint \
           --config .swiftlint.yml \
           Poirot/Sources \
           --reporter github-actions-logging
