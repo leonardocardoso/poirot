@@ -79,11 +79,25 @@ jobs:
           mkdir -p ~/private_keys
           echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8
 
-          xcrun notarytool submit build/Poirot-${GITHUB_REF_NAME}.dmg \
+          RESULT=$(xcrun notarytool submit build/Poirot-${GITHUB_REF_NAME}.dmg \
             --key ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8 \
             --key-id "$APPLE_API_KEY_ID" \
             --issuer "$APPLE_API_ISSUER_ID" \
-            --wait --timeout 10m
+            --wait --timeout 10m 2>&1)
+          echo "$RESULT"
+
+          # Extract submission ID and fetch log if notarization failed
+          SUBMISSION_ID=$(echo "$RESULT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
+          if echo "$RESULT" | grep -q "status: Invalid"; then
+            echo "--- Notarization rejected. Fetching Apple's log ---"
+            xcrun notarytool log "$SUBMISSION_ID" \
+              --key ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8 \
+              --key-id "$APPLE_API_KEY_ID" \
+              --issuer "$APPLE_API_ISSUER_ID" \
+              notarization-log.json
+            cat notarization-log.json
+            exit 1
+          fi
 
       - name: Staple notarization ticket
         continue-on-error: true
