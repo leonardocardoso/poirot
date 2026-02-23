@@ -93,6 +93,34 @@ See all configured Model Context Protocol servers with their connection details,
   <img src="assets/showcase/11-mcp-servers.png" alt="MCP Servers" width="720" />
 </p>
 
+### Models
+Browse all available models with their capabilities. See which model is set as the default and compare options across providers.
+
+<p align="center">
+  <img src="assets/showcase/14-models.png" alt="Models" width="720" />
+</p>
+
+### Sub-agents
+Inspect built-in sub-agent configurations. See agent names, descriptions, and how they're wired into your workflow.
+
+<p align="center">
+  <img src="assets/showcase/15-sub-agents.png" alt="Sub-agents" width="720" />
+</p>
+
+### Plugins
+View all installed Claude plugins with their metadata. Check what's active, discover available extensions, and see plugin details at a glance.
+
+<p align="center">
+  <img src="assets/showcase/16-plugins.png" alt="Plugins" width="720" />
+</p>
+
+### Output Styles
+Browse and preview output formatting styles. See how each style shapes Claude's responses and which one is currently active.
+
+<p align="center">
+  <img src="assets/showcase/17-output-styles.png" alt="Output Styles" width="720" />
+</p>
+
 ---
 
 ## Capabilities
