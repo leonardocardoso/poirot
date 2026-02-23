@@ -9,7 +9,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return menu
     }
 
-    @objc private func newWindow(_ sender: Any?) {
+    @objc
+    private func newWindow(_ sender: Any?) {
         NSApp.activate()
         NSApp.sendAction(Selector(("newWindowForTab:")), to: nil, from: nil)
     }

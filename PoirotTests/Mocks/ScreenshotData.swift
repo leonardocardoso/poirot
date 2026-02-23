@@ -55,7 +55,11 @@ enum ScreenshotData {
         Message(
             id: "m1",
             role: .user,
-            content: [.text("The sidebar doesn't show session counts next to each project. Add a badge with the session count, and make it match the accent color when the project is selected.")],
+            content: [
+                .text(
+                    "The sidebar doesn't show session counts next to each project. Add a badge with the session count, and make it match the accent color when the project is selected."
+                ),
+            ],
             timestamp: minutesAgo(45),
             model: nil,
             tokenUsage: nil
@@ -157,7 +161,9 @@ enum ScreenshotData {
             id: "m4",
             role: .assistant,
             content: [
-                .text("I can see the sidebar structure. The `ProjectRow` renders each project. I'll add a session count badge to the trailing edge of each row."),
+                .text(
+                    "I can see the sidebar structure. The `ProjectRow` renders each project. I'll add a session count badge to the trailing edge of each row."
+                ),
                 .toolUse(ToolUse(
                     id: "tu2",
                     name: "Edit",
@@ -194,7 +200,9 @@ enum ScreenshotData {
                 .toolUse(ToolUse(
                     id: "tu3",
                     name: "Bash",
-                    input: ["command": "cd /Users/leo/Dev/poirot && xcodebuild build -scheme Poirot -destination 'platform=macOS' 2>&1 | tail -5"]
+                    input: [
+                        "command": "cd /Users/leo/Dev/poirot && xcodebuild build -scheme Poirot -destination 'platform=macOS' 2>&1 | tail -5",
+                    ]
                 )),
             ],
             timestamp: minutesAgo(41),
@@ -261,7 +269,9 @@ enum ScreenshotData {
             id: "t2",
             role: .assistant,
             content: [
-                .text("I'll add the `Cmd+T` keyboard shortcut to toggle the tool filter. Let me find where shortcuts are registered."),
+                .text(
+                    "I'll add the `Cmd+T` keyboard shortcut to toggle the tool filter. Let me find where shortcuts are registered."
+                ),
                 .toolUse(ToolUse(
                     id: "tu-grep",
                     name: "Grep",
@@ -310,7 +320,9 @@ enum ScreenshotData {
             id: "t3",
             role: .assistant,
             content: [
-                .text("The shortcuts are defined in `ContentView.swift` using the `.keyboardShortcut(for:)` helper. I'll add `Cmd+T` there."),
+                .text(
+                    "The shortcuts are defined in `ContentView.swift` using the `.keyboardShortcut(for:)` helper. I'll add `Cmd+T` there."
+                ),
                 .toolUse(ToolUse(
                     id: "tu-edit",
                     name: "Edit",
@@ -344,7 +356,9 @@ enum ScreenshotData {
             id: "t4",
             role: .assistant,
             content: [
-                .text("`Cmd+T` now toggles the tool filter bar. When toggled off, it also clears the active filters. The shortcut only activates when a session is selected."),
+                .text(
+                    "`Cmd+T` now toggles the tool filter bar. When toggled off, it also clears the active filters. The shortcut only activates when a session is selected."
+                ),
             ],
             timestamp: hoursAgo(2),
             model: "claude-sonnet-4-6",
@@ -452,7 +466,11 @@ enum ScreenshotData {
             Message(
                 id: "s1",
                 role: .user,
-                content: [.text("Add pull-to-refresh on the Discover feed using async/await and the new SwiftUI refreshable modifier")],
+                content: [
+                    .text(
+                        "Add pull-to-refresh on the Discover feed using async/await and the new SwiftUI refreshable modifier"
+                    ),
+                ],
                 timestamp: hoursAgo(8),
                 model: nil,
                 tokenUsage: nil
@@ -460,7 +478,11 @@ enum ScreenshotData {
             Message(
                 id: "s2",
                 role: .assistant,
-                content: [.text("I'll add pull-to-refresh to the Discover feed using `.refreshable`. Let me read the current view first.")],
+                content: [
+                    .text(
+                        "I'll add pull-to-refresh to the Discover feed using `.refreshable`. Let me read the current view first."
+                    ),
+                ],
                 timestamp: hoursAgo(8),
                 model: "claude-opus-4-6",
                 tokenUsage: TokenUsage(input: 720, output: 380)
@@ -520,7 +542,11 @@ enum ScreenshotData {
             Message(
                 id: "w1",
                 role: .user,
-                content: [.text("Create a FileWatcher service that monitors ~/.claude/projects/ for new session files and triggers a refresh")],
+                content: [
+                    .text(
+                        "Create a FileWatcher service that monitors ~/.claude/projects/ for new session files and triggers a refresh"
+                    ),
+                ],
                 timestamp: minutesAgo(30),
                 model: nil,
                 tokenUsage: nil
@@ -529,7 +555,9 @@ enum ScreenshotData {
                 id: "w2",
                 role: .assistant,
                 content: [
-                    .text("I'll create a `FileWatcher` using `DispatchSource.makeFileSystemObjectSource` to monitor the projects directory."),
+                    .text(
+                        "I'll create a `FileWatcher` using `DispatchSource.makeFileSystemObjectSource` to monitor the projects directory."
+                    ),
                     .toolUse(ToolUse(
                         id: "tu-write",
                         name: "Write",
@@ -573,7 +601,11 @@ enum ScreenshotData {
             Message(
                 id: "tk1",
                 role: .user,
-                content: [.text("Audit the codebase for any accessibility issues — missing labels, small tap targets, missing VoiceOver hints")],
+                content: [
+                    .text(
+                        "Audit the codebase for any accessibility issues — missing labels, small tap targets, missing VoiceOver hints"
+                    ),
+                ],
                 timestamp: minutesAgo(60),
                 model: nil,
                 tokenUsage: nil
@@ -695,7 +727,9 @@ enum ScreenshotData {
                 id: "e3",
                 role: .assistant,
                 content: [
-                    .text("Two test failures. Let me read the test file and the route generator to understand what changed."),
+                    .text(
+                        "Two test failures. Let me read the test file and the route generator to understand what changed."
+                    ),
                     .toolUse(ToolUse(
                         id: "tu-read-err",
                         name: "Read",
@@ -784,7 +818,7 @@ enum ScreenshotData {
     // MARK: - Long Content Session
 
     static let longContentSession: Session = {
-        var lines: [String] = ["Running xcodebuild test -scheme Poirot -destination 'platform=macOS'...\n"]
+        var lines = ["Running xcodebuild test -scheme Poirot -destination 'platform=macOS'...\n"]
         let testNames = [
             "testSessionParsing", "testMessageDecoding", "testToolUseParsing",
             "testThinkingBlockExtraction", "testTokenUsageAggregation", "testProjectDiscovery",
@@ -869,7 +903,9 @@ enum ScreenshotData {
         Message(
             id: "at1",
             role: .user,
-            content: [.text("Add a toast notification system that shows success/error/info messages with auto-dismiss")],
+            content: [
+                .text("Add a toast notification system that shows success/error/info messages with auto-dismiss"),
+            ],
             timestamp: minutesAgo(50),
             model: nil,
             tokenUsage: nil
@@ -979,7 +1015,9 @@ enum ScreenshotData {
                 .toolUse(ToolUse(
                     id: "tu-at-bash",
                     name: "Bash",
-                    input: ["command": "cd /Users/leo/Dev/poirot && xcodebuild build -scheme Poirot -destination 'platform=macOS' 2>&1 | tail -3"]
+                    input: [
+                        "command": "cd /Users/leo/Dev/poirot && xcodebuild build -scheme Poirot -destination 'platform=macOS' 2>&1 | tail -3",
+                    ]
                 )),
             ],
             timestamp: minutesAgo(46),
@@ -1098,7 +1136,9 @@ enum ScreenshotData {
             id: "at9",
             role: .assistant,
             content: [
-                .text("The toast notification system is fully implemented and verified. All three styles (success, error, info) render correctly with smooth animations and auto-dismiss."),
+                .text(
+                    "The toast notification system is fully implemented and verified. All three styles (success, error, info) render correctly with smooth animations and auto-dismiss."
+                ),
             ],
             timestamp: minutesAgo(42),
             model: "claude-opus-4-6",
@@ -1131,7 +1171,9 @@ enum ScreenshotData {
                 id: "sc2",
                 role: .assistant,
                 content: [
-                    .text("I see the build errors on `feature/lazy-loading`. Let me read the parser to find the type mismatches."),
+                    .text(
+                        "I see the build errors on `feature/lazy-loading`. Let me read the parser to find the type mismatches."
+                    ),
                     .toolUse(ToolUse(
                         id: "tu-sc-read",
                         name: "Read",
@@ -1393,7 +1435,7 @@ enum ScreenshotData {
     )
 
     static let longContentResult: ToolResult = {
-        var lines: [String] = ["Test Suite 'All tests' started at 2026-02-20 14:25:00\n"]
+        var lines = ["Test Suite 'All tests' started at 2026-02-20 14:25:00\n"]
         for i in 1 ... 68 {
             let name = "testSnapshot_\(String(format: "%03d", i))"
             let dur = Double(10 + (i * 13) % 400) / 1000.0

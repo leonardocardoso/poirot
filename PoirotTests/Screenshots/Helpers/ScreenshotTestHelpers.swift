@@ -1,8 +1,7 @@
+@testable import Poirot
 import SnapshotTesting
 import SwiftUI
 import Testing
-
-@testable import Poirot
 
 // MARK: - Standard Sizes
 
@@ -130,6 +129,7 @@ func withEnvironment<V: View>(
 }
 
 // MARK: - Composite App View (Sidebar + Detail)
+
 // NavigationSplitView doesn't render its sidebar in NSHostingController snapshots.
 // This helper manually composes sidebar + detail side-by-side for full-app screenshots.
 

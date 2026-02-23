@@ -1,8 +1,7 @@
+@testable import Poirot
 import SnapshotTesting
 import SwiftUI
 import Testing
-
-@testable import Poirot
 
 @Suite("Edit Diff Screenshots")
 struct ScreenshotTests_EditDiff {
