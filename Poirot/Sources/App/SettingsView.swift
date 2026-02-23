@@ -186,6 +186,7 @@ private struct AppearanceSettingsView: View {
 
 private let settingsLabelWidth: CGFloat = 200
 
+@MainActor
 private func settingsRow<Label: View, Control: View>(
     @ViewBuilder label: () -> Label,
     @ViewBuilder control: () -> Control
@@ -201,6 +202,7 @@ private func settingsRow<Label: View, Control: View>(
     .padding(.vertical, 8)
 }
 
+@MainActor
 private var settingsDivider: some View {
     Divider()
         .padding(.leading, settingsLabelWidth + 12)
