@@ -25,6 +25,10 @@
   <img src="https://img.shields.io/badge/PRs-welcome-E8A642?style=flat-square" alt="PRs Welcome" />
 </p>
 
+<p align="center">
+  No login. No tracking. No analytics. Works offline. Less than 6 MB.
+</p>
+
 ---
 
 ## The Story
@@ -170,6 +174,13 @@ Browse and preview output formatting styles. See how each style shapes Claude's 
 ---
 
 ## Getting Started
+
+### Install with Homebrew
+
+```bash
+brew tap leonardocardoso/poirot
+brew install --cask poirot
+```
 
 ### Prerequisites
 
