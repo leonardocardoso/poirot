@@ -350,5 +350,13 @@ No tracking. No analytics. Analyze the code yourself, or ask your Claude to do i
 Made with coffee and Claude Code in a weekend.
 
 <p align="center">
+  <a href="https://youtu.be/JLvNSRZrxdo">
+    <img src="https://img.youtube.com/vi/JLvNSRZrxdo/maxresdefault.jpg" alt="Poirot Demo Video" width="720" />
+  </a>
+  <br/>
+  <sub>Click to watch the demo on YouTube</sub>
+</p>
+
+<p align="center">
   <sub>If you find Poirot useful, consider giving it a star. It helps others discover the project.</sub>
 </p>
