@@ -329,8 +329,8 @@ private struct MCPServerCard: View {
                 onRemove()
             }
         } message: {
-            // swiftlint:disable:next line_length
             Text(
+                // swiftlint:disable:next line_length
                 "This will remove the server definition from ~/.claude.json and its tool permissions from settings.json."
             )
         }

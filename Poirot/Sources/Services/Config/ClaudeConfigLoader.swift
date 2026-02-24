@@ -297,7 +297,6 @@ enum ClaudeConfigLoader {
 
     nonisolated static func createSkillTemplate() -> String? {
         let dir = claudeDir.appendingPathComponent("skills").appendingPathComponent("new-skill")
-        let skillFile = dir.appendingPathComponent("SKILL.md")
 
         // Handle uniqueness by varying the folder name
         var finalDir = dir
