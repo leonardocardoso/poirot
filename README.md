@@ -23,10 +23,21 @@
   <img src="https://img.shields.io/badge/swift-6-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 6" />
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" />
   <img src="https://img.shields.io/badge/PRs-welcome-E8A642?style=flat-square" alt="PRs Welcome" />
+  <img src="https://img.shields.io/github/stars/LeonardoCardoso/Poirot?style=flat-square&color=E8A642&label=stars" alt="GitHub Stars" />
 </p>
 
 <p align="center">
   No login. No tracking. No analytics. Works offline. Less than 6 MB.
+</p>
+
+---
+
+<p align="center">
+  <a href="https://youtu.be/JLvNSRZrxdo">
+    <img src="https://img.youtube.com/vi/JLvNSRZrxdo/maxresdefault.jpg" alt="Poirot Demo Video" width="720" />
+  </a>
+  <br/>
+  <sub>Click to watch the demo on YouTube</sub>
 </p>
 
 ---
