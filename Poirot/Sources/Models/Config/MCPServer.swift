@@ -7,4 +7,9 @@ struct MCPServer: Identifiable, Sendable {
     let tools: [String]
     let isWildcard: Bool
     let scope: ConfigScope
+    let type: String?
+    let command: String?
+    let args: [String]
+    let env: [String: String]
+    let url: String?
 }

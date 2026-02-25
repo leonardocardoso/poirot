@@ -50,8 +50,8 @@ struct OnboardingView: View {
                     .font(PoirotTheme.Typography.heroTitle)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
-                // swiftlint:disable:next line_length
                 Text(
+                    // swiftlint:disable:next line_length
                     "A native macOS companion for Claude Code.\nBrowse sessions, explore configurations, and search across your entire Claude Code history."
                 )
                 .font(PoirotTheme.Typography.body)

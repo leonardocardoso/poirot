@@ -7,6 +7,11 @@ enum SettingsWriter {
             .appendingPathComponent("settings.json")
     }
 
+    nonisolated static func claudeConfigFileURL() -> URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".claude.json")
+    }
+
     // MARK: - Plugin Toggle
 
     nonisolated static func togglePlugin(key: String, enabled: Bool) {
@@ -78,22 +83,53 @@ enum SettingsWriter {
     // MARK: - Line Number Lookup
 
     nonisolated static func lineNumber(forMCPServer serverKey: String) -> Int? {
-        let url = settingsFileURL()
+        let url = claudeConfigFileURL()
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         let lines = content.components(separatedBy: .newlines)
-        // Look for `"serverKey":` inside the mcpServers block
         let needle = "\"\(serverKey)\""
-        var inMCPServers = false
+        var inTopLevelMCPServers = false
+        var braceDepth = 0
         for (index, line) in lines.enumerated() {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("\"mcpServers\"") {
-                inMCPServers = true
+            // Top-level keys in ~/.claude.json are at indent <= 2
+            let indent = line.prefix(while: { $0 == " " || $0 == "\t" }).count
+            if trimmed.hasPrefix("\"mcpServers\""), indent <= 2 {
+                inTopLevelMCPServers = true
+                braceDepth = 0
             }
-            if inMCPServers, trimmed.hasPrefix(needle) {
-                return index + 1 // 1-based line number
+            if inTopLevelMCPServers {
+                braceDepth += trimmed.filter { $0 == "{" }.count
+                braceDepth -= trimmed.filter { $0 == "}" }.count
+                if trimmed.hasPrefix(needle) {
+                    return index + 1
+                }
+                // Exited the top-level mcpServers block
+                if braceDepth <= 0, trimmed.contains("}") {
+                    inTopLevelMCPServers = false
+                }
             }
         }
         return nil
+    }
+
+    // MARK: - MCP Server Definition Removal
+
+    nonisolated static func removeMCPServer(serverName: String) {
+        let url = claudeConfigFileURL()
+        guard let data = try? Data(contentsOf: url),
+              var dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return }
+
+        if var servers = dict["mcpServers"] as? [String: Any] {
+            servers.removeValue(forKey: serverName)
+            dict["mcpServers"] = servers
+        }
+
+        guard let updated = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return }
+        try? updated.write(to: url, options: .atomic)
     }
 
     // MARK: - Internal

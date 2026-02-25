@@ -37,7 +37,7 @@ struct MCPServersListView: View {
                 ConfigEmptyState(
                     icon: "powerplug",
                     message: "No MCP servers configured",
-                    hint: "~/.claude/settings.json"
+                    hint: "~/.claude.json"
                 )
             } else {
                 configContent
@@ -140,7 +140,7 @@ struct MCPServersListView: View {
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.blue)
 
-            Text("Add MCP servers via `claude mcp add` or edit ~/.claude/settings.json directly.")
+            Text("Add MCP servers via `claude mcp add` or edit ~/.claude.json directly.")
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
         }
@@ -160,7 +160,7 @@ struct MCPServersListView: View {
     }
 
     private func openServerInEditor(_ server: MCPServer) {
-        let path = SettingsWriter.settingsFileURL().path
+        let path = SettingsWriter.claudeConfigFileURL().path
         if let line = SettingsWriter.lineNumber(forMCPServer: server.rawName) {
             EditorLauncher.open(filePath: path, line: line, editor: editor)
         } else {
@@ -169,12 +169,13 @@ struct MCPServersListView: View {
     }
 
     private func showSettingsInFinder() {
-        let url = SettingsWriter.settingsFileURL()
+        let url = SettingsWriter.claudeConfigFileURL()
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 
     private func removeServer(_ server: MCPServer) {
         Task.detached {
+            SettingsWriter.removeMCPServer(serverName: server.rawName)
             SettingsWriter.removeMCPPermissions(serverName: server.rawName)
             await MainActor.run {
                 reloadServers()
@@ -202,6 +203,23 @@ private struct MCPServerCard: View {
     @State
     private var showDeleteConfirmation = false
 
+    private var transportLabel: String? {
+        if let type = server.type {
+            return type.uppercased()
+        }
+        if server.url != nil { return "HTTP" }
+        if server.command != nil { return "STDIO" }
+        return nil
+    }
+
+    private var connectionInfo: String? {
+        if let url = server.url { return url }
+        if let command = server.command {
+            return ([command] + server.args).joined(separator: " ")
+        }
+        return nil
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.sm) {
@@ -212,6 +230,18 @@ private struct MCPServerCard: View {
                 Text(server.name)
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+                if let transport = transportLabel {
+                    Text(transport)
+                        .font(PoirotTheme.Typography.codeSmall)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                                .fill(PoirotTheme.Colors.bgElevated)
+                        )
+                }
 
                 ConfigScopeBadge(scope: server.scope)
 
@@ -246,6 +276,14 @@ private struct MCPServerCard: View {
                 }
                 .buttonStyle(.plain)
                 .help("Remove server")
+            }
+
+            if let info = connectionInfo {
+                Text(info)
+                    .font(PoirotTheme.Typography.codeSmall)
+                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
 
             if !server.tools.isEmpty {
@@ -291,7 +329,10 @@ private struct MCPServerCard: View {
                 onRemove()
             }
         } message: {
-            Text("This will remove all tool permissions for this server from settings.json.")
+            Text(
+                // swiftlint:disable:next line_length
+                "This will remove the server definition from ~/.claude.json and its tool permissions from settings.json."
+            )
         }
     }
 }

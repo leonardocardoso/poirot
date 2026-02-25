@@ -133,6 +133,7 @@ attributes:
         - "@Bindable"
         - "@Binding"
         - "@FocusState"
+        - "@MainActor"
         - "@State"
         - "@ViewBuilder"
 

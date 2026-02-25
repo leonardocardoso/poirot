@@ -86,46 +86,102 @@ enum ClaudeConfigLoader {
 
     // MARK: - MCP Servers
 
-    nonisolated static func loadMCPServers(projectPath: String? = nil) -> [MCPServer] {
-        var results = loadMCPServersFrom(settings: loadSettings(), scope: .global)
+    nonisolated private static var claudeConfigURL: URL {
+        FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude.json")
+    }
 
-        if let projectPath {
-            let projectSettingsURL = URL(fileURLWithPath: projectPath)
-                .appendingPathComponent(".claude")
-                .appendingPathComponent("settings.json")
-            if let data = try? Data(contentsOf: projectSettingsURL),
-               let projectSettings = try? JSONDecoder().decode(ClaudeSettings.self, from: data) {
-                results += loadMCPServersFrom(settings: projectSettings, scope: .project)
+    nonisolated static func loadClaudeConfig() -> ClaudeConfig? {
+        guard let data = try? Data(contentsOf: claudeConfigURL) else { return nil }
+        return try? JSONDecoder().decode(ClaudeConfig.self, from: data)
+    }
+
+    nonisolated static func loadMCPServers(projectPath: String? = nil) -> [MCPServer] {
+        let config = loadClaudeConfig()
+        let toolPermissions = collectToolPermissions()
+        var serversByName: [String: MCPServer] = [:]
+
+        // 1. User-scope servers from top-level mcpServers in ~/.claude.json
+        if let userServers = config?.mcpServers {
+            for (name, definition) in userServers {
+                let server = makeServer(
+                    name: name,
+                    definition: definition,
+                    scope: .global,
+                    tools: toolPermissions[name]
+                )
+                serversByName[name] = server
             }
         }
 
-        return results.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        if let projectPath {
+            // 2. Local-scope servers from projects[path].mcpServers in ~/.claude.json
+            if let localServers = config?.projects?[projectPath]?.mcpServers {
+                for (name, definition) in localServers {
+                    let server = makeServer(
+                        name: name,
+                        definition: definition,
+                        scope: .project,
+                        tools: toolPermissions[name]
+                    )
+                    serversByName[name] = server // local overrides user
+                }
+            }
+
+            // 3. Project-scope servers from <project>/.mcp.json
+            let mcpJsonURL = URL(fileURLWithPath: projectPath).appendingPathComponent(".mcp.json")
+            if let data = try? Data(contentsOf: mcpJsonURL),
+               let mcpConfig = try? JSONDecoder().decode(MCPProjectConfig.self, from: data),
+               let projectServers = mcpConfig.mcpServers {
+                for (name, definition) in projectServers where serversByName[name] == nil {
+                    let server = makeServer(
+                        name: name,
+                        definition: definition,
+                        scope: .project,
+                        tools: toolPermissions[name]
+                    )
+                    serversByName[name] = server
+                }
+            }
+        }
+
+        return serversByName.values
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
-    nonisolated private static func loadMCPServersFrom(settings: ClaudeSettings?, scope: ConfigScope) -> [MCPServer] {
-        guard let allowed = settings?.permissions?.allow else { return [] }
+    nonisolated private static func makeServer(
+        name: String,
+        definition: MCPServerDefinition,
+        scope: ConfigScope,
+        tools: [String]?
+    ) -> MCPServer {
+        MCPServer(
+            id: "\(scope.rawValue)-\(name)",
+            name: formatServerName(name),
+            rawName: name,
+            tools: (tools ?? []).sorted(),
+            isWildcard: tools == nil,
+            scope: scope,
+            type: definition.type,
+            command: definition.command,
+            args: definition.args ?? [],
+            env: definition.env ?? [:],
+            url: definition.url
+        )
+    }
 
+    /// Collects tool permissions from settings.json keyed by server name.
+    nonisolated private static func collectToolPermissions() -> [String: [String]] {
+        guard let allowed = loadSettings()?.permissions?.allow else { return [:] }
         var serverTools: [String: [String]] = [:]
-
         for entry in allowed {
             guard entry.hasPrefix("mcp__") else { continue }
-            let parts = entry.dropFirst(5) // remove "mcp__"
+            let parts = entry.dropFirst(5)
             guard let separatorRange = parts.range(of: "__") else { continue }
             let serverName = String(parts[parts.startIndex ..< separatorRange.lowerBound])
             let toolName = String(parts[separatorRange.upperBound...])
             serverTools[serverName, default: []].append(toolName)
         }
-
-        return serverTools.map { name, tools in
-            MCPServer(
-                id: "\(scope.rawValue)-\(name)",
-                name: formatServerName(name),
-                rawName: name,
-                tools: tools.sorted(),
-                isWildcard: tools.isEmpty,
-                scope: scope
-            )
-        }
+        return serverTools
     }
 
     // MARK: - Plugins
@@ -241,7 +297,6 @@ enum ClaudeConfigLoader {
 
     nonisolated static func createSkillTemplate() -> String? {
         let dir = claudeDir.appendingPathComponent("skills").appendingPathComponent("new-skill")
-        let skillFile = dir.appendingPathComponent("SKILL.md")
 
         // Handle uniqueness by varying the folder name
         var finalDir = dir
