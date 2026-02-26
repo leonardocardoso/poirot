@@ -5,8 +5,8 @@ enum PoirotTheme {
     // MARK: - Colors
 
     enum Colors {
-        static let accent = Color(hex: 0xE8A642)
-        static let accentDim = Color(lightHex: 0xE8A642, darkHex: 0xE8A642, lightOpacity: 0.18, darkOpacity: 0.15)
+        static let accent = Color(lightHex: 0xC88422, darkHex: 0xE8A642)
+        static let accentDim = Color(lightHex: 0xC88422, darkHex: 0xE8A642, lightOpacity: 0.20, darkOpacity: 0.15)
 
         static let bgApp = Color(lightHex: 0xF3F4F7, darkHex: 0x0D0D0F)
         static let bgSidebar = Color(lightHex: 0xECEEF3, darkHex: 0x141416)
@@ -23,17 +23,17 @@ enum PoirotTheme {
         static let borderSubtle = Color(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.05, darkOpacity: 0.03)
         static let borderEmphasis = Color(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.16, darkOpacity: 0.10)
 
-        static let green = Color(hex: 0x32D74B)
-        static let red = Color(hex: 0xFF453A)
-        static let blue = Color(hex: 0x0A84FF)
-        static let orange = Color(hex: 0xFF9F0A)
-        static let purple = Color(hex: 0xAF52DE)
-        static let teal = Color(hex: 0x30D5C8)
+        static let green = Color(lightHex: 0x1F8A36, darkHex: 0x32D74B)
+        static let red = Color(lightHex: 0xC22A21, darkHex: 0xFF453A)
+        static let blue = Color(lightHex: 0x005ECF, darkHex: 0x0A84FF)
+        static let orange = Color(lightHex: 0xB86A00, darkHex: 0xFF9F0A)
+        static let purple = Color(lightHex: 0x7A3FB5, darkHex: 0xAF52DE)
+        static let teal = Color(lightHex: 0x0F8F85, darkHex: 0x30D5C8)
 
-        static let diffAddBg = Color(lightHex: 0x32D74B, darkHex: 0x32D74B, lightOpacity: 0.16, darkOpacity: 0.10)
-        static let diffAddText = Color(hex: 0x32D74B)
-        static let diffRemoveBg = Color(lightHex: 0xFF453A, darkHex: 0xFF453A, lightOpacity: 0.16, darkOpacity: 0.10)
-        static let diffRemoveText = Color(hex: 0xFF453A)
+        static let diffAddBg = Color(lightHex: 0x1F8A36, darkHex: 0x32D74B, lightOpacity: 0.16, darkOpacity: 0.10)
+        static let diffAddText = Color(lightHex: 0x166A29, darkHex: 0x32D74B)
+        static let diffRemoveBg = Color(lightHex: 0xC22A21, darkHex: 0xFF453A, lightOpacity: 0.16, darkOpacity: 0.10)
+        static let diffRemoveText = Color(lightHex: 0x9B221B, darkHex: 0xFF453A)
     }
 
     // MARK: - Typography
@@ -113,11 +113,12 @@ enum PoirotTheme {
 
 extension Color {
     init(hex: UInt, opacity: Double = 1.0) {
+        let components = Self.rgbComponents(from: hex)
         self.init(
             .sRGB,
-            red: Double((hex >> 16) & 0xFF) / 255.0,
-            green: Double((hex >> 8) & 0xFF) / 255.0,
-            blue: Double(hex & 0xFF) / 255.0,
+            red: components.red,
+            green: components.green,
+            blue: components.blue,
             opacity: opacity
         )
     }
