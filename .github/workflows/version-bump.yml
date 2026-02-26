@@ -37,11 +37,17 @@ jobs:
           sed -i "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"${{ inputs.version }}\"/" project.yml
           sed -i "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: $(( ${{ steps.current.outputs.build }} + 1 ))/" project.yml
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Regenerate Xcode project
+        run: xcodegen generate
+
       - name: Commit and tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add project.yml
+          git add project.yml Poirot.xcodeproj
           git commit -m "Bump version to ${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
           git push origin main --tags
