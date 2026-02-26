@@ -12,8 +12,13 @@ struct SettingsView: View {
                 .tabItem {
                     Label("Appearance", systemImage: "paintbrush")
                 }
+
+            ViewerSettingsView()
+                .tabItem {
+                    Label("Viewer", systemImage: "eye")
+                }
         }
-        .frame(width: 560, height: 360)
+        .frame(width: 560, height: 260)
     }
 }
 
@@ -90,6 +95,7 @@ private struct GeneralSettingsView: View {
                     }
                 }
             }
+            Spacer()
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 32)
@@ -113,39 +119,30 @@ private struct GeneralSettingsView: View {
 private struct AppearanceSettingsView: View {
     @Environment(AppState.self)
     private var appState
+    @AppStorage("appearanceMode")
+    private var appearanceMode = AppearanceMode.auto.rawValue
     @AppStorage("showAnimations")
     private var showAnimations = true
-    @AppStorage("wrapCodeLines")
-    private var wrapCodeLines = true
-    @AppStorage("autoExpandBlocks")
-    private var autoExpandBlocks = true
-    @AppStorage("parseMarkdownInResults")
-    private var parseMarkdown = true
+
+    private var appearanceModeBinding: Binding<AppearanceMode> {
+        Binding(
+            get: { AppearanceMode(rawValue: appearanceMode) ?? .auto },
+            set: { newValue in
+                appearanceMode = newValue.rawValue
+                NSApp.appearance = newValue.appearance
+            }
+        )
+    }
 
     var body: some View {
         @Bindable
         var appState = appState
 
         VStack(spacing: 0) {
-            settingsRow {
-                Text("Wrap Lines Automatically:")
+            settingsRow(alignment: .top) {
+                Text("Appearance:")
             } control: {
-                Toggle("Wrap lines in code blocks", isOn: $wrapCodeLines)
-                    .labelsHidden()
-            }
-
-            settingsRow {
-                Text("Expand Blocks Automatically:")
-            } control: {
-                Toggle("Expand tool blocks automatically", isOn: $autoExpandBlocks)
-                    .labelsHidden()
-            }
-
-            settingsRow {
-                Text("Parse Markdown Automatically:")
-            } control: {
-                Toggle("Render markdown in tool results", isOn: $parseMarkdown)
-                    .labelsHidden()
+                AppearancePicker(selection: appearanceModeBinding)
             }
 
             settingsDivider
@@ -176,6 +173,48 @@ private struct AppearanceSettingsView: View {
                         .disabled(appState.fontScale == 1.0)
                 }
             }
+
+            Spacer()
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 32)
+    }
+}
+
+// MARK: - Viewer
+
+private struct ViewerSettingsView: View {
+    @AppStorage("wrapCodeLines")
+    private var wrapCodeLines = true
+    @AppStorage("autoExpandBlocks")
+    private var autoExpandBlocks = true
+    @AppStorage("parseMarkdownInResults")
+    private var parseMarkdown = true
+
+    var body: some View {
+        VStack(spacing: 0) {
+            settingsRow {
+                Text("Wrap Lines Automatically:")
+            } control: {
+                Toggle("Wrap lines in code blocks", isOn: $wrapCodeLines)
+                    .labelsHidden()
+            }
+
+            settingsRow {
+                Text("Expand Blocks Automatically:")
+            } control: {
+                Toggle("Expand tool blocks automatically", isOn: $autoExpandBlocks)
+                    .labelsHidden()
+            }
+
+            settingsRow {
+                Text("Parse Markdown Automatically:")
+            } control: {
+                Toggle("Render markdown in tool results", isOn: $parseMarkdown)
+                    .labelsHidden()
+            }
+
+            Spacer()
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 32)
@@ -188,10 +227,11 @@ private let settingsLabelWidth: CGFloat = 200
 
 @MainActor
 private func settingsRow<Label: View, Control: View>(
+    alignment: VerticalAlignment = .firstTextBaseline,
     @ViewBuilder label: () -> Label,
     @ViewBuilder control: () -> Control
 ) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: 12) {
+    HStack(alignment: alignment, spacing: 12) {
         label()
             .frame(width: settingsLabelWidth, alignment: .trailing)
 
