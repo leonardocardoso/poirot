@@ -12,7 +12,7 @@ extension View {
                     isSelected
                         ? PoirotTheme.Colors.accent
                         : isHovered
-                        ? Color.white.opacity(0.1)
+                        ? PoirotTheme.Colors.borderEmphasis
                         : PoirotTheme.Colors.border,
                     lineWidth: 1
                 )
