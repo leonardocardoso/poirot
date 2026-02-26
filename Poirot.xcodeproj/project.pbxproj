@@ -107,6 +107,7 @@
 		D3D30CF1FBCFDCBB4C317448 /* FrontmatterParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1405C343F77EFFD935B27340 /* FrontmatterParserTests.swift */; };
 		D4A400AC3C1BDCF409E6F55D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D4DE499B91CA1FE94CEEF4 /* SettingsView.swift */; };
 		D55BF72098832C97886381FF /* ShimmerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8649FD2ED6D74368CA45285 /* ShimmerModifier.swift */; };
+		D59BF884539097DAF71740D0 /* AppearancePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A373034013DCBBAEC52520D0 /* AppearancePicker.swift */; };
 		D82C1DF995A09ACE3F622333 /* JSONBeautifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5642F9053AE38D1358802E /* JSONBeautifierTests.swift */; };
 		D94866039BC8291A7EE450E0 /* ClaudeCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE6E989909E980A7AC6E59AE /* ClaudeCodeProviderTests.swift */; };
 		DBF25CCFC879CB8CEEA1ACDF /* ClaudeCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98FC0773CC7974496AE3AF0A /* ClaudeCodeProvider.swift */; };
@@ -115,6 +116,7 @@
 		DF7BCB0DC7835AC80C342CD5 /* ScreenshotTests_SessionDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3E682DC89D727CC092446D /* ScreenshotTests_SessionDetail.swift */; };
 		E4719A7D65C7BA7EBA854F88 /* SkillsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C3CCC1ADEED47F8F9F7511 /* SkillsListView.swift */; };
 		E66F6C998410CFCE0D879253 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A994D35A3254A62FBEBF750 /* AppStateTests.swift */; };
+		642D58CDF28B4C70807B594B /* AppearanceModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E7B1F7781C4F76B9AED50A /* AppearanceModeTests.swift */; };
 		ECCC47B7455D40F3ECFC81C5 /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5B2A5936EB0732291429FC /* FileWatcher.swift */; };
 		F05D0DBED37E304DDF3484D8 /* MCPServersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2398AF9EC1EE0C8BA32378CD /* MCPServersListView.swift */; };
 		F0D4AE4357EA33548A709274 /* ClaudeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82822EC53E844CD8194319A /* ClaudeCommand.swift */; };
@@ -150,6 +152,7 @@
 		19A882AE4678C555C902B8EB /* MCPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServer.swift; sourceTree = "<group>"; };
 		1A2F94317A9F8BDE0D4A90F5 /* Poirot.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Poirot.entitlements; sourceTree = "<group>"; };
 		1A994D35A3254A62FBEBF750 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
+		85E7B1F7781C4F76B9AED50A /* AppearanceModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceModeTests.swift; sourceTree = "<group>"; };
 		1AE0214D6B78363D0BA1DBA7 /* PreferredEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredEditorTests.swift; sourceTree = "<group>"; };
 		1CB559E883FB8027F48EA061 /* SystemContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemContentView.swift; sourceTree = "<group>"; };
 		2398AF9EC1EE0C8BA32378CD /* MCPServersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPServersListView.swift; sourceTree = "<group>"; };
@@ -212,6 +215,7 @@
 		9B6ED1432A30F2E86E42C9BD /* ProjectSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSessionsView.swift; sourceTree = "<group>"; };
 		9C5B2A5936EB0732291429FC /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		A0A04F3A50BBC0718CA7290E /* LineDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineDiff.swift; sourceTree = "<group>"; };
+		A373034013DCBBAEC52520D0 /* AppearancePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearancePicker.swift; sourceTree = "<group>"; };
 		A77546FA67FAAB98C2282ED7 /* PreferredEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferredEditor.swift; sourceTree = "<group>"; };
 		AC85FFAB7BE1A2E8D6A99D6E /* PoirotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoirotApp.swift; sourceTree = "<group>"; };
 		B4B7915307BE3C72728F6D73 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
@@ -488,6 +492,7 @@
 				56BE058F22846091FC3C0553 /* AppStateCacheTests.swift */,
 				CC94BCAB321FFC016358C440 /* AppStateSessionLoadingTests.swift */,
 				1A994D35A3254A62FBEBF750 /* AppStateTests.swift */,
+				85E7B1F7781C4F76B9AED50A /* AppearanceModeTests.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -619,6 +624,7 @@
 		EAC131F4012AF53B705F2E74 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				A373034013DCBBAEC52520D0 /* AppearancePicker.swift */,
 				3F86322931D47F9FDF851532 /* CardChrome.swift */,
 				170F6FF7D475F5887C0B6352 /* GlassBackground.swift */,
 				0582B51CC0F05277E8134681 /* MarqueeText.swift */,
@@ -773,6 +779,7 @@
 			files = (
 				2ABD087DB285433A7486C1AD /* AboutView.swift in Sources */,
 				84BC06AE4710DF629F88AA4C /* AppState.swift in Sources */,
+				D59BF884539097DAF71740D0 /* AppearancePicker.swift in Sources */,
 				703BE0B75F1C7082103CEBF7 /* BundleVersion.swift in Sources */,
 				1484ACCB6821BE5F6079794F /* CardChrome.swift in Sources */,
 				DBF25CCFC879CB8CEEA1ACDF /* ClaudeCodeProvider.swift in Sources */,
@@ -857,6 +864,7 @@
 				0860D1514297B1F04AD86925 /* AppStateCacheTests.swift in Sources */,
 				82F43D48A04EE92E2D4EBA97 /* AppStateSessionLoadingTests.swift in Sources */,
 				E66F6C998410CFCE0D879253 /* AppStateTests.swift in Sources */,
+				642D58CDF28B4C70807B594B /* AppearanceModeTests.swift in Sources */,
 				D94866039BC8291A7EE450E0 /* ClaudeCodeProviderTests.swift in Sources */,
 				5BA9D35E649A81BA81B1AAD8 /* ClaudeConfigLoaderMCPTests.swift in Sources */,
 				D3D30CF1FBCFDCBB4C317448 /* FrontmatterParserTests.swift in Sources */,
