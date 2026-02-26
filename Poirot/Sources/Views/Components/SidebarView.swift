@@ -45,6 +45,7 @@ struct SidebarView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(NavItemButtonStyle(isActive: appState.selectedNav == item))
             }
@@ -321,6 +322,7 @@ private struct ProjectRow: View {
                         }
                         .fixedSize()
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -450,6 +452,7 @@ private struct SessionRow: View {
             .padding(.vertical, 5)
             .padding(.horizontal, PoirotTheme.Spacing.md)
             .padding(.leading, PoirotTheme.Spacing.lg)
+            .contentShape(Rectangle())
         }
         .buttonStyle(SessionItemButtonStyle(isActive: appState.selectedSession == session))
         .onHover { hovering in
