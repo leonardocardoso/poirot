@@ -27,7 +27,7 @@
 </p>
 
 <p align="center">
-  No login. No tracking. No analytics. Works offline. Less than 6 MB.
+  No login. No tracking. No analytics. No BYOK. No extra cost. Works offline. Less than 6 MB.
 </p>
 
 ---

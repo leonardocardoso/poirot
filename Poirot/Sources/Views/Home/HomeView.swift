@@ -36,6 +36,10 @@ struct HomeView: View {
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
         .background(PoirotTheme.Colors.bgApp)
+        .overlay(alignment: .bottomTrailing) {
+            GitHubStarButton()
+                .padding(PoirotTheme.Spacing.xl)
+        }
     }
 
     // MARK: - Hero
@@ -240,6 +244,45 @@ private struct SuggestionCard: View {
                 .fill(PoirotTheme.Colors.bgCard)
                 .stroke(PoirotTheme.Colors.border)
         )
+    }
+}
+
+// MARK: - GitHub Star Button
+
+private struct GitHubStarButton: View {
+    @Environment(\.openURL)
+    private var openURL
+
+    @AppStorage("hasInteractedWithGitHubStar")
+    private var hasInteracted = false
+
+    var body: some View {
+        if !hasInteracted {
+            Button {
+                hasInteracted = true
+                if let url = URL(string: "https://github.com/leonardocardoso/poirot") {
+                    openURL(url)
+                }
+            } label: {
+                HStack(spacing: PoirotTheme.Spacing.sm) {
+                    Image(systemName: "star.fill")
+                        .font(PoirotTheme.Typography.caption)
+                        .foregroundStyle(PoirotTheme.Colors.accent)
+
+                    Text("Star on GitHub")
+                        .font(PoirotTheme.Typography.caption)
+                        .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                }
+                .padding(.vertical, PoirotTheme.Spacing.sm)
+                .padding(.horizontal, PoirotTheme.Spacing.lg)
+                .background(
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
+                        .fill(PoirotTheme.Colors.bgCard)
+                        .stroke(PoirotTheme.Colors.border)
+                )
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
