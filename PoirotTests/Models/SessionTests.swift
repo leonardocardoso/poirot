@@ -217,4 +217,54 @@ struct SessionTests {
         )
         #expect(session.fileURL == url)
     }
+
+    // MARK: - First Prompt
+
+    @Test
+    func firstPrompt_defaultsToNil() {
+        let session = Session(id: "fp1", projectPath: "/path", messages: [], startedAt: .now, model: nil, totalTokens: 0)
+        #expect(session.firstPrompt == nil)
+    }
+
+    @Test
+    func firstPrompt_preservesValue() {
+        let session = Session(
+            id: "fp2",
+            projectPath: "/path",
+            messages: [],
+            startedAt: .now,
+            model: nil,
+            totalTokens: 0,
+            firstPrompt: "Fix the login bug"
+        )
+        #expect(session.firstPrompt == "Fix the login bug")
+    }
+
+    @Test
+    func firstPrompt_preservesNilExplicitly() {
+        let session = Session(
+            id: "fp3",
+            projectPath: "/path",
+            messages: [],
+            startedAt: .now,
+            model: nil,
+            totalTokens: 0,
+            firstPrompt: nil
+        )
+        #expect(session.firstPrompt == nil)
+    }
+
+    @Test
+    func firstPrompt_preservesEmptyString() {
+        let session = Session(
+            id: "fp4",
+            projectPath: "/path",
+            messages: [],
+            startedAt: .now,
+            model: nil,
+            totalTokens: 0,
+            firstPrompt: ""
+        )
+        #expect(session.firstPrompt == "")
+    }
 }

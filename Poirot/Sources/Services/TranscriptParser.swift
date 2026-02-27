@@ -231,7 +231,8 @@ nonisolated struct TranscriptParser {
         fileURL: URL,
         projectPath: String,
         sessionId: String,
-        indexStartedAt: Date?
+        indexStartedAt: Date?,
+        firstPrompt: String? = nil
     ) -> Session? {
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
         guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return nil }
@@ -319,7 +320,8 @@ nonisolated struct TranscriptParser {
             fileURL: fileURL,
             cachedTitle: firstUserText,
             cachedPreview: firstAssistantText,
-            cachedTurnCount: userCount
+            cachedTurnCount: userCount,
+            firstPrompt: firstPrompt
         )
     }
 
