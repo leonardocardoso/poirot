@@ -136,6 +136,13 @@ Browse and preview output formatting styles. See how each style shapes Claude's 
   <img src="assets/showcase/17-output-styles.png" alt="Output Styles" width="720" />
 </p>
 
+### Session TODOs
+See all Claude Code per-session todo lists at a glance. Cards show task status (pending, in progress, completed), and you can jump straight to the associated session or delete orphaned entries.
+
+<p align="center">
+  <img src="assets/showcase/18-todos.png" alt="Session TODOs" width="720" />
+</p>
+
 ---
 
 ## Capabilities
@@ -163,6 +170,7 @@ Browse and preview output formatting styles. See how each style shapes Claude's 
 | | Sub-agents | Browse custom sub-agent definitions |
 | | Plugins | Browse installed plugins |
 | | Output Styles | Browse and manage output style configurations |
+| | TODOs | Browse per-session todo lists with status tracking and session navigation |
 | | Grid & List Views | Toggle between card grid and compact list layouts |
 | | Scope Badges | Visual distinction between Global and Project-scoped items |
 | **Integrations** | IDE/Editor | One-click open files in VS Code, Cursor, Xcode, or Zed |
@@ -244,7 +252,8 @@ Poirot/Sources/
     ├── Home/          # Welcome / empty state
     ├── Project/       # Project sessions list
     ├── Search/        # &#x2318;K overlay
-    └── Session/       # Conversation detail, tool blocks, thinking
+    ├── Session/       # Conversation detail, tool blocks, thinking
+    └── Todos/         # Per-session todo overview
 ```
 
 ### Tech Stack
