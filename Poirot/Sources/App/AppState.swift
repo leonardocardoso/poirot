@@ -223,7 +223,10 @@ final class AppState {
         supportedModelsCount: Int,
         projectPath: String? = nil
     ) -> [String: Int] {
-        [
+        let todoCount = TodoLoader().loadAllTodos().values.reduce(0) { $0 + $1.count }
+
+        return [
+            "todos": todoCount,
             "commands": ClaudeConfigLoader.loadCommands(projectPath: projectPath).count,
             "skills": ClaudeConfigLoader.loadSkills(projectPath: projectPath).count,
             "mcpServers": ClaudeConfigLoader.loadMCPServers(projectPath: projectPath).count,

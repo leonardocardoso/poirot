@@ -1,6 +1,6 @@
 name: Poirot
 options:
-  bundleIdPrefix: com.poirot
+  bundleIdPrefix: com.poirot-2
   deploymentTarget:
     macOS: "15.0"
   xcodeVersion: "26.1"
@@ -38,7 +38,7 @@ targets:
       - package: HighlightSwift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: fyi.poirot
+        PRODUCT_BUNDLE_IDENTIFIER: fyi.poirot-2
         PRODUCT_NAME: Poirot
         INFOPLIST_KEY_CFBundleDisplayName: Poirot
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"

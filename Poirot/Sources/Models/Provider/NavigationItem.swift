@@ -12,6 +12,12 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "rectangle.stack.fill",
         requiredCapability: nil
     )
+    static let todos = NavigationItem(
+        id: "todos",
+        title: String(localized: "TODOs"),
+        systemImage: "checklist",
+        requiredCapability: nil
+    )
     static let commands = NavigationItem(
         id: "commands",
         title: String(localized: "Commands"),
@@ -56,6 +62,6 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
     )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .commands, .skills, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
+        .sessions, .todos, .commands, .skills, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
     ]
 }
