@@ -43,6 +43,13 @@ POIROT is a native macOS SwiftUI companion app for Claude Code. It reads session
 - Mark file I/O and heavy computation as `nonisolated`
 - Service protocols have hand-written mocks in `PoirotTests/Mocks/`
 
+### Parallel Development (Worktrees)
+- When creating a worktree, change `PRODUCT_BUNDLE_IDENTIFIER` in `project.yml` to avoid conflicts with running instances
+- Pattern: `fyi.poirot-N` where N is the worktree number (e.g., `fyi.poirot-1`, `fyi.poirot-2`)
+- Determine N by checking existing worktrees or running Poirot instances
+- This allows multiple Poirot builds to run simultaneously during development
+- Always regenerate the Xcode project after changing: `xcodegen generate`
+
 ### Git & PRs
 - Never mention AI co-authoring in commits or PRs
 - Branch naming: `feature/description` or `feature/TICKET-description`
