@@ -229,6 +229,7 @@ final class AppState {
             "todos": todoCount,
             "commands": ClaudeConfigLoader.loadCommands(projectPath: projectPath).count,
             "skills": ClaudeConfigLoader.loadSkills(projectPath: projectPath).count,
+            "plans": ClaudeConfigLoader.loadPlans().count,
             "mcpServers": ClaudeConfigLoader.loadMCPServers(projectPath: projectPath).count,
             "models": supportedModelsCount,
             "subAgents": 4, // SubAgent.builtIn is a fixed set

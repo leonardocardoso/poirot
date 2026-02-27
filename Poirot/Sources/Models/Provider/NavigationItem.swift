@@ -30,6 +30,12 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "bolt.fill",
         requiredCapability: .skills
     )
+    static let plans = NavigationItem(
+        id: "plans",
+        title: String(localized: "Plans"),
+        systemImage: "list.bullet.clipboard.fill",
+        requiredCapability: .plans
+    )
     static let mcpServers = NavigationItem(
         id: "mcpServers",
         title: String(localized: "MCP Servers"),
@@ -62,6 +68,6 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
     )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .todos, .commands, .skills, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
+        .sessions, .todos, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
     ]
 }

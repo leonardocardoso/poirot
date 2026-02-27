@@ -17,4 +17,9 @@ struct NavigationItemTests {
     func skills_requiresSkillsCapability() {
         #expect(NavigationItem.skills.requiredCapability == .skills)
     }
+
+    @Test
+    func plans_requiresPlansCapability() {
+        #expect(NavigationItem.plans.requiredCapability == .plans)
+    }
 }

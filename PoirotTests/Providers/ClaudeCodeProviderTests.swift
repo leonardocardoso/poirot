@@ -36,8 +36,8 @@ struct ClaudeCodeProviderTests {
     }
 
     @Test
-    func configurationItems_hasSevenItems() {
-        #expect(provider.configurationItems.count == 7)
+    func configurationItems_hasEightItems() {
+        #expect(provider.configurationItems.count == 8)
     }
 
     @Test

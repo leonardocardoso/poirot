@@ -43,6 +43,15 @@ struct ClaudeCodeProvider: ProviderDescribing {
             requiredCapability: .commands
         ),
         ConfigurationItem(
+            id: "plans",
+            icon: "list.bullet.clipboard.fill",
+            iconColor: PoirotTheme.Colors.teal,
+            title: String(localized: "Plans"),
+            count: String(localized: "Saved"),
+            description: String(localized: "Named plan files saved by Claude Code sessions"),
+            requiredCapability: .plans
+        ),
+        ConfigurationItem(
             id: "mcpServers",
             icon: "powerplug.fill",
             iconColor: PoirotTheme.Colors.green,

@@ -46,6 +46,29 @@ enum ClaudeConfigLoader {
             }
     }
 
+    // MARK: - Plans
+
+    nonisolated static func loadPlans() -> [Plan] {
+        let dir = claudeDir.appendingPathComponent("plans")
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        ) else { return [] }
+
+        return files
+            .filter { $0.pathExtension == "md" }
+            .compactMap { url -> Plan? in
+                guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+                let slug = url.deletingPathExtension().lastPathComponent
+                return Plan(
+                    id: slug,
+                    name: Plan.humanize(slug: slug),
+                    content: content,
+                    fileURL: url
+                )
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
     // MARK: - Skills
 
     nonisolated static func loadSkills(projectPath: String? = nil) -> [ClaudeSkill] {
