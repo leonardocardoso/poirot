@@ -66,8 +66,14 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "speaker.wave.3.fill",
         requiredCapability: .outputStyles
     )
+    static let analytics = NavigationItem(
+        id: "analytics",
+        title: String(localized: "Analytics"),
+        systemImage: "chart.xyaxis.line",
+        requiredCapability: nil
+    )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .todos, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
+        .sessions, .todos, .analytics, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
     ]
 }

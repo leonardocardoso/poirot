@@ -351,6 +351,8 @@ struct ContentView: View {
         case NavigationItem.todos.id:
             TodosOverviewView()
                 .transition(.opacity)
+        case NavigationItem.analytics.id:
+            AnalyticsDashboardView()
         default:
             if let configItem = provider.configurationItems
                 .first(where: { $0.id == appState.selectedNav.id }) {
