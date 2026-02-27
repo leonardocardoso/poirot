@@ -3,6 +3,8 @@ import SwiftUI
 struct AccentColorPicker: View {
     @Binding
     var selection: AccentColor
+    @State
+    private var preHoverSelection: AccentColor?
 
     var body: some View {
         HStack(spacing: 10) {
@@ -11,7 +13,24 @@ struct AccentColorPicker: View {
                     color: color,
                     isSelected: selection == color
                 )
-                .onTapGesture { selection = color }
+                .onTapGesture {
+                    preHoverSelection = nil
+                    selection = color
+                }
+                .onHover { hovering in
+                    if hovering {
+                        if preHoverSelection == nil {
+                            preHoverSelection = selection
+                        }
+                        AccentColorStorage.current = color
+                    }
+                }
+            }
+        }
+        .onHover { hovering in
+            if !hovering, let original = preHoverSelection {
+                AccentColorStorage.current = original
+                preHoverSelection = nil
             }
         }
     }

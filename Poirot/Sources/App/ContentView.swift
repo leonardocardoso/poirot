@@ -16,6 +16,10 @@ struct ContentView: View {
     private var fileWatcher: FileWatcher?
     @AppStorage("hasCompletedOnboarding")
     private var hasCompletedOnboarding = false
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
+    @AppStorage("colorTheme")
+    private var colorThemeRaw = ColorTheme.default.rawValue
 
     var body: some View {
         splitView
@@ -54,6 +58,16 @@ struct ContentView: View {
             .onChange(of: appState.selectedSession) { _, newSession in
                 handleSessionChange(newSession)
             }
+            .onChange(of: colorThemeRaw) {
+                if let theme = ColorTheme(rawValue: colorThemeRaw) {
+                    ColorThemeStorage.current = theme
+                }
+            }
+            .onChange(of: accentColorRaw) {
+                if let color = AccentColor(rawValue: accentColorRaw) {
+                    AccentColorStorage.current = color
+                }
+            }
     }
 
     private var splitView: some View {
@@ -72,7 +86,7 @@ struct ContentView: View {
             toolbarContextual
         }
         .frame(minWidth: 900, minHeight: 600)
-        .id(appState.fontScale)
+        .id("\(appState.fontScale)-\(colorThemeRaw)-\(accentColorRaw)")
         .overlay(alignment: .top) {
             ToastOverlay()
         }
