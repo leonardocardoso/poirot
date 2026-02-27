@@ -402,4 +402,95 @@ struct SessionLoaderTests {
         #expect(session.title == "Fallback title")
         #expect(session.fileURL != nil)
     }
+
+    // MARK: - First Prompt
+
+    @Test
+    func discoverProjects_indexPath_passesFirstPromptToSession() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let sessionId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        let indexJSON = """
+        {
+            "version": 1,
+            "entries": [
+                {
+                    "sessionId": "\(sessionId)",
+                    "created": "2026-01-28T10:00:00.000Z",
+                    "isSidechain": false,
+                    "projectPath": "/test/project",
+                    "firstPrompt": "Fix the login bug"
+                }
+            ]
+        }
+        """
+
+        try makeProjectWithJSONL(
+            in: tmpDir,
+            projectDirName: "test-project",
+            sessionId: sessionId,
+            jsonlContent: simpleJSONL(),
+            indexJSON: indexJSON
+        )
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        let session = projects[0].sessions[0]
+        #expect(session.firstPrompt == "Fix the login bug")
+    }
+
+    @Test
+    func discoverProjects_indexPath_nilFirstPromptWhenMissing() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let sessionId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        let indexJSON = """
+        {
+            "version": 1,
+            "entries": [
+                {
+                    "sessionId": "\(sessionId)",
+                    "created": "2026-01-28T10:00:00.000Z",
+                    "isSidechain": false,
+                    "projectPath": "/test/project"
+                }
+            ]
+        }
+        """
+
+        try makeProjectWithJSONL(
+            in: tmpDir,
+            projectDirName: "test-project",
+            sessionId: sessionId,
+            jsonlContent: simpleJSONL(),
+            indexJSON: indexJSON
+        )
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        let session = projects[0].sessions[0]
+        #expect(session.firstPrompt == nil)
+    }
+
+    @Test
+    func discoverProjects_fallbackPath_firstPromptIsNil() throws {
+        let tmpDir = try makeTempProjectDir()
+        defer { try? FileManager.default.removeItem(at: tmpDir) }
+
+        let sessionId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        // No index — forces fallback path
+        try makeProjectWithJSONL(
+            in: tmpDir,
+            projectDirName: "test-project",
+            sessionId: sessionId,
+            jsonlContent: simpleJSONL()
+        )
+
+        let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
+        let projects = try loader.discoverProjects()
+        let session = projects[0].sessions[0]
+        #expect(session.firstPrompt == nil)
+    }
 }

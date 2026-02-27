@@ -114,7 +114,8 @@ nonisolated struct SessionLoader: SessionLoading {
                     fileURL: fileURL,
                     projectPath: projectPath,
                     sessionId: entry.sessionId,
-                    indexStartedAt: indexStartedAt
+                    indexStartedAt: indexStartedAt,
+                    firstPrompt: entry.firstPrompt
                 ) {
                     sessions.append(session)
                 }

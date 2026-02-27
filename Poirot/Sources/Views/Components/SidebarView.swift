@@ -447,18 +447,28 @@ private struct SessionRow: View {
             guard state.selectedSession?.id != session.id else { return }
             state.selectedSession = session
         } label: {
-            HStack {
-                MarqueeText(text: session.title, font: PoirotTheme.Typography.caption, highlightQuery: highlightQuery)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    MarqueeText(text: session.title, font: PoirotTheme.Typography.caption, highlightQuery: highlightQuery)
 
-                Spacer()
+                    Spacer()
 
-                if isHovered || isMenuPresented {
-                    sessionMenu
-                        .transition(.opacity)
-                } else {
-                    Text(session.timeAgo)
+                    if isHovered || isMenuPresented {
+                        sessionMenu
+                            .transition(.opacity)
+                    } else {
+                        Text(session.timeAgo)
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                }
+
+                if let firstPrompt = session.firstPrompt, !firstPrompt.isEmpty {
+                    Text(firstPrompt)
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
             }
             .padding(.vertical, 5)

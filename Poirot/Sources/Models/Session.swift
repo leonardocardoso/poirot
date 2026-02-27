@@ -11,6 +11,7 @@ nonisolated struct Session: Identifiable, Hashable {
     let cachedTitle: String?
     let cachedPreview: String?
     let cachedTurnCount: Int?
+    let firstPrompt: String?
 
     init(
         id: String,
@@ -22,7 +23,8 @@ nonisolated struct Session: Identifiable, Hashable {
         fileURL: URL? = nil,
         cachedTitle: String? = nil,
         cachedPreview: String? = nil,
-        cachedTurnCount: Int? = nil
+        cachedTurnCount: Int? = nil,
+        firstPrompt: String? = nil
     ) {
         self.id = id
         self.projectPath = projectPath
@@ -34,6 +36,7 @@ nonisolated struct Session: Identifiable, Hashable {
         self.cachedTitle = cachedTitle
         self.cachedPreview = cachedPreview
         self.cachedTurnCount = cachedTurnCount
+        self.firstPrompt = firstPrompt
     }
 
     var projectName: String {
