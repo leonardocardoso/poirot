@@ -17,4 +17,16 @@ final class TodoLoadingMock: TodoLoading, @unchecked Sendable {
         if let closure = loadTodosClosure { return closure(sessionId) }
         return loadTodosReturnValue
     }
+
+    // MARK: - deleteTodos
+
+    var deleteTodosCallsCount = 0
+    var deleteTodosCalled: Bool { deleteTodosCallsCount > 0 }
+    var deleteTodosReceivedSessionId: String?
+
+    func deleteTodos(for sessionId: String) {
+        deleteTodosCallsCount += 1
+        deleteTodosReceivedSessionId = sessionId
+    }
+
 }

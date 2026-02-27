@@ -167,4 +167,122 @@ struct TodoLoaderTests {
         #expect(todos[0].content == "Create diagnostic script")
         #expect(todos[1].status == .pending)
     }
+
+    // MARK: - loadAllTodos
+
+    @Test
+    func loadAllTodos_nonExistentPath_returnsEmpty() {
+        let loader = TodoLoader(claudeTodosPath: "/nonexistent/path/\(UUID().uuidString)")
+        let result = loader.loadAllTodos()
+        #expect(result.isEmpty)
+    }
+
+    @Test
+    func loadAllTodos_groupsBySessionId() throws {
+        let dir = try makeTempTodosDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let json1 = """
+        [{"content": "Task A", "status": "completed", "activeForm": "Done A"}]
+        """
+        let json2 = """
+        [{"content": "Task B", "status": "pending", "activeForm": "Starting B"}]
+        """
+        try writeTodoFile(in: dir, filename: "session-1.json", content: json1)
+        try writeTodoFile(in: dir, filename: "session-2.json", content: json2)
+
+        let loader = TodoLoader(claudeTodosPath: dir.path)
+        let result = loader.loadAllTodos()
+        #expect(result.count == 2)
+        #expect(result["session-1"]?.count == 1)
+        #expect(result["session-2"]?.count == 1)
+    }
+
+    @Test
+    func loadAllTodos_mergesAgentFilesUnderSameSession() throws {
+        let dir = try makeTempTodosDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let json1 = """
+        [{"content": "Task A", "status": "completed", "activeForm": "Done A"}]
+        """
+        let json2 = """
+        [{"content": "Task B", "status": "pending", "activeForm": "Starting B"}]
+        """
+        try writeTodoFile(in: dir, filename: "session-1-agent-a1.json", content: json1)
+        try writeTodoFile(in: dir, filename: "session-1-agent-a2.json", content: json2)
+
+        let loader = TodoLoader(claudeTodosPath: dir.path)
+        let result = loader.loadAllTodos()
+        #expect(result.count == 1)
+        #expect(result["session-1"]?.count == 2)
+    }
+
+    @Test
+    func loadAllTodos_skipsEmptyArrayFiles() throws {
+        let dir = try makeTempTodosDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        try writeTodoFile(in: dir, filename: "session-empty.json", content: "[]")
+        let json = """
+        [{"content": "Real task", "status": "pending", "activeForm": "Starting"}]
+        """
+        try writeTodoFile(in: dir, filename: "session-real.json", content: json)
+
+        let loader = TodoLoader(claudeTodosPath: dir.path)
+        let result = loader.loadAllTodos()
+        #expect(result.count == 1)
+        #expect(result["session-empty"] == nil)
+        #expect(result["session-real"]?.count == 1)
+    }
+
+    // MARK: - deleteTodos
+
+    @Test
+    func deleteTodos_removesMatchingFiles() throws {
+        let dir = try makeTempTodosDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let sessionId = "abc-1234"
+        let json = """
+        [{"content": "Task", "status": "pending", "activeForm": "Starting"}]
+        """
+        try writeTodoFile(in: dir, filename: "\(sessionId).json", content: json)
+        try writeTodoFile(in: dir, filename: "\(sessionId)-agent-xyz.json", content: json)
+
+        let loader = TodoLoader(claudeTodosPath: dir.path)
+        loader.deleteTodos(for: sessionId)
+
+        let remaining = try FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        )
+        #expect(remaining.isEmpty)
+    }
+
+    @Test
+    func deleteTodos_leavesUnrelatedFiles() throws {
+        let dir = try makeTempTodosDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let json = """
+        [{"content": "Task", "status": "pending", "activeForm": "Starting"}]
+        """
+        try writeTodoFile(in: dir, filename: "abc-1234.json", content: json)
+        try writeTodoFile(in: dir, filename: "other-session.json", content: json)
+
+        let loader = TodoLoader(claudeTodosPath: dir.path)
+        loader.deleteTodos(for: "abc-1234")
+
+        let remaining = try FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        )
+        #expect(remaining.count == 1)
+        #expect(remaining[0].lastPathComponent == "other-session.json")
+    }
+
+    @Test
+    func deleteTodos_nonExistentPath_doesNotCrash() {
+        let loader = TodoLoader(claudeTodosPath: "/nonexistent/path/\(UUID().uuidString)")
+        loader.deleteTodos(for: "some-session")
+    }
 }
