@@ -348,6 +348,9 @@ struct ContentView: View {
             } else {
                 HomeView()
             }
+        case NavigationItem.todos.id:
+            TodosOverviewView()
+                .transition(.opacity)
         default:
             if let configItem = provider.configurationItems
                 .first(where: { $0.id == appState.selectedNav.id }) {

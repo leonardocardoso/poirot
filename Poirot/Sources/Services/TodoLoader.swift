@@ -46,6 +46,68 @@ nonisolated struct TodoLoader: TodoLoading {
         return allTodos
     }
 
+    /// Returns all todos grouped by session ID, scanning every file in the
+    /// todos directory.
+    func loadAllTodos() -> [String: [SessionTodo]] {
+        let fm = FileManager.default
+        let todosURL = URL(fileURLWithPath: claudeTodosPath)
+
+        guard fm.fileExists(atPath: todosURL.path) else { return [:] }
+
+        guard let contents = try? fm.contentsOfDirectory(
+            at: todosURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return [:] }
+
+        var grouped: [String: [SessionTodo]] = [:]
+        for fileURL in contents where fileURL.pathExtension == "json" {
+            let name = fileURL.deletingPathExtension().lastPathComponent
+            let sessionId = Self.extractSessionId(from: name)
+
+            guard let data = try? Data(contentsOf: fileURL),
+                  let todos = try? JSONDecoder().decode([SessionTodo].self, from: data)
+            else { continue }
+
+            guard !todos.isEmpty else { continue }
+            grouped[sessionId, default: []].append(contentsOf: todos)
+        }
+
+        return grouped
+    }
+
+    /// Deletes all todo files associated with the given session ID.
+    func deleteTodos(for sessionId: String) {
+        let fm = FileManager.default
+        let todosURL = URL(fileURLWithPath: claudeTodosPath)
+
+        guard let contents = try? fm.contentsOfDirectory(
+            at: todosURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        let prefix = sessionId
+        let matchingFiles = contents.filter { url in
+            let name = url.deletingPathExtension().lastPathComponent
+            return url.pathExtension == "json"
+                && (name == prefix || name.hasPrefix("\(prefix)-agent-"))
+        }
+
+        for fileURL in matchingFiles {
+            try? fm.removeItem(at: fileURL)
+        }
+    }
+
+    /// Extracts the session ID portion from a filename like
+    /// `<sessionId>-agent-<agentId>` or just `<sessionId>`.
+    private static func extractSessionId(from filename: String) -> String {
+        if let range = filename.range(of: "-agent-") {
+            return String(filename[..<range.lowerBound])
+        }
+        return filename
+    }
+
     // MARK: - Private
 
     private static let defaultPath: String = {
