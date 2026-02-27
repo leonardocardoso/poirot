@@ -15,11 +15,17 @@ struct SessionDetailView: View {
     @State
     private var isLoadingMore = false
 
+    @State
+    private var todos: [SessionTodo] = []
+
     @Environment(AppState.self)
     private var appState
 
     @Environment(\.provider)
     private var provider
+
+    @Environment(\.todoLoader)
+    private var todoLoader
 
     @FocusState
     private var isSearchFocused: Bool
@@ -77,19 +83,36 @@ struct SessionDetailView: View {
             if appState.isToolFilterActive {
                 toolFilterBar
             }
+            if !todos.isEmpty {
+                SessionTodosView(todos: todos)
+                    .padding(.horizontal, PoirotTheme.Spacing.md)
+                    .padding(.top, PoirotTheme.Spacing.sm)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
             messagesList
         }
         .animation(.easeInOut(duration: 0.2), value: appState.isSessionSearchActive)
         .animation(.easeInOut(duration: 0.2), value: appState.isToolFilterActive)
+        .animation(.easeInOut(duration: 0.2), value: todos.isEmpty)
         .background(PoirotTheme.Colors.bgApp)
         .onChange(of: session.id) {
             visibleCount = Self.pageSize
+            loadTodos()
         }
         .onChange(of: appState.isSessionSearchActive) {
             if appState.isSessionSearchActive {
                 isSearchFocused = true
             }
         }
+        .task {
+            loadTodos()
+        }
+    }
+
+    private func loadTodos() {
+        let sessionId = session.id
+        let loader = todoLoader
+        todos = loader.loadTodos(for: sessionId)
     }
 
     // MARK: - Header
