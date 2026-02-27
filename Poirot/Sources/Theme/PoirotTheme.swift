@@ -1,39 +1,267 @@
 import AppKit
 import SwiftUI
 
+// MARK: - Color Theme
+
+struct ThemePalette: Sendable, Equatable {
+    struct Token: Sendable, Equatable {
+        let lightHex: UInt
+        let darkHex: UInt
+        var lightOpacity: Double = 1.0
+        var darkOpacity: Double = 1.0
+    }
+
+    let bgApp: Token
+    let bgSidebar: Token
+    let bgCard: Token
+    let bgCardHover: Token
+    let bgElevated: Token
+    let bgCode: Token
+    let textPrimary: Token
+    let textSecondary: Token
+    let textTertiary: Token
+    let border: Token
+    let borderSubtle: Token
+    let borderEmphasis: Token
+    let green: Token
+    let red: Token
+    let blue: Token
+    let orange: Token
+    let purple: Token
+    let teal: Token
+    let diffAddBg: Token
+    let diffAddText: Token
+    let diffRemoveBg: Token
+    let diffRemoveText: Token
+
+    static let `default` = ThemePalette(
+        bgApp: Token(lightHex: 0xF3F4F7, darkHex: 0x0D0D0F),
+        bgSidebar: Token(lightHex: 0xECEEF3, darkHex: 0x141416),
+        bgCard: Token(lightHex: 0xFFFFFF, darkHex: 0x1A1A1E),
+        bgCardHover: Token(lightHex: 0xF5F7FB, darkHex: 0x222226),
+        bgElevated: Token(lightHex: 0xFCFCFD, darkHex: 0x222226),
+        bgCode: Token(lightHex: 0xEEF1F6, darkHex: 0x161618),
+        textPrimary: Token(lightHex: 0x15161A, darkHex: 0xF5F5F7),
+        textSecondary: Token(lightHex: 0x4E5260, darkHex: 0x8E8E93),
+        textTertiary: Token(lightHex: 0x747A89, darkHex: 0x636366),
+        border: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.10, darkOpacity: 0.06),
+        borderSubtle: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.05, darkOpacity: 0.03),
+        borderEmphasis: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.16, darkOpacity: 0.10),
+        green: Token(lightHex: 0x1F8A36, darkHex: 0x32D74B),
+        red: Token(lightHex: 0xC22A21, darkHex: 0xFF453A),
+        blue: Token(lightHex: 0x005ECF, darkHex: 0x0A84FF),
+        orange: Token(lightHex: 0xB86A00, darkHex: 0xFF9F0A),
+        purple: Token(lightHex: 0x7A3FB5, darkHex: 0xAF52DE),
+        teal: Token(lightHex: 0x0F8F85, darkHex: 0x30D5C8),
+        diffAddBg: Token(lightHex: 0x1F8A36, darkHex: 0x32D74B, lightOpacity: 0.16, darkOpacity: 0.10),
+        diffAddText: Token(lightHex: 0x166A29, darkHex: 0x32D74B),
+        diffRemoveBg: Token(lightHex: 0xC22A21, darkHex: 0xFF453A, lightOpacity: 0.16, darkOpacity: 0.10),
+        diffRemoveText: Token(lightHex: 0x9B221B, darkHex: 0xFF453A)
+    )
+
+    static let solarized = ThemePalette(
+        bgApp: Token(lightHex: 0xFDF6E3, darkHex: 0x002B36),
+        bgSidebar: Token(lightHex: 0xEEE8D5, darkHex: 0x073642),
+        bgCard: Token(lightHex: 0xFDF6E3, darkHex: 0x073642),
+        bgCardHover: Token(lightHex: 0xEEE8D5, darkHex: 0x0A4050),
+        bgElevated: Token(lightHex: 0xFDF6E3, darkHex: 0x0A4050),
+        bgCode: Token(lightHex: 0xEEE8D5, darkHex: 0x002B36),
+        textPrimary: Token(lightHex: 0x073642, darkHex: 0x93A1A1),
+        textSecondary: Token(lightHex: 0x586E75, darkHex: 0x839496),
+        textTertiary: Token(lightHex: 0x93A1A1, darkHex: 0x657B83),
+        border: Token(lightHex: 0x073642, darkHex: 0x839496, lightOpacity: 0.12, darkOpacity: 0.08),
+        borderSubtle: Token(lightHex: 0x073642, darkHex: 0x839496, lightOpacity: 0.06, darkOpacity: 0.04),
+        borderEmphasis: Token(lightHex: 0x073642, darkHex: 0x839496, lightOpacity: 0.20, darkOpacity: 0.14),
+        green: Token(lightHex: 0x859900, darkHex: 0x859900),
+        red: Token(lightHex: 0xDC322F, darkHex: 0xDC322F),
+        blue: Token(lightHex: 0x268BD2, darkHex: 0x268BD2),
+        orange: Token(lightHex: 0xCB4B16, darkHex: 0xCB4B16),
+        purple: Token(lightHex: 0x6C71C4, darkHex: 0x6C71C4),
+        teal: Token(lightHex: 0x2AA198, darkHex: 0x2AA198),
+        diffAddBg: Token(lightHex: 0x859900, darkHex: 0x859900, lightOpacity: 0.16, darkOpacity: 0.12),
+        diffAddText: Token(lightHex: 0x859900, darkHex: 0x859900),
+        diffRemoveBg: Token(lightHex: 0xDC322F, darkHex: 0xDC322F, lightOpacity: 0.16, darkOpacity: 0.12),
+        diffRemoveText: Token(lightHex: 0xDC322F, darkHex: 0xDC322F)
+    )
+
+    static let highContrast = ThemePalette(
+        bgApp: Token(lightHex: 0xFFFFFF, darkHex: 0x000000),
+        bgSidebar: Token(lightHex: 0xF0F0F0, darkHex: 0x0A0A0A),
+        bgCard: Token(lightHex: 0xFFFFFF, darkHex: 0x111111),
+        bgCardHover: Token(lightHex: 0xE8E8E8, darkHex: 0x1A1A1A),
+        bgElevated: Token(lightHex: 0xFFFFFF, darkHex: 0x1A1A1A),
+        bgCode: Token(lightHex: 0xF0F0F0, darkHex: 0x0A0A0A),
+        textPrimary: Token(lightHex: 0x000000, darkHex: 0xFFFFFF),
+        textSecondary: Token(lightHex: 0x222222, darkHex: 0xDDDDDD),
+        textTertiary: Token(lightHex: 0x444444, darkHex: 0xAAAAAA),
+        border: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.20, darkOpacity: 0.15),
+        borderSubtle: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.12, darkOpacity: 0.08),
+        borderEmphasis: Token(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.30, darkOpacity: 0.25),
+        green: Token(lightHex: 0x007A1B, darkHex: 0x3DE858),
+        red: Token(lightHex: 0xCC0000, darkHex: 0xFF4444),
+        blue: Token(lightHex: 0x0050CC, darkHex: 0x4499FF),
+        orange: Token(lightHex: 0xCC6600, darkHex: 0xFFAA22),
+        purple: Token(lightHex: 0x6633CC, darkHex: 0xBB77FF),
+        teal: Token(lightHex: 0x007777, darkHex: 0x33DDCC),
+        diffAddBg: Token(lightHex: 0x007A1B, darkHex: 0x3DE858, lightOpacity: 0.20, darkOpacity: 0.15),
+        diffAddText: Token(lightHex: 0x007A1B, darkHex: 0x3DE858),
+        diffRemoveBg: Token(lightHex: 0xCC0000, darkHex: 0xFF4444, lightOpacity: 0.20, darkOpacity: 0.15),
+        diffRemoveText: Token(lightHex: 0xCC0000, darkHex: 0xFF4444)
+    )
+}
+
+enum ColorTheme: String, CaseIterable, Sendable {
+    case `default`
+    case solarized
+    case highContrast
+
+    var label: String {
+        switch self {
+        case .default: "Default"
+        case .solarized: "Solarized"
+        case .highContrast: "High Contrast"
+        }
+    }
+
+    var palette: ThemePalette {
+        switch self {
+        case .default: .default
+        case .solarized: .solarized
+        case .highContrast: .highContrast
+        }
+    }
+}
+
+enum ColorThemeStorage {
+    nonisolated(unsafe) static var current: ColorTheme = {
+        if let raw = UserDefaults.standard.string(forKey: "colorTheme"),
+           let theme = ColorTheme(rawValue: raw) {
+            return theme
+        }
+        return .default
+    }() {
+        didSet {
+            UserDefaults.standard.set(current.rawValue, forKey: "colorTheme")
+        }
+    }
+}
+
+// MARK: - Accent Color
+
+enum AccentColor: String, CaseIterable, Sendable {
+    case golden
+    case blue
+    case purple
+    case green
+    case red
+    case teal
+
+    var label: String {
+        switch self {
+        case .golden: "Golden"
+        case .blue: "Blue"
+        case .purple: "Purple"
+        case .green: "Green"
+        case .red: "Red"
+        case .teal: "Teal"
+        }
+    }
+
+    var lightHex: UInt {
+        switch self {
+        case .golden: 0xC88422
+        case .blue: 0x005ECF
+        case .purple: 0x7A3FB5
+        case .green: 0x1F8A36
+        case .red: 0xC22A21
+        case .teal: 0x0F8F85
+        }
+    }
+
+    var darkHex: UInt {
+        switch self {
+        case .golden: 0xE8A642
+        case .blue: 0x0A84FF
+        case .purple: 0xAF52DE
+        case .green: 0x32D74B
+        case .red: 0xFF453A
+        case .teal: 0x30D5C8
+        }
+    }
+
+    /// The preview swatch color (uses the dark hex for a vibrant circle)
+    var swatchColor: Color {
+        Color(hex: darkHex)
+    }
+}
+
+// MARK: - Accent Color Storage
+
+enum AccentColorStorage {
+    nonisolated(unsafe) static var current: AccentColor = {
+        if let raw = UserDefaults.standard.string(forKey: "accentColor"),
+           let color = AccentColor(rawValue: raw) {
+            return color
+        }
+        return .golden
+    }() {
+        didSet {
+            UserDefaults.standard.set(current.rawValue, forKey: "accentColor")
+        }
+    }
+}
+
 enum PoirotTheme {
     // MARK: - Colors
 
     enum Colors {
-        static let accent = Color(lightHex: 0xC88422, darkHex: 0xE8A642)
-        static let accentDim = Color(lightHex: 0xC88422, darkHex: 0xE8A642, lightOpacity: 0.20, darkOpacity: 0.15)
+        static var accent: Color {
+            let c = AccentColorStorage.current
+            return Color(lightHex: c.lightHex, darkHex: c.darkHex)
+        }
 
-        static let bgApp = Color(lightHex: 0xF3F4F7, darkHex: 0x0D0D0F)
-        static let bgSidebar = Color(lightHex: 0xECEEF3, darkHex: 0x141416)
-        static let bgCard = Color(lightHex: 0xFFFFFF, darkHex: 0x1A1A1E)
-        static let bgCardHover = Color(lightHex: 0xF5F7FB, darkHex: 0x222226)
-        static let bgElevated = Color(lightHex: 0xFCFCFD, darkHex: 0x222226)
-        static let bgCode = Color(lightHex: 0xEEF1F6, darkHex: 0x161618)
+        static var accentDim: Color {
+            let c = AccentColorStorage.current
+            return Color(lightHex: c.lightHex, darkHex: c.darkHex, lightOpacity: 0.20, darkOpacity: 0.15)
+        }
 
-        static let textPrimary = Color(lightHex: 0x15161A, darkHex: 0xF5F5F7)
-        static let textSecondary = Color(lightHex: 0x4E5260, darkHex: 0x8E8E93)
-        static let textTertiary = Color(lightHex: 0x747A89, darkHex: 0x636366)
+        private static func color(for token: ThemePalette.Token) -> Color {
+            Color(
+                lightHex: token.lightHex,
+                darkHex: token.darkHex,
+                lightOpacity: token.lightOpacity,
+                darkOpacity: token.darkOpacity
+            )
+        }
 
-        static let border = Color(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.10, darkOpacity: 0.06)
-        static let borderSubtle = Color(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.05, darkOpacity: 0.03)
-        static let borderEmphasis = Color(lightHex: 0x000000, darkHex: 0xFFFFFF, lightOpacity: 0.16, darkOpacity: 0.10)
+        private static var palette: ThemePalette { ColorThemeStorage.current.palette }
 
-        static let green = Color(lightHex: 0x1F8A36, darkHex: 0x32D74B)
-        static let red = Color(lightHex: 0xC22A21, darkHex: 0xFF453A)
-        static let blue = Color(lightHex: 0x005ECF, darkHex: 0x0A84FF)
-        static let orange = Color(lightHex: 0xB86A00, darkHex: 0xFF9F0A)
-        static let purple = Color(lightHex: 0x7A3FB5, darkHex: 0xAF52DE)
-        static let teal = Color(lightHex: 0x0F8F85, darkHex: 0x30D5C8)
+        static var bgApp: Color { color(for: palette.bgApp) }
+        static var bgSidebar: Color { color(for: palette.bgSidebar) }
+        static var bgCard: Color { color(for: palette.bgCard) }
+        static var bgCardHover: Color { color(for: palette.bgCardHover) }
+        static var bgElevated: Color { color(for: palette.bgElevated) }
+        static var bgCode: Color { color(for: palette.bgCode) }
 
-        static let diffAddBg = Color(lightHex: 0x1F8A36, darkHex: 0x32D74B, lightOpacity: 0.16, darkOpacity: 0.10)
-        static let diffAddText = Color(lightHex: 0x166A29, darkHex: 0x32D74B)
-        static let diffRemoveBg = Color(lightHex: 0xC22A21, darkHex: 0xFF453A, lightOpacity: 0.16, darkOpacity: 0.10)
-        static let diffRemoveText = Color(lightHex: 0x9B221B, darkHex: 0xFF453A)
+        static var textPrimary: Color { color(for: palette.textPrimary) }
+        static var textSecondary: Color { color(for: palette.textSecondary) }
+        static var textTertiary: Color { color(for: palette.textTertiary) }
+
+        static var border: Color { color(for: palette.border) }
+        static var borderSubtle: Color { color(for: palette.borderSubtle) }
+        static var borderEmphasis: Color { color(for: palette.borderEmphasis) }
+
+        static var green: Color { color(for: palette.green) }
+        static var red: Color { color(for: palette.red) }
+        static var blue: Color { color(for: palette.blue) }
+        static var orange: Color { color(for: palette.orange) }
+        static var purple: Color { color(for: palette.purple) }
+        static var teal: Color { color(for: palette.teal) }
+
+        static var diffAddBg: Color { color(for: palette.diffAddBg) }
+        static var diffAddText: Color { color(for: palette.diffAddText) }
+        static var diffRemoveBg: Color { color(for: palette.diffRemoveBg) }
+        static var diffRemoveText: Color { color(for: palette.diffRemoveText) }
     }
 
     // MARK: - Typography

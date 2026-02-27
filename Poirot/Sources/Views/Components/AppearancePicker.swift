@@ -27,7 +27,8 @@ enum AppearanceMode: String, CaseIterable {
 // MARK: - Appearance Picker
 
 struct AppearancePicker: View {
-    @Binding var selection: AppearanceMode
+    @Binding
+    var selection: AppearanceMode
 
     var body: some View {
         HStack(spacing: 16) {
@@ -52,7 +53,10 @@ private struct AppearanceOption: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? Color.accentColor : Color.gray.opacity(0.3), lineWidth: isSelected ? 2.5 : 0.5)
+                        .stroke(
+                            isSelected ? Color.accentColor : Color.gray.opacity(0.3),
+                            lineWidth: isSelected ? 2.5 : 0.5
+                        )
                 )
                 .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
 
@@ -98,8 +102,16 @@ private struct AppearanceThumbnail: View {
 
     private func singleThumbnail(isDark: Bool) -> some View {
         let desktop = isDark
-            ? LinearGradient(colors: [Color(hex: 0x1C1C2E), Color(hex: 0x2A2040)], startPoint: .topLeading, endPoint: .bottomTrailing)
-            : LinearGradient(colors: [Color(hex: 0xC8D0E0), Color(hex: 0xD8D0C8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            ? LinearGradient(
+                colors: [Color(hex: 0x1C1C2E), Color(hex: 0x2A2040)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            : LinearGradient(
+                colors: [Color(hex: 0xC8D0E0), Color(hex: 0xD8D0C8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
 
         let windowBg = isDark ? Color(hex: 0x2C2C30) : Color.white
         let titleBar = isDark ? Color(hex: 0x3C3C40) : Color(hex: 0xE6E6EA)

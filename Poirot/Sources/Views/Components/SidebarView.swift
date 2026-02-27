@@ -5,6 +5,10 @@ struct SidebarView: View {
     private var appState
     @Environment(\.provider)
     private var provider
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
+    @AppStorage("colorTheme")
+    private var colorThemeRaw = ColorTheme.default.rawValue
 
     var body: some View {
         VStack(spacing: 0) {
@@ -261,6 +265,10 @@ private struct ProjectRow: View {
     var highlightQuery: String = ""
     @Environment(AppState.self)
     private var appState
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
+    @AppStorage("colorTheme")
+    private var colorThemeRaw = ColorTheme.default.rawValue
     @State
     private var isHovered = false
     @State
@@ -420,6 +428,10 @@ private struct SessionRow: View {
     private var appState
     @Environment(\.provider)
     private var provider
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
+    @AppStorage("colorTheme")
+    private var colorThemeRaw = ColorTheme.default.rawValue
     @State
     private var isHovered = false
     @State

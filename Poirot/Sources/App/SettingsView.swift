@@ -18,7 +18,7 @@ struct SettingsView: View {
                     Label("Viewer", systemImage: "eye")
                 }
         }
-        .frame(width: 560, height: 260)
+        .frame(width: 560, height: 360)
     }
 }
 
@@ -121,8 +121,22 @@ private struct AppearanceSettingsView: View {
     private var appState
     @AppStorage("appearanceMode")
     private var appearanceMode = AppearanceMode.auto.rawValue
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
+    @AppStorage("colorTheme")
+    private var colorThemeRaw = ColorTheme.default.rawValue
     @AppStorage("showAnimations")
     private var showAnimations = true
+
+    private var colorThemeBinding: Binding<ColorTheme> {
+        Binding(
+            get: { ColorTheme(rawValue: colorThemeRaw) ?? .default },
+            set: { newValue in
+                colorThemeRaw = newValue.rawValue
+                ColorThemeStorage.current = newValue
+            }
+        )
+    }
 
     private var appearanceModeBinding: Binding<AppearanceMode> {
         Binding(
@@ -130,6 +144,16 @@ private struct AppearanceSettingsView: View {
             set: { newValue in
                 appearanceMode = newValue.rawValue
                 NSApp.appearance = newValue.appearance
+            }
+        )
+    }
+
+    private var accentColorBinding: Binding<AccentColor> {
+        Binding(
+            get: { AccentColor(rawValue: accentColorRaw) ?? .golden },
+            set: { newValue in
+                accentColorRaw = newValue.rawValue
+                AccentColorStorage.current = newValue
             }
         )
     }
@@ -143,6 +167,22 @@ private struct AppearanceSettingsView: View {
                 Text("Appearance:")
             } control: {
                 AppearancePicker(selection: appearanceModeBinding)
+            }
+
+            settingsDivider
+
+            settingsRow(alignment: .top) {
+                Text("Theme:")
+            } control: {
+                ThemePicker(selection: colorThemeBinding)
+            }
+
+            settingsDivider
+
+            settingsRow {
+                Text("Accent Color:")
+            } control: {
+                AccentColorPicker(selection: accentColorBinding)
             }
 
             settingsDivider
