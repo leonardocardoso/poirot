@@ -121,6 +121,8 @@ private struct AppearanceSettingsView: View {
     private var appState
     @AppStorage("appearanceMode")
     private var appearanceMode = AppearanceMode.auto.rawValue
+    @AppStorage("accentColor")
+    private var accentColorRaw = AccentColor.golden.rawValue
     @AppStorage("showAnimations")
     private var showAnimations = true
 
@@ -134,6 +136,16 @@ private struct AppearanceSettingsView: View {
         )
     }
 
+    private var accentColorBinding: Binding<AccentColor> {
+        Binding(
+            get: { AccentColor(rawValue: accentColorRaw) ?? .golden },
+            set: { newValue in
+                accentColorRaw = newValue.rawValue
+                AccentColorStorage.current = newValue
+            }
+        )
+    }
+
     var body: some View {
         @Bindable
         var appState = appState
@@ -143,6 +155,14 @@ private struct AppearanceSettingsView: View {
                 Text("Appearance:")
             } control: {
                 AppearancePicker(selection: appearanceModeBinding)
+            }
+
+            settingsDivider
+
+            settingsRow {
+                Text("Accent Color:")
+            } control: {
+                AccentColorPicker(selection: accentColorBinding)
             }
 
             settingsDivider

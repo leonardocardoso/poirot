@@ -1,12 +1,84 @@
 import AppKit
 import SwiftUI
 
+// MARK: - Accent Color
+
+enum AccentColor: String, CaseIterable, Sendable {
+    case golden
+    case blue
+    case purple
+    case green
+    case red
+    case teal
+
+    var label: String {
+        switch self {
+        case .golden: "Golden"
+        case .blue: "Blue"
+        case .purple: "Purple"
+        case .green: "Green"
+        case .red: "Red"
+        case .teal: "Teal"
+        }
+    }
+
+    var lightHex: UInt {
+        switch self {
+        case .golden: 0xC88422
+        case .blue: 0x005ECF
+        case .purple: 0x7A3FB5
+        case .green: 0x1F8A36
+        case .red: 0xC22A21
+        case .teal: 0x0F8F85
+        }
+    }
+
+    var darkHex: UInt {
+        switch self {
+        case .golden: 0xE8A642
+        case .blue: 0x0A84FF
+        case .purple: 0xAF52DE
+        case .green: 0x32D74B
+        case .red: 0xFF453A
+        case .teal: 0x30D5C8
+        }
+    }
+
+    /// The preview swatch color (uses the dark hex for a vibrant circle)
+    var swatchColor: Color {
+        Color(hex: darkHex)
+    }
+}
+
+// MARK: - Accent Color Storage
+
+enum AccentColorStorage {
+    nonisolated(unsafe) static var current: AccentColor = {
+        if let raw = UserDefaults.standard.string(forKey: "accentColor"),
+           let color = AccentColor(rawValue: raw) {
+            return color
+        }
+        return .golden
+    }() {
+        didSet {
+            UserDefaults.standard.set(current.rawValue, forKey: "accentColor")
+        }
+    }
+}
+
 enum PoirotTheme {
     // MARK: - Colors
 
     enum Colors {
-        static let accent = Color(lightHex: 0xC88422, darkHex: 0xE8A642)
-        static let accentDim = Color(lightHex: 0xC88422, darkHex: 0xE8A642, lightOpacity: 0.20, darkOpacity: 0.15)
+        static var accent: Color {
+            let c = AccentColorStorage.current
+            return Color(lightHex: c.lightHex, darkHex: c.darkHex)
+        }
+
+        static var accentDim: Color {
+            let c = AccentColorStorage.current
+            return Color(lightHex: c.lightHex, darkHex: c.darkHex, lightOpacity: 0.20, darkOpacity: 0.15)
+        }
 
         static let bgApp = Color(lightHex: 0xF3F4F7, darkHex: 0x0D0D0F)
         static let bgSidebar = Color(lightHex: 0xECEEF3, darkHex: 0x141416)
