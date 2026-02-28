@@ -17,7 +17,7 @@ struct ScreenshotTests_Todos {
             size: ScreenshotSize.mainContent,
             named: "testTodosList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -32,7 +32,7 @@ struct ScreenshotTests_Todos {
             size: ScreenshotSize.fullApp,
             named: "testTodosFullApp",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -52,7 +52,7 @@ struct ScreenshotTests_Todos {
             size: ScreenshotSize.fullApp,
             named: "testTodosFullAppSolarized",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -72,7 +72,7 @@ struct ScreenshotTests_Todos {
             size: ScreenshotSize.fullApp,
             named: "testTodosFullAppHighContrast",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 }

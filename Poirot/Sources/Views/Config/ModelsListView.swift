@@ -70,10 +70,10 @@ struct ModelsListView: View {
             Spacer()
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(maxWidth: .infinity)
                 ConfigProjectPicker()
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
         }
@@ -139,6 +139,7 @@ struct ModelsListView: View {
                     ForEach(Array(filteredModels.enumerated()), id: \.element) { index, model in
                         ModelCard(
                             name: model,
+                            filterQuery: filterQuery,
                             isDefault: model == (currentDefault ?? provider.defaultModelName),
                             isProjectDefault: model == projectModel,
                             hasProject: appState.configProjectPath != nil,

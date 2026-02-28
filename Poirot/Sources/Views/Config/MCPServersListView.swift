@@ -93,10 +93,10 @@ struct MCPServersListView: View {
             Spacer()
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(maxWidth: .infinity)
                 ConfigProjectPicker()
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
         }
@@ -159,6 +159,7 @@ struct MCPServersListView: View {
                     ForEach(Array(filteredServers.enumerated()), id: \.element.id) { index, server in
                         MCPServerCard(
                             server: server,
+                            filterQuery: filterQuery,
                             onOpenInEditor: { openServerInEditor(server) },
                             onShowInFinder: { showSettingsInFinder() },
                             onRemove: { removeServer(server) }

@@ -35,9 +35,15 @@ struct SubAgentsListView: View {
             )
 
             if !SubAgent.builtIn.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                    .padding(.vertical, PoirotTheme.Spacing.sm)
+                HStack(spacing: 0) {
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    ConfigFilterField(searchQuery: $filterQuery)
+                        .frame(minWidth: 300, maxWidth: .infinity)
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if filteredAgents.isEmpty, !filterQuery.isEmpty {
@@ -107,7 +113,7 @@ struct SubAgentsListView: View {
 
                 LazyVStack(spacing: PoirotTheme.Spacing.md) {
                     ForEach(Array(filteredAgents.enumerated()), id: \.element.id) { index, agent in
-                        SubAgentCard(agent: agent)
+                        SubAgentCard(agent: agent, filterQuery: filterQuery)
                             .shimmerReveal(
                                 isRevealed: isRevealed,
                                 delay: Double(min(index, 9)) * 0.03,

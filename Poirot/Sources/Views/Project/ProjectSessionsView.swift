@@ -6,14 +6,53 @@ struct ProjectSessionsView: View {
     private var appState
     @State
     private var isRevealed = false
+    @State
+    private var filterQuery = ""
+
+    private var filteredSessions: [Session] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return project.sessions }
+        return project.sessions
+            .compactMap { session -> (Session, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(session.title, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(session.preview ?? "", query: q)?.score ?? 0
+                )
+                return best > 0 ? (session, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            sessionsContent
+
+            if !project.sessions.isEmpty {
+                HStack(spacing: 0) {
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    ConfigFilterField(searchQuery: $filterQuery)
+                        .frame(minWidth: 300, maxWidth: .infinity)
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
+            }
+
+            if filteredSessions.isEmpty, !filterQuery.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No sessions match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
+                )
+            } else {
+                sessionsContent
+            }
         }
         .background(PoirotTheme.Colors.bgApp)
         .task(id: project.id) {
+            filterQuery = ""
             isRevealed = false
             try? await Task.sleep(for: .milliseconds(50))
             withAnimation(.easeOut(duration: 0.4)) {
@@ -79,7 +118,7 @@ struct ProjectSessionsView: View {
                 ForEach(0 ..< 2, id: \.self) { column in
                     LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                         ForEach(sessionsForColumn(column), id: \.element.id) { index, session in
-                            SessionCard(session: session)
+                            SessionCard(session: session, filterQuery: filterQuery)
                                 .shimmerReveal(
                                     isRevealed: isRevealed,
                                     delay: Double(min(index, 7)) * 0.04,
@@ -96,7 +135,7 @@ struct ProjectSessionsView: View {
     }
 
     private func sessionsForColumn(_ column: Int) -> [(offset: Int, element: Session)] {
-        Array(project.sessions.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredSessions.enumerated()).filter { $0.offset % 2 == column }
     }
 
     // MARK: - List
@@ -104,8 +143,8 @@ struct ProjectSessionsView: View {
     private var sessionsList: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: PoirotTheme.Spacing.md) {
-                ForEach(Array(project.sessions.enumerated()), id: \.element.id) { index, session in
-                    SessionListRow(session: session)
+                ForEach(Array(filteredSessions.enumerated()), id: \.element.id) { index, session in
+                    SessionListRow(session: session, filterQuery: filterQuery)
                         .shimmerReveal(
                             isRevealed: isRevealed,
                             delay: Double(min(index, 9)) * 0.03,
@@ -124,6 +163,7 @@ struct ProjectSessionsView: View {
 
 private struct SessionCard: View {
     let session: Session
+    var filterQuery: String = ""
     @Environment(AppState.self)
     private var appState
     @State
@@ -138,14 +178,14 @@ private struct SessionCard: View {
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(session.title)
+                Text(HighlightedText.fuzzyAttributedString(session.title, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
 
                 if let preview = session.preview {
-                    Text(preview)
+                    Text(HighlightedText.fuzzyAttributedString(preview, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(4)
@@ -168,6 +208,7 @@ private struct SessionCard: View {
 
 private struct SessionListRow: View {
     let session: Session
+    var filterQuery: String = ""
     @Environment(AppState.self)
     private var appState
     @State
@@ -182,13 +223,13 @@ private struct SessionListRow: View {
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(session.title)
+                Text(HighlightedText.fuzzyAttributedString(session.title, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(1)
 
                 if let preview = session.preview {
-                    Text(preview)
+                    Text(HighlightedText.fuzzyAttributedString(preview, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(2)

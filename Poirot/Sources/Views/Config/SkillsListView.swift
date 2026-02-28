@@ -163,10 +163,10 @@ struct SkillsListView: View {
             Spacer()
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(maxWidth: .infinity)
                 ConfigProjectPicker()
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
         }
@@ -216,7 +216,7 @@ struct SkillsListView: View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
                 ForEach(Array(filteredSkills.enumerated()), id: \.element.id) { index, skill in
-                    SkillCard(skill: skill) {
+                    SkillCard(skill: skill, filterQuery: filterQuery) {
                         selectSkill(skill)
                     }
                     .shimmerReveal(
