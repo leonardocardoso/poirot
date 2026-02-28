@@ -26,7 +26,7 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.fullApp,
             named: "testHero",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -45,7 +45,7 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.fullApp,
             named: "testSessionBrowser",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -113,7 +113,7 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.fullApp,
             named: "testSearch",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -130,7 +130,7 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.mainContent,
             named: "testConfigScreen",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -156,7 +156,7 @@ struct ScreenshotTests_FullViews {
             size: CGSize(width: 500, height: 400),
             named: "testSettings",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 }
