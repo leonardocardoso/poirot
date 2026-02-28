@@ -27,10 +27,16 @@ struct CommandsListView: View {
     private var filteredCommands: [ClaudeCommand] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return commands }
-        return commands.filter { cmd in
-            HighlightedText.fuzzyMatch(cmd.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(cmd.description, query: q) != nil
-        }
+        return commands
+            .compactMap { cmd -> (ClaudeCommand, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(cmd.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(cmd.description, query: q)?.score ?? 0
+                )
+                return best > 0 ? (cmd, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -114,12 +120,11 @@ struct CommandsListView: View {
                 item: item,
                 dynamicCount: "\(commands.count) \(commands.count == 1 ? "command" : "commands")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !commands.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if !isLoaded {
@@ -165,6 +170,22 @@ struct CommandsListView: View {
         }
     }
 
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
     @ViewBuilder
     private var configContent: some View {
         if appState.configLayout(for: item.id) == .grid {
@@ -196,6 +217,7 @@ struct CommandsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func commandsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeCommand)] {
@@ -220,6 +242,7 @@ struct CommandsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func selectCommand(_ command: ClaudeCommand) {

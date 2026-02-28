@@ -17,10 +17,16 @@ struct PluginsListView: View {
     private var filteredPlugins: [ClaudePlugin] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return plugins }
-        return plugins.filter { plugin in
-            HighlightedText.fuzzyMatch(plugin.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(plugin.author, query: q) != nil
-        }
+        return plugins
+            .compactMap { plugin -> (ClaudePlugin, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(plugin.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(plugin.author, query: q)?.score ?? 0
+                )
+                return best > 0 ? (plugin, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -34,6 +40,8 @@ struct PluginsListView: View {
 
             if !plugins.isEmpty {
                 ConfigFilterField(searchQuery: $filterQuery)
+                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if !isLoaded {
@@ -111,6 +119,7 @@ struct PluginsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private func pluginsForColumn(_ column: Int) -> [(offset: Int, element: ClaudePlugin)] {
@@ -141,6 +150,7 @@ struct PluginsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private var infoBanner: some View {

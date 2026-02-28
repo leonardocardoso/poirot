@@ -27,10 +27,16 @@ struct SkillsListView: View {
     private var filteredSkills: [ClaudeSkill] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return skills }
-        return skills.filter { skill in
-            HighlightedText.fuzzyMatch(skill.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(skill.description, query: q) != nil
-        }
+        return skills
+            .compactMap { skill -> (ClaudeSkill, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(skill.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(skill.description, query: q)?.score ?? 0
+                )
+                return best > 0 ? (skill, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -102,12 +108,11 @@ struct SkillsListView: View {
                 item: item,
                 dynamicCount: "\(skills.count) \(skills.count == 1 ? "skill" : "skills")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !skills.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if !isLoaded {
@@ -153,6 +158,22 @@ struct SkillsListView: View {
         }
     }
 
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
     @ViewBuilder
     private var configContent: some View {
         if appState.configLayout(for: item.id) == .grid {
@@ -184,6 +205,7 @@ struct SkillsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func skillsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeSkill)] {
@@ -208,6 +230,7 @@ struct SkillsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func selectSkill(_ skill: ClaudeSkill) {

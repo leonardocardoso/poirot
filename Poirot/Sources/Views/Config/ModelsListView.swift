@@ -18,9 +18,13 @@ struct ModelsListView: View {
     private var filteredModels: [String] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return provider.supportedModels }
-        return provider.supportedModels.filter {
-            HighlightedText.fuzzyMatch($0, query: q) != nil
-        }
+        return provider.supportedModels
+            .compactMap { model -> (String, Int)? in
+                guard let m = HighlightedText.fuzzyMatch(model, query: q) else { return nil }
+                return (model, m.score)
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -29,12 +33,11 @@ struct ModelsListView: View {
                 item: item,
                 dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !provider.supportedModels.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if filteredModels.isEmpty, !filterQuery.isEmpty {
@@ -60,6 +63,22 @@ struct ModelsListView: View {
         .onChange(of: appState.configProjectPath) {
             loadProjectModel()
         }
+    }
+
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
     }
 
     @ViewBuilder
@@ -104,6 +123,7 @@ struct ModelsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private func modelsForColumn(_ column: Int) -> [(offset: Int, element: String)] {
@@ -138,6 +158,7 @@ struct ModelsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private var infoBanner: some View {

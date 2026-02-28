@@ -27,10 +27,16 @@ struct OutputStylesListView: View {
     private var filteredStyles: [OutputStyle] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return styles }
-        return styles.filter { style in
-            HighlightedText.fuzzyMatch(style.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(style.description, query: q) != nil
-        }
+        return styles
+            .compactMap { style -> (OutputStyle, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(style.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(style.description, query: q)?.score ?? 0
+                )
+                return best > 0 ? (style, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -100,12 +106,11 @@ struct OutputStylesListView: View {
                 item: item,
                 dynamicCount: "\(styles.count) \(styles.count == 1 ? "style" : "styles")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !styles.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if !isLoaded {
@@ -151,6 +156,22 @@ struct OutputStylesListView: View {
         }
     }
 
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
     @ViewBuilder
     private var configContent: some View {
         if appState.configLayout(for: item.id) == .grid {
@@ -182,6 +203,7 @@ struct OutputStylesListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func stylesForColumn(_ column: Int) -> [(offset: Int, element: OutputStyle)] {
@@ -206,6 +228,7 @@ struct OutputStylesListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func selectStyle(_ style: OutputStyle) {

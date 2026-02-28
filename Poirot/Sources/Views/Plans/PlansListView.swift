@@ -22,10 +22,14 @@ struct PlansListView: View {
     private var filteredPlans: [Plan] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return plans }
-        return plans.filter { plan in
-            HighlightedText.fuzzyMatch(plan.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(String(plan.content.prefix(200)), query: q) != nil
-        }
+        return plans
+            .compactMap { plan -> (Plan, Int)? in
+                if let m = HighlightedText.fuzzyMatch(plan.name, query: q) { return (plan, m.score) }
+                if plan.content.localizedCaseInsensitiveContains(q) { return (plan, 1) }
+                return nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -74,6 +78,8 @@ struct PlansListView: View {
 
             if !plans.isEmpty {
                 ConfigFilterField(searchQuery: $filterQuery)
+                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if !isLoaded {
@@ -162,6 +168,7 @@ struct PlansListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func plansForColumn(_ column: Int) -> [(offset: Int, element: Plan)] {
@@ -188,6 +195,7 @@ struct PlansListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func selectPlan(_ plan: Plan) {

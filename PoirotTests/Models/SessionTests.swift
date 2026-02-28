@@ -222,7 +222,14 @@ struct SessionTests {
 
     @Test
     func firstPrompt_defaultsToNil() {
-        let session = Session(id: "fp1", projectPath: "/path", messages: [], startedAt: .now, model: nil, totalTokens: 0)
+        let session = Session(
+            id: "fp1",
+            projectPath: "/path",
+            messages: [],
+            startedAt: .now,
+            model: nil,
+            totalTokens: 0
+        )
         #expect(session.firstPrompt == nil)
     }
 

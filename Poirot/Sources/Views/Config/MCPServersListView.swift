@@ -24,10 +24,15 @@ struct MCPServersListView: View {
     private var filteredServers: [MCPServer] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return servers }
-        return servers.filter { server in
-            HighlightedText.fuzzyMatch(server.name, query: q) != nil
-                || server.tools.contains(where: { HighlightedText.fuzzyMatch($0, query: q) != nil })
-        }
+        return servers
+            .compactMap { server -> (MCPServer, Int)? in
+                let nameScore = HighlightedText.fuzzyMatch(server.name, query: q)?.score ?? 0
+                let toolScore = server.tools.compactMap { HighlightedText.fuzzyMatch($0, query: q)?.score }.max() ?? 0
+                let best = max(nameScore, toolScore)
+                return best > 0 ? (server, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -36,12 +41,11 @@ struct MCPServersListView: View {
                 item: item,
                 dynamicCount: "\(servers.count) \(servers.count == 1 ? "server" : "servers")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !servers.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if !isLoaded {
@@ -84,6 +88,22 @@ struct MCPServersListView: View {
         }
     }
 
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
     @ViewBuilder
     private var configContent: some View {
         if appState.configLayout(for: item.id) == .grid {
@@ -123,6 +143,7 @@ struct MCPServersListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private func serversForColumn(_ column: Int) -> [(offset: Int, element: MCPServer)] {
@@ -154,6 +175,7 @@ struct MCPServersListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private var infoBanner: some View {

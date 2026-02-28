@@ -13,10 +13,16 @@ struct SubAgentsListView: View {
     private var filteredAgents: [SubAgent] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return SubAgent.builtIn }
-        return SubAgent.builtIn.filter { agent in
-            HighlightedText.fuzzyMatch(agent.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(agent.description, query: q) != nil
-        }
+        return SubAgent.builtIn
+            .compactMap { agent -> (SubAgent, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(agent.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(agent.description, query: q)?.score ?? 0
+                )
+                return best > 0 ? (agent, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -30,6 +36,8 @@ struct SubAgentsListView: View {
 
             if !SubAgent.builtIn.isEmpty {
                 ConfigFilterField(searchQuery: $filterQuery)
+                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if filteredAgents.isEmpty, !filterQuery.isEmpty {
@@ -85,6 +93,7 @@ struct SubAgentsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private func agentsForColumn(_ column: Int) -> [(offset: Int, element: SubAgent)] {
@@ -111,6 +120,7 @@ struct SubAgentsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.hidden)
     }
 
     private var infoBanner: some View {

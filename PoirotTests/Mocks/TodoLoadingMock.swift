@@ -28,5 +28,4 @@ final class TodoLoadingMock: TodoLoading, @unchecked Sendable {
         deleteTodosCallsCount += 1
         deleteTodosReceivedSessionId = sessionId
     }
-
 }
