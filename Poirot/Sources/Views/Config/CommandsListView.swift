@@ -180,7 +180,7 @@ struct CommandsListView: View {
                 ForEach(0 ..< 2, id: \.self) { column in
                     LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                         ForEach(commandsForColumn(column), id: \.element.id) { index, command in
-                            CommandCard(command: command) {
+                            CommandCard(command: command, filterQuery: filterQuery) {
                                 selectCommand(command)
                             }
                             .shimmerReveal(
@@ -192,7 +192,7 @@ struct CommandsListView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -216,7 +216,7 @@ struct CommandsListView: View {
                     )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -257,6 +257,7 @@ struct CommandsListView: View {
 
 private struct CommandCard: View {
     let command: ClaudeCommand
+    var filterQuery: String = ""
     let onTap: () -> Void
     @State
     private var isHovered = false
@@ -265,7 +266,7 @@ private struct CommandCard: View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(command.name)
+                    Text(HighlightedText.fuzzyAttributedString(command.name, query: filterQuery))
                         .font(PoirotTheme.Typography.bodyMedium)
                         .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
@@ -279,7 +280,7 @@ private struct CommandCard: View {
                 }
 
                 if !command.description.isEmpty {
-                    Text(command.description)
+                    Text(HighlightedText.fuzzyAttributedString(command.description, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(2)

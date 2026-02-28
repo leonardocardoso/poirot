@@ -145,6 +145,7 @@ struct PlansListView: View {
                         ForEach(plansForColumn(column), id: \.element.id) { index, plan in
                             PlanCard(
                                 plan: plan,
+                                filterQuery: filterQuery,
                                 onTap: { selectPlan(plan) },
                                 onDelete: { deletePlan(plan) }
                             )
@@ -157,7 +158,7 @@ struct PlansListView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -183,7 +184,7 @@ struct PlansListView: View {
                     )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -226,6 +227,7 @@ struct PlansListView: View {
 
 private struct PlanCard: View {
     let plan: Plan
+    var filterQuery: String = ""
     let onTap: () -> Void
     let onDelete: () -> Void
     @State
@@ -248,12 +250,12 @@ private struct PlanCard: View {
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(plan.name)
+                Text(HighlightedText.fuzzyAttributedString(plan.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 if !snippet.isEmpty {
-                    Text(snippet)
+                    Text(HighlightedText.fuzzyAttributedString(snippet, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(2)

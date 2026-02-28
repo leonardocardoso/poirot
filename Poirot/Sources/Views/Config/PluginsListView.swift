@@ -93,6 +93,7 @@ struct PluginsListView: View {
                             ForEach(pluginsForColumn(column), id: \.element.id) { index, plugin in
                                 PluginCard(
                                     plugin: plugin,
+                                    filterQuery: filterQuery,
                                     onToggle: { togglePlugin(plugin) },
                                     onRemove: { removePlugin(plugin) }
                                 )
@@ -105,7 +106,7 @@ struct PluginsListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -135,7 +136,7 @@ struct PluginsListView: View {
                         )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -162,7 +163,7 @@ struct PluginsListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -201,6 +202,7 @@ struct PluginsListView: View {
 
 private struct PluginCard: View {
     let plugin: ClaudePlugin
+    var filterQuery: String = ""
     let onToggle: () -> Void
     let onRemove: () -> Void
     @State
@@ -213,12 +215,12 @@ private struct PluginCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Text(plugin.name)
+                Text(HighlightedText.fuzzyAttributedString(plugin.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 if !plugin.author.isEmpty {
-                    Text("by \(plugin.author)")
+                    Text(HighlightedText.fuzzyAttributedString("by \(plugin.author)", query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
                 }

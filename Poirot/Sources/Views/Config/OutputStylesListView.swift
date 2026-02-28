@@ -166,7 +166,7 @@ struct OutputStylesListView: View {
                 ForEach(0 ..< 2, id: \.self) { column in
                     LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                         ForEach(stylesForColumn(column), id: \.element.id) { index, style in
-                            OutputStyleCard(style: style) {
+                            OutputStyleCard(style: style, filterQuery: filterQuery) {
                                 selectStyle(style)
                             }
                             .shimmerReveal(
@@ -178,7 +178,7 @@ struct OutputStylesListView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -202,7 +202,7 @@ struct OutputStylesListView: View {
                     )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -243,6 +243,7 @@ struct OutputStylesListView: View {
 
 private struct OutputStyleCard: View {
     let style: OutputStyle
+    var filterQuery: String = ""
     let onTap: () -> Void
     @State
     private var isHovered = false
@@ -250,12 +251,12 @@ private struct OutputStyleCard: View {
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(style.name)
+                Text(HighlightedText.fuzzyAttributedString(style.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 if !style.description.isEmpty {
-                    Text(style.description)
+                    Text(HighlightedText.fuzzyAttributedString(style.description, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(2)

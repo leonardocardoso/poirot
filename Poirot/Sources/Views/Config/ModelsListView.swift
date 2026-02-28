@@ -82,6 +82,7 @@ struct ModelsListView: View {
                             ForEach(modelsForColumn(column), id: \.element) { index, model in
                                 ModelCard(
                                     name: model,
+                                    filterQuery: filterQuery,
                                     isDefault: model == (currentDefault ?? provider.defaultModelName),
                                     isProjectDefault: model == projectModel,
                                     hasProject: appState.configProjectPath != nil,
@@ -98,7 +99,7 @@ struct ModelsListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -132,7 +133,7 @@ struct ModelsListView: View {
                         )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -162,7 +163,7 @@ struct ModelsListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -221,6 +222,7 @@ struct ModelsListView: View {
 
 private struct ModelCard: View {
     let name: String
+    var filterQuery: String = ""
     let isDefault: Bool
     let isProjectDefault: Bool
     let hasProject: Bool
@@ -259,7 +261,7 @@ private struct ModelCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Text(name)
+                Text(HighlightedText.fuzzyAttributedString(name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 

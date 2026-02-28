@@ -104,6 +104,7 @@ struct MCPServersListView: View {
                             ForEach(serversForColumn(column), id: \.element.id) { index, server in
                                 MCPServerCard(
                                     server: server,
+                                    filterQuery: filterQuery,
                                     onOpenInEditor: { openServerInEditor(server) },
                                     onShowInFinder: { showSettingsInFinder() },
                                     onRemove: { removeServer(server) }
@@ -117,7 +118,7 @@ struct MCPServersListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -148,7 +149,7 @@ struct MCPServersListView: View {
                         )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -175,7 +176,7 @@ struct MCPServersListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -214,6 +215,7 @@ struct MCPServersListView: View {
 
 private struct MCPServerCard: View {
     let server: MCPServer
+    var filterQuery: String = ""
     let onOpenInEditor: () -> Void
     let onShowInFinder: () -> Void
     let onRemove: () -> Void
@@ -248,7 +250,7 @@ private struct MCPServerCard: View {
                     .fill(PoirotTheme.Colors.green)
                     .frame(width: 8, height: 8)
 
-                Text(server.name)
+                Text(HighlightedText.fuzzyAttributedString(server.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
@@ -311,7 +313,7 @@ private struct MCPServerCard: View {
                 VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
                     let displayTools = isExpanded ? server.tools : Array(server.tools.prefix(5))
                     ForEach(displayTools, id: \.self) { tool in
-                        Text(tool)
+                        Text(HighlightedText.fuzzyAttributedString(tool, query: filterQuery))
                             .font(PoirotTheme.Typography.codeSmall)
                             .foregroundStyle(PoirotTheme.Colors.blue)
                             .padding(.horizontal, PoirotTheme.Spacing.sm)

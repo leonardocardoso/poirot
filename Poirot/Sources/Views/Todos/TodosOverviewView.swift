@@ -214,7 +214,7 @@ struct TodosOverviewView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -252,7 +252,7 @@ struct TodosOverviewView: View {
                         )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -263,6 +263,7 @@ struct TodosOverviewView: View {
             sessionId: entry.sessionId,
             sessionTitle: sessionTitle(for: entry.sessionId),
             todos: entry.todos,
+            filterQuery: filterQuery,
             isLoadingSession: loadingSessionId == entry.sessionId,
             isGoToDisabled: loadingSessionId != nil,
             onGoToSession: { navigateToSession(entry.sessionId) }
@@ -428,6 +429,7 @@ private struct SessionTodoCard: View {
     let sessionId: String
     let sessionTitle: String?
     let todos: [SessionTodo]
+    var filterQuery: String = ""
     let isLoadingSession: Bool
     let isGoToDisabled: Bool
     let onGoToSession: () -> Void
@@ -476,7 +478,7 @@ private struct SessionTodoCard: View {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(PoirotTheme.Colors.accent)
 
-                Text(sessionTitle ?? sessionId)
+                Text(HighlightedText.fuzzyAttributedString(sessionTitle ?? sessionId, query: filterQuery))
                     .font(PoirotTheme.Typography.smallBold)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(1)
@@ -584,7 +586,7 @@ private struct SessionTodoCard: View {
             statusIcon(for: todo.status)
 
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-                Text(todo.content)
+                Text(HighlightedText.fuzzyAttributedString(todo.content, query: filterQuery))
                     .font(PoirotTheme.Typography.caption)
                     .foregroundStyle(
                         todo.status == .completed

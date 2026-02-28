@@ -168,7 +168,7 @@ struct SkillsListView: View {
                 ForEach(0 ..< 2, id: \.self) { column in
                     LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                         ForEach(skillsForColumn(column), id: \.element.id) { index, skill in
-                            SkillCard(skill: skill) {
+                            SkillCard(skill: skill, filterQuery: filterQuery) {
                                 selectSkill(skill)
                             }
                             .shimmerReveal(
@@ -180,7 +180,7 @@ struct SkillsListView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -204,7 +204,7 @@ struct SkillsListView: View {
                     )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
@@ -245,6 +245,7 @@ struct SkillsListView: View {
 
 private struct SkillCard: View {
     let skill: ClaudeSkill
+    var filterQuery: String = ""
     let onTap: () -> Void
     @State
     private var isHovered = false
@@ -252,12 +253,12 @@ private struct SkillCard: View {
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(skill.name)
+                Text(HighlightedText.fuzzyAttributedString(skill.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 if !skill.description.isEmpty {
-                    Text(skill.description)
+                    Text(HighlightedText.fuzzyAttributedString(skill.description, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(3)

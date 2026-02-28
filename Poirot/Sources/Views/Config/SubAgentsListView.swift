@@ -70,7 +70,7 @@ struct SubAgentsListView: View {
                     ForEach(0 ..< 2, id: \.self) { column in
                         LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                             ForEach(agentsForColumn(column), id: \.element.id) { index, agent in
-                                SubAgentCard(agent: agent)
+                                SubAgentCard(agent: agent, filterQuery: filterQuery)
                                     .shimmerReveal(
                                         isRevealed: isRevealed,
                                         delay: Double(min(index, 7)) * 0.04,
@@ -80,7 +80,7 @@ struct SubAgentsListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -106,7 +106,7 @@ struct SubAgentsListView: View {
                             )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
@@ -133,7 +133,7 @@ struct SubAgentsListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -143,6 +143,7 @@ struct SubAgentsListView: View {
 
 private struct SubAgentCard: View {
     let agent: SubAgent
+    var filterQuery: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
@@ -156,12 +157,12 @@ private struct SubAgentCard: View {
                             .fill(PoirotTheme.Colors.orange.opacity(0.15))
                     )
 
-                Text(agent.name)
+                Text(HighlightedText.fuzzyAttributedString(agent.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
             }
 
-            Text(agent.description)
+            Text(HighlightedText.fuzzyAttributedString(agent.description, query: filterQuery))
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
                 .lineLimit(2)
