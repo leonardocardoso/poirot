@@ -1,17 +1,34 @@
 import SwiftUI
 
+// MARK: - Disable Animations Environment Key
+
+private struct DisableAnimationsKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var disableAnimations: Bool {
+        get { self[DisableAnimationsKey.self] }
+        set { self[DisableAnimationsKey.self] = newValue }
+    }
+}
+
 struct ShimmerModifier: ViewModifier {
     var cornerRadius: CGFloat = 0
 
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
+    @Environment(\.disableAnimations)
+    private var disableAnimations
     @State
     private var phase: CGFloat = 0
+
+    private var shouldSkip: Bool { reduceMotion || disableAnimations }
 
     func body(content: Content) -> some View {
         content
             .overlay {
-                if reduceMotion {
+                if shouldSkip {
                     Color.white.opacity(0.05)
                 } else {
                     GeometryReader { geo in
@@ -29,7 +46,7 @@ struct ShimmerModifier: ViewModifier {
                 }
             }
             .onAppear {
-                guard !reduceMotion else { return }
+                guard !shouldSkip else { return }
                 withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
                     phase = 1
                 }
@@ -56,11 +73,13 @@ struct ShimmerRevealModifier: ViewModifier {
 
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
+    @Environment(\.disableAnimations)
+    private var disableAnimations
 
     func body(content: Content) -> some View {
         content
             .overlay {
-                if !reduceMotion {
+                if !reduceMotion, !disableAnimations {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(PoirotTheme.Colors.bgCard)
                         .overlay(
