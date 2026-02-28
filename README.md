@@ -143,6 +143,13 @@ See all Claude Code per-session todo lists at a glance. Cards show task status (
   <img src="assets/showcase/18-todos.png" alt="Session TODOs" width="720" />
 </p>
 
+### Plans
+Browse your `~/.claude/plans/` markdown files with rendered markdown or raw text views. Copy content, delete files, and search across all plans — with real-time file watching so new plans appear automatically.
+
+<p align="center">
+  <img src="assets/showcase/19-plans.png" alt="Plans" width="720" />
+</p>
+
 ---
 
 ## Capabilities
@@ -160,7 +167,7 @@ See all Claude Code per-session todo lists at a glance. Cards show task status (
 | | Extended Thinking | Collapsible thinking blocks with distinct purple accent |
 | | Tool Blocks | Every tool invocation rendered with name, icon, file path, and result |
 | | In-Session Search | ⌘F to search within the current conversation |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, and sub-agents |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, and TODOs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
@@ -171,6 +178,7 @@ See all Claude Code per-session todo lists at a glance. Cards show task status (
 | | Plugins | Browse installed plugins |
 | | Output Styles | Browse and manage output style configurations |
 | | TODOs | Browse per-session todo lists with status tracking and session navigation |
+| | Plans | Browse `~/.claude/plans/` markdown files with rendered/raw toggle, copy, delete, and file watching |
 | | Grid & List Views | Toggle between card grid and compact list layouts |
 | | Scope Badges | Visual distinction between Global and Project-scoped items |
 | **Integrations** | IDE/Editor | One-click open files in VS Code, Cursor, Xcode, or Zed |
@@ -251,6 +259,7 @@ Poirot/Sources/
     ├── Configuration/ # Config dashboard
     ├── Home/          # Welcome / empty state
     ├── Project/       # Project sessions list
+    ├── Plans/         # Plans browser
     ├── Search/        # &#x2318;K overlay
     ├── Session/       # Conversation detail, tool blocks, thinking
     └── Todos/         # Per-session todo overview

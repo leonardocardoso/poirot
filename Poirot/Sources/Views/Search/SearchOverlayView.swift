@@ -4,8 +4,10 @@ import SwiftUI
 
 private enum SearchCategory: Int, CaseIterable, Hashable {
     case sessions
+    case todos
     case commands
     case skills
+    case plans
     case mcpServers
     case plugins
     case outputStyles
@@ -15,8 +17,10 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     var label: String {
         switch self {
         case .sessions: "SESSIONS"
+        case .todos: "TODOS"
         case .commands: "COMMANDS"
         case .skills: "SKILLS"
+        case .plans: "PLANS"
         case .mcpServers: "MCP SERVERS"
         case .plugins: "PLUGINS"
         case .outputStyles: "OUTPUT STYLES"
@@ -28,8 +32,10 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     var navItem: NavigationItem {
         switch self {
         case .sessions: .sessions
+        case .todos: .todos
         case .commands: .commands
         case .skills: .skills
+        case .plans: .plans
         case .mcpServers: .mcpServers
         case .plugins: .plugins
         case .outputStyles: .outputStyles
@@ -81,11 +87,15 @@ struct SearchOverlayView: View {
     @State
     private var skills: [ClaudeSkill] = []
     @State
+    private var plans: [Plan] = []
+    @State
     private var mcpServers: [MCPServer] = []
     @State
     private var plugins: [ClaudePlugin] = []
     @State
     private var outputStyles: [OutputStyle] = []
+    @State
+    private var todoEntries: [(sessionId: String, todos: [SessionTodo])] = []
 
     // MARK: - Search Logic
 
@@ -101,8 +111,10 @@ struct SearchOverlayView: View {
 
         var all: [SearchResult] = []
         buildSessionResults(q, into: &all)
+        buildTodoResults(q, into: &all)
         buildCommandResults(q, into: &all)
         buildSkillResults(q, into: &all)
+        buildPlanResults(q, into: &all)
         buildMCPServerResults(q, into: &all)
         buildPluginResults(q, into: &all)
         buildOutputStyleResults(q, into: &all)
@@ -225,6 +237,64 @@ struct SearchOverlayView: View {
                     )
                 )
             ))
+        }
+    }
+
+    // MARK: - Plan Search
+
+    private func buildPlanResults(
+        _ q: String, into results: inout [SearchResult]
+    ) {
+        for plan in plans {
+            let nameScore = matchScore(plan.name, q)
+            let contentScore = matchScore(
+                String(plan.content.prefix(200)), q
+            )
+            let best = max(nameScore, contentScore)
+            guard best > 0 else { continue }
+            results.append(SearchResult(
+                id: "plan-\(plan.id)",
+                category: .plans,
+                icon: NavigationItem.plans.systemImage,
+                title: plan.name,
+                subtitle: plan.fileURL.lastPathComponent,
+                trailing: "",
+                score: best,
+                action: .openDetail(
+                    .plans,
+                    ConfigDetailInfo(
+                        name: plan.name,
+                        markdownContent: plan.content,
+                        filePath: plan.fileURL.path,
+                        scope: nil
+                    )
+                )
+            ))
+        }
+    }
+
+    // MARK: - TODO Search
+
+    private func buildTodoResults(
+        _ q: String, into results: inout [SearchResult]
+    ) {
+        for entry in todoEntries {
+            for todo in entry.todos {
+                let contentScore = matchScore(todo.content, q)
+                let activeScore = matchScore(todo.activeForm, q)
+                let best = max(contentScore, activeScore)
+                guard best > 0 else { continue }
+                results.append(SearchResult(
+                    id: "todo-\(entry.sessionId)-\(todo.id)",
+                    category: .todos,
+                    icon: NavigationItem.todos.systemImage,
+                    title: todo.content,
+                    subtitle: entry.sessionId,
+                    trailing: todo.status.rawValue,
+                    score: best,
+                    action: .navigateTo(.todos)
+                ))
+            }
         }
     }
 
@@ -454,7 +524,7 @@ struct SearchOverlayView: View {
                 )
 
             TextField(
-                "Search sessions, commands, skills...",
+                "Search sessions, commands, plans...",
                 text: $query
             )
             .textFieldStyle(.plain)
@@ -675,16 +745,22 @@ struct SearchOverlayView: View {
             (
                 ClaudeConfigLoader.loadCommands(projectPath: projectPath),
                 ClaudeConfigLoader.loadSkills(projectPath: projectPath),
+                ClaudeConfigLoader.loadPlans(),
                 ClaudeConfigLoader.loadMCPServers(projectPath: projectPath),
                 ClaudeConfigLoader.loadPlugins(),
-                ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath)
+                ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
+                TodoLoader().loadAllTodos()
             )
         }.value
         commands = result.0
         skills = result.1
-        mcpServers = result.2
-        plugins = result.3
-        outputStyles = result.4
+        plans = result.2
+        mcpServers = result.3
+        plugins = result.4
+        outputStyles = result.5
+        let allTodos = result.6
+        todoEntries = allTodos.filter { !$0.value.isEmpty }
+            .map { (sessionId: $0.key, todos: $0.value) }
     }
 }
 

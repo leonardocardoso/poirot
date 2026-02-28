@@ -11,6 +11,8 @@ struct CommandsListView: View {
     private var isLoaded = false
     @State
     private var selectedCommand: ClaudeCommand?
+    @State
+    private var filterQuery = ""
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -20,6 +22,15 @@ struct CommandsListView: View {
 
     private var editor: PreferredEditor {
         PreferredEditor(rawValue: textEditor) ?? .vscode
+    }
+
+    private var filteredCommands: [ClaudeCommand] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return commands }
+        return commands.filter { cmd in
+            HighlightedText.fuzzyMatch(cmd.name, query: q) != nil
+                || HighlightedText.fuzzyMatch(cmd.description, query: q) != nil
+        }
     }
 
     var body: some View {
@@ -107,6 +118,10 @@ struct CommandsListView: View {
                 showProjectPicker: true
             )
 
+            if !commands.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -116,6 +131,12 @@ struct CommandsListView: View {
                     icon: "apple.terminal",
                     message: "No commands found",
                     hint: "~/.claude/commands/"
+                )
+            } else if filteredCommands.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No commands match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 configContent
@@ -178,13 +199,13 @@ struct CommandsListView: View {
     }
 
     private func commandsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeCommand)] {
-        Array(commands.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredCommands.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                ForEach(Array(commands.enumerated()), id: \.element.id) { index, command in
+                ForEach(Array(filteredCommands.enumerated()), id: \.element.id) { index, command in
                     CommandCard(command: command) {
                         selectCommand(command)
                     }

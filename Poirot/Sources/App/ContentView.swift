@@ -369,6 +369,8 @@ struct ContentView: View {
             CommandsListView(item: item)
         case NavigationItem.skills.id:
             SkillsListView(item: item)
+        case NavigationItem.plans.id:
+            PlansListView(item: item)
         case NavigationItem.mcpServers.id:
             MCPServersListView(item: item)
         case NavigationItem.models.id:

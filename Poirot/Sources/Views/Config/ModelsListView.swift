@@ -12,6 +12,16 @@ struct ModelsListView: View {
     private var currentDefault: String?
     @State
     private var projectModel: String?
+    @State
+    private var filterQuery = ""
+
+    private var filteredModels: [String] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return provider.supportedModels }
+        return provider.supportedModels.filter {
+            HighlightedText.fuzzyMatch($0, query: q) != nil
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,7 +33,19 @@ struct ModelsListView: View {
                 showProjectPicker: true
             )
 
-            configContent
+            if !provider.supportedModels.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
+            if filteredModels.isEmpty, !filterQuery.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No models match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
+                )
+            } else {
+                configContent
+            }
         }
         .background(PoirotTheme.Colors.bgApp)
         .task {
@@ -84,7 +106,7 @@ struct ModelsListView: View {
     }
 
     private func modelsForColumn(_ column: Int) -> [(offset: Int, element: String)] {
-        Array(provider.supportedModels.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredModels.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
@@ -93,7 +115,7 @@ struct ModelsListView: View {
                 infoBanner
 
                 LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                    ForEach(Array(provider.supportedModels.enumerated()), id: \.element) { index, model in
+                    ForEach(Array(filteredModels.enumerated()), id: \.element) { index, model in
                         ModelCard(
                             name: model,
                             isDefault: model == (currentDefault ?? provider.defaultModelName),

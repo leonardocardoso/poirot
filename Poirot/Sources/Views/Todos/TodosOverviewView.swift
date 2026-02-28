@@ -19,6 +19,12 @@ struct TodosOverviewView: View {
     @State
     private var isRevealed = false
 
+    @State
+    private var filterQuery = ""
+
+    @State
+    private var fileWatcher: FileWatcher?
+
     /// Session ID currently being loaded on-demand from disk, or `nil`.
     @State
     private var loadingSessionId: String?
@@ -37,9 +43,27 @@ struct TodosOverviewView: View {
         sessionEntries.reduce(0) { $0 + $1.todos.count }
     }
 
+    private var filteredEntries: [TodoSessionEntry] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return sessionEntries }
+        return sessionEntries.filter { entry in
+            let titleMatch = sessionTitle(for: entry.sessionId).map {
+                HighlightedText.fuzzyMatch($0, query: q) != nil
+            } ?? false
+            let todoMatch = entry.todos.contains {
+                HighlightedText.fuzzyMatch($0.content, query: q) != nil
+            }
+            return titleMatch || todoMatch
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
+
+            if !sessionEntries.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
 
             if !isLoaded {
                 ConfigSkeletonView(layout: appState.configLayout(for: Self.screenID))
@@ -48,6 +72,12 @@ struct TodosOverviewView: View {
                     icon: "checklist",
                     message: "No TODOs found",
                     hint: "TODOs from Claude Code sessions will appear here"
+                )
+            } else if filteredEntries.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No TODOs match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 todoContent
@@ -72,6 +102,22 @@ struct TodosOverviewView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("The session transcript could not be found on disk. Would you like to delete these TODOs?")
+        }
+        .onAppear {
+            guard fileWatcher == nil else { return }
+            let todosPath = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent(".claude/todos").path
+            let watcher = FileWatcher {
+                Task {
+                    await loadTodos()
+                }
+            }
+            watcher.start(path: todosPath)
+            fileWatcher = watcher
+        }
+        .onDisappear {
+            fileWatcher?.stop()
+            fileWatcher = nil
         }
     }
 
@@ -151,7 +197,7 @@ struct TodosOverviewView: View {
 
     private var todoGrid: some View {
         ScrollView {
-            let visible = Array(sessionEntries.prefix(visibleCount).enumerated())
+            let visible = Array(filteredEntries.prefix(visibleCount).enumerated())
             let columns = balancedColumns(from: visible)
 
             HStack(alignment: .top, spacing: PoirotTheme.Spacing.lg) {
@@ -194,7 +240,7 @@ struct TodosOverviewView: View {
 
     private var todoList: some View {
         ScrollView {
-            let visible = Array(sessionEntries.prefix(visibleCount).enumerated())
+            let visible = Array(filteredEntries.prefix(visibleCount).enumerated())
 
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
                 ForEach(visible, id: \.element.id) { index, entry in
@@ -228,7 +274,7 @@ struct TodosOverviewView: View {
 
     private func loadMoreIfNeeded(at index: Int) {
         guard index >= visibleCount - 3,
-              visibleCount < sessionEntries.count
+              visibleCount < filteredEntries.count
         else { return }
         visibleCount += Self.pageSize
     }

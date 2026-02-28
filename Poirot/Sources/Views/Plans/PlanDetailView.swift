@@ -1,33 +1,8 @@
 @preconcurrency import MarkdownUI
 import SwiftUI
 
-struct ConfigItemDetailView<Badges: View>: View {
-    let title: String
-    let icon: String
-    let iconColor: Color
-    let markdownBody: String
-    let filePath: String?
-    let scope: ConfigScope?
-    @ViewBuilder
-    let badges: () -> Badges
-
-    init(
-        title: String,
-        icon: String,
-        iconColor: Color,
-        markdownBody: String,
-        filePath: String?,
-        scope: ConfigScope? = nil,
-        @ViewBuilder badges: @escaping () -> Badges
-    ) {
-        self.title = title
-        self.icon = icon
-        self.iconColor = iconColor
-        self.markdownBody = markdownBody
-        self.filePath = filePath
-        self.scope = scope
-        self.badges = badges
-    }
+struct PlanDetailView: View {
+    let plan: Plan
 
     @Environment(AppState.self)
     private var appState
@@ -55,16 +30,16 @@ struct ConfigItemDetailView<Badges: View>: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.md) {
-                Image(systemName: icon)
+                Image(systemName: "list.bullet.clipboard.fill")
                     .font(PoirotTheme.Typography.large)
-                    .foregroundStyle(iconColor)
+                    .foregroundStyle(PoirotTheme.Colors.teal)
                     .frame(width: 30, height: 30)
                     .background(
                         RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                            .fill(iconColor.opacity(0.15))
+                            .fill(PoirotTheme.Colors.teal.opacity(0.15))
                     )
 
-                Text(title)
+                Text(plan.name)
                     .font(PoirotTheme.Typography.subheading)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
@@ -72,10 +47,11 @@ struct ConfigItemDetailView<Badges: View>: View {
             }
 
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                if let scope {
-                    ConfigScopeBadge(scope: scope)
-                }
-                badges()
+                ConfigBadge(
+                    text: plan.fileURL.lastPathComponent,
+                    fg: PoirotTheme.Colors.teal,
+                    bg: PoirotTheme.Colors.teal.opacity(0.15)
+                )
             }
         }
         .padding(.horizontal, PoirotTheme.Spacing.lg)
@@ -95,7 +71,7 @@ struct ConfigItemDetailView<Badges: View>: View {
 
     @ViewBuilder
     private var content: some View {
-        if markdownBody.isEmpty {
+        if plan.content.isEmpty {
             VStack(spacing: PoirotTheme.Spacing.md) {
                 Image(systemName: "doc.text")
                     .font(PoirotTheme.Typography.heroTitle)
@@ -109,10 +85,10 @@ struct ConfigItemDetailView<Badges: View>: View {
             ScrollView {
                 Group {
                     if appState.configDetailFormatted {
-                        Markdown(markdownBody)
+                        Markdown(plan.content)
                             .markdownTheme(.poirot)
                     } else {
-                        Text(markdownBody)
+                        Text(plan.content)
                             .font(PoirotTheme.Typography.code)
                             .foregroundStyle(PoirotTheme.Colors.textSecondary)
                     }

@@ -8,6 +8,8 @@ struct MCPServersListView: View {
     private var isRevealed = false
     @State
     private var isLoaded = false
+    @State
+    private var filterQuery = ""
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -17,6 +19,15 @@ struct MCPServersListView: View {
 
     private var editor: PreferredEditor {
         PreferredEditor(rawValue: textEditor) ?? .vscode
+    }
+
+    private var filteredServers: [MCPServer] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return servers }
+        return servers.filter { server in
+            HighlightedText.fuzzyMatch(server.name, query: q) != nil
+                || server.tools.contains(where: { HighlightedText.fuzzyMatch($0, query: q) != nil })
+        }
     }
 
     var body: some View {
@@ -29,6 +40,10 @@ struct MCPServersListView: View {
                 showProjectPicker: true
             )
 
+            if !servers.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -38,6 +53,12 @@ struct MCPServersListView: View {
                     icon: "powerplug",
                     message: "No MCP servers configured",
                     hint: "~/.claude.json"
+                )
+            } else if filteredServers.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No servers match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 configContent
@@ -104,7 +125,7 @@ struct MCPServersListView: View {
     }
 
     private func serversForColumn(_ column: Int) -> [(offset: Int, element: MCPServer)] {
-        Array(servers.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredServers.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
@@ -113,7 +134,7 @@ struct MCPServersListView: View {
                 infoBanner
 
                 LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                    ForEach(Array(servers.enumerated()), id: \.element.id) { index, server in
+                    ForEach(Array(filteredServers.enumerated()), id: \.element.id) { index, server in
                         MCPServerCard(
                             server: server,
                             onOpenInEditor: { openServerInEditor(server) },

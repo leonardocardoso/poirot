@@ -11,6 +11,8 @@ struct OutputStylesListView: View {
     private var isLoaded = false
     @State
     private var selectedStyle: OutputStyle?
+    @State
+    private var filterQuery = ""
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -20,6 +22,15 @@ struct OutputStylesListView: View {
 
     private var editor: PreferredEditor {
         PreferredEditor(rawValue: textEditor) ?? .vscode
+    }
+
+    private var filteredStyles: [OutputStyle] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return styles }
+        return styles.filter { style in
+            HighlightedText.fuzzyMatch(style.name, query: q) != nil
+                || HighlightedText.fuzzyMatch(style.description, query: q) != nil
+        }
     }
 
     var body: some View {
@@ -93,6 +104,10 @@ struct OutputStylesListView: View {
                 showProjectPicker: true
             )
 
+            if !styles.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -102,6 +117,12 @@ struct OutputStylesListView: View {
                     icon: "speaker.wave.3",
                     message: "No output styles found",
                     hint: "~/.claude/output-styles/"
+                )
+            } else if filteredStyles.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No styles match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 configContent
@@ -164,13 +185,13 @@ struct OutputStylesListView: View {
     }
 
     private func stylesForColumn(_ column: Int) -> [(offset: Int, element: OutputStyle)] {
-        Array(styles.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredStyles.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                ForEach(Array(styles.enumerated()), id: \.element.id) { index, style in
+                ForEach(Array(filteredStyles.enumerated()), id: \.element.id) { index, style in
                     OutputStyleCard(style: style) {
                         selectStyle(style)
                     }

@@ -11,6 +11,8 @@ struct SkillsListView: View {
     private var isLoaded = false
     @State
     private var selectedSkill: ClaudeSkill?
+    @State
+    private var filterQuery = ""
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -20,6 +22,15 @@ struct SkillsListView: View {
 
     private var editor: PreferredEditor {
         PreferredEditor(rawValue: textEditor) ?? .vscode
+    }
+
+    private var filteredSkills: [ClaudeSkill] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return skills }
+        return skills.filter { skill in
+            HighlightedText.fuzzyMatch(skill.name, query: q) != nil
+                || HighlightedText.fuzzyMatch(skill.description, query: q) != nil
+        }
     }
 
     var body: some View {
@@ -95,6 +106,10 @@ struct SkillsListView: View {
                 showProjectPicker: true
             )
 
+            if !skills.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -104,6 +119,12 @@ struct SkillsListView: View {
                     icon: "bolt",
                     message: "No skills found",
                     hint: "~/.claude/skills/"
+                )
+            } else if filteredSkills.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No skills match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 configContent
@@ -166,13 +187,13 @@ struct SkillsListView: View {
     }
 
     private func skillsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeSkill)] {
-        Array(skills.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredSkills.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                ForEach(Array(skills.enumerated()), id: \.element.id) { index, skill in
+                ForEach(Array(filteredSkills.enumerated()), id: \.element.id) { index, skill in
                     SkillCard(skill: skill) {
                         selectSkill(skill)
                     }
