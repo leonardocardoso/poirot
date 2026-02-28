@@ -1,5 +1,5 @@
-import Foundation
 @testable import Poirot
+import Foundation
 import Testing
 
 @Suite("Plan")

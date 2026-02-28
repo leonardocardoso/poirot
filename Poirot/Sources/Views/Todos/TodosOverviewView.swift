@@ -46,15 +46,19 @@ struct TodosOverviewView: View {
     private var filteredEntries: [TodoSessionEntry] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return sessionEntries }
-        return sessionEntries.filter { entry in
-            let titleMatch = sessionTitle(for: entry.sessionId).map {
-                HighlightedText.fuzzyMatch($0, query: q) != nil
-            } ?? false
-            let todoMatch = entry.todos.contains {
-                HighlightedText.fuzzyMatch($0.content, query: q) != nil
+        return sessionEntries
+            .compactMap { entry -> (TodoSessionEntry, Int)? in
+                let titleScore = sessionTitle(for: entry.sessionId).flatMap {
+                    HighlightedText.fuzzyMatch($0, query: q)?.score
+                } ?? 0
+                let todoScore = entry.todos
+                    .compactMap { HighlightedText.fuzzyMatch($0.content, query: q)?.score }
+                    .max() ?? 0
+                let best = max(titleScore, todoScore)
+                return best > 0 ? (entry, best) : nil
             }
-            return titleMatch || todoMatch
-        }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -62,7 +66,15 @@ struct TodosOverviewView: View {
             header
 
             if !sessionEntries.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                HStack(spacing: 0) {
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    ConfigFilterField(searchQuery: $filterQuery)
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if !isLoaded {
@@ -99,7 +111,7 @@ struct TodosOverviewView: View {
                     deleteTodoEntry(for: sessionId)
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button("Cancel", role: .cancel) { }
         } message: {
             Text("The session transcript could not be found on disk. Would you like to delete these TODOs?")
         }
@@ -124,7 +136,8 @@ struct TodosOverviewView: View {
     // MARK: - Header
 
     private var header: some View {
-        let countText = "\(totalCount) \(totalCount == 1 ? "todo" : "todos") · \(sessionEntries.count) \(sessionEntries.count == 1 ? "session" : "sessions")"
+        let countText =
+            "\(totalCount) \(totalCount == 1 ? "todo" : "todos") · \(sessionEntries.count) \(sessionEntries.count == 1 ? "session" : "sessions")"
 
         return VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.md) {
@@ -214,10 +227,11 @@ struct TodosOverviewView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     /// Distributes entries across two columns, balancing by estimated card height.
@@ -252,10 +266,11 @@ struct TodosOverviewView: View {
                         )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     private func todoCard(entry: TodoSessionEntry, index: Int) -> some View {
@@ -263,6 +278,7 @@ struct TodosOverviewView: View {
             sessionId: entry.sessionId,
             sessionTitle: sessionTitle(for: entry.sessionId),
             todos: entry.todos,
+            filterQuery: filterQuery,
             isLoadingSession: loadingSessionId == entry.sessionId,
             isGoToDisabled: loadingSessionId != nil,
             onGoToSession: { navigateToSession(entry.sessionId) }
@@ -374,8 +390,7 @@ struct TodosOverviewView: View {
             let indexURL = dir.appendingPathComponent("sessions-index.json")
             if let data = try? Data(contentsOf: indexURL),
                let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let original = json["originalPath"] as? String
-            {
+               let original = json["originalPath"] as? String {
                 projectPath = original
             } else {
                 projectPath = "/" + dirName.replacingOccurrences(of: "-", with: "/")
@@ -428,6 +443,7 @@ private struct SessionTodoCard: View {
     let sessionId: String
     let sessionTitle: String?
     let todos: [SessionTodo]
+    var filterQuery: String = ""
     let isLoadingSession: Bool
     let isGoToDisabled: Bool
     let onGoToSession: () -> Void
@@ -476,7 +492,7 @@ private struct SessionTodoCard: View {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(PoirotTheme.Colors.accent)
 
-                Text(sessionTitle ?? sessionId)
+                Text(HighlightedText.fuzzyAttributedString(sessionTitle ?? sessionId, query: filterQuery))
                     .font(PoirotTheme.Typography.smallBold)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(1)
@@ -584,7 +600,7 @@ private struct SessionTodoCard: View {
             statusIcon(for: todo.status)
 
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-                Text(todo.content)
+                Text(HighlightedText.fuzzyAttributedString(todo.content, query: filterQuery))
                     .font(PoirotTheme.Typography.caption)
                     .foregroundStyle(
                         todo.status == .completed

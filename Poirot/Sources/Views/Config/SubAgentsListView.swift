@@ -13,10 +13,16 @@ struct SubAgentsListView: View {
     private var filteredAgents: [SubAgent] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return SubAgent.builtIn }
-        return SubAgent.builtIn.filter { agent in
-            HighlightedText.fuzzyMatch(agent.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(agent.description, query: q) != nil
-        }
+        return SubAgent.builtIn
+            .compactMap { agent -> (SubAgent, Int)? in
+                let best = max(
+                    HighlightedText.fuzzyMatch(agent.name, query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(agent.description, query: q)?.score ?? 0
+                )
+                return best > 0 ? (agent, best) : nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -30,6 +36,8 @@ struct SubAgentsListView: View {
 
             if !SubAgent.builtIn.isEmpty {
                 ConfigFilterField(searchQuery: $filterQuery)
+                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if filteredAgents.isEmpty, !filterQuery.isEmpty {
@@ -70,7 +78,7 @@ struct SubAgentsListView: View {
                     ForEach(0 ..< 2, id: \.self) { column in
                         LazyVStack(spacing: PoirotTheme.Spacing.lg) {
                             ForEach(agentsForColumn(column), id: \.element.id) { index, agent in
-                                SubAgentCard(agent: agent)
+                                SubAgentCard(agent: agent, filterQuery: filterQuery)
                                     .shimmerReveal(
                                         isRevealed: isRevealed,
                                         delay: Double(min(index, 7)) * 0.04,
@@ -80,11 +88,12 @@ struct SubAgentsListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.never)
     }
 
     private func agentsForColumn(_ column: Int) -> [(offset: Int, element: SubAgent)] {
@@ -106,11 +115,12 @@ struct SubAgentsListView: View {
                             )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.never)
     }
 
     private var infoBanner: some View {
@@ -133,7 +143,7 @@ struct SubAgentsListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -143,6 +153,7 @@ struct SubAgentsListView: View {
 
 private struct SubAgentCard: View {
     let agent: SubAgent
+    var filterQuery: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
@@ -156,12 +167,12 @@ private struct SubAgentCard: View {
                             .fill(PoirotTheme.Colors.orange.opacity(0.15))
                     )
 
-                Text(agent.name)
+                Text(HighlightedText.fuzzyAttributedString(agent.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
             }
 
-            Text(agent.description)
+            Text(HighlightedText.fuzzyAttributedString(agent.description, query: filterQuery))
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
                 .lineLimit(2)

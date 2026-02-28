@@ -32,7 +32,5 @@ struct ConfigFilterField: View {
             RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
                 .fill(PoirotTheme.Colors.bgCard)
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.top, PoirotTheme.Spacing.sm)
     }
 }

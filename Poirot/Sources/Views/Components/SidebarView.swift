@@ -449,7 +449,11 @@ private struct SessionRow: View {
         } label: {
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
-                    MarqueeText(text: session.title, font: PoirotTheme.Typography.caption, highlightQuery: highlightQuery)
+                    MarqueeText(
+                        text: session.title,
+                        font: PoirotTheme.Typography.caption,
+                        highlightQuery: highlightQuery
+                    )
 
                     Spacer()
 

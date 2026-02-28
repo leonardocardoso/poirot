@@ -18,9 +18,13 @@ struct ModelsListView: View {
     private var filteredModels: [String] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return provider.supportedModels }
-        return provider.supportedModels.filter {
-            HighlightedText.fuzzyMatch($0, query: q) != nil
-        }
+        return provider.supportedModels
+            .compactMap { model -> (String, Int)? in
+                guard let m = HighlightedText.fuzzyMatch(model, query: q) else { return nil }
+                return (model, m.score)
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -29,12 +33,11 @@ struct ModelsListView: View {
                 item: item,
                 dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")",
                 screenID: item.id,
-                showLayoutToggle: true,
-                showProjectPicker: true
+                showLayoutToggle: true
             )
 
             if !provider.supportedModels.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                configToolbar
             }
 
             if filteredModels.isEmpty, !filterQuery.isEmpty {
@@ -62,6 +65,22 @@ struct ModelsListView: View {
         }
     }
 
+    private var configToolbar: some View {
+        HStack(spacing: 0) {
+            Spacer()
+                .frame(maxWidth: .infinity)
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                ConfigFilterField(searchQuery: $filterQuery)
+                    .frame(maxWidth: .infinity)
+                ConfigProjectPicker()
+                    .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
     @ViewBuilder
     private var configContent: some View {
         if appState.configLayout(for: item.id) == .grid {
@@ -82,6 +101,7 @@ struct ModelsListView: View {
                             ForEach(modelsForColumn(column), id: \.element) { index, model in
                                 ModelCard(
                                     name: model,
+                                    filterQuery: filterQuery,
                                     isDefault: model == (currentDefault ?? provider.defaultModelName),
                                     isProjectDefault: model == projectModel,
                                     hasProject: appState.configProjectPath != nil,
@@ -98,11 +118,12 @@ struct ModelsListView: View {
                         }
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.never)
     }
 
     private func modelsForColumn(_ column: Int) -> [(offset: Int, element: String)] {
@@ -132,11 +153,12 @@ struct ModelsListView: View {
                         )
                     }
                 }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.top, PoirotTheme.Spacing.lg)
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
+        .scrollIndicators(.never)
     }
 
     private var infoBanner: some View {
@@ -162,7 +184,7 @@ struct ModelsListView: View {
                         .strokeBorder(PoirotTheme.Colors.blue.opacity(0.1))
                 )
         )
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
         .padding(.top, PoirotTheme.Spacing.lg)
         .padding(.bottom, PoirotTheme.Spacing.sm)
     }
@@ -221,6 +243,7 @@ struct ModelsListView: View {
 
 private struct ModelCard: View {
     let name: String
+    var filterQuery: String = ""
     let isDefault: Bool
     let isProjectDefault: Bool
     let hasProject: Bool
@@ -259,7 +282,7 @@ private struct ModelCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Text(name)
+                Text(HighlightedText.fuzzyAttributedString(name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 

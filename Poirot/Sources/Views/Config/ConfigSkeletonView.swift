@@ -27,10 +27,11 @@ struct ConfigSkeletonView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     private var listSkeleton: some View {
@@ -40,10 +41,11 @@ struct ConfigSkeletonView: View {
                     skeletonCard(delay: Double(index) * 0.05)
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     private func skeletonCard(delay: Double) -> some View {

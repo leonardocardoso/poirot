@@ -22,10 +22,14 @@ struct PlansListView: View {
     private var filteredPlans: [Plan] {
         let q = filterQuery.trimmingCharacters(in: .whitespaces)
         guard !q.isEmpty else { return plans }
-        return plans.filter { plan in
-            HighlightedText.fuzzyMatch(plan.name, query: q) != nil
-                || HighlightedText.fuzzyMatch(String(plan.content.prefix(200)), query: q) != nil
-        }
+        return plans
+            .compactMap { plan -> (Plan, Int)? in
+                if let m = HighlightedText.fuzzyMatch(plan.name, query: q) { return (plan, m.score) }
+                if plan.content.localizedCaseInsensitiveContains(q) { return (plan, 1) }
+                return nil
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
     }
 
     var body: some View {
@@ -73,7 +77,15 @@ struct PlansListView: View {
             )
 
             if !plans.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
+                HStack(spacing: 0) {
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    ConfigFilterField(searchQuery: $filterQuery)
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if !isLoaded {
@@ -145,6 +157,7 @@ struct PlansListView: View {
                         ForEach(plansForColumn(column), id: \.element.id) { index, plan in
                             PlanCard(
                                 plan: plan,
+                                filterQuery: filterQuery,
                                 onTap: { selectPlan(plan) },
                                 onDelete: { deletePlan(plan) }
                             )
@@ -157,10 +170,11 @@ struct PlansListView: View {
                     }
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     private func plansForColumn(_ column: Int) -> [(offset: Int, element: Plan)] {
@@ -183,10 +197,11 @@ struct PlansListView: View {
                     )
                 }
             }
-            .padding(.horizontal, PoirotTheme.Spacing.xxl)
+            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
+        .scrollIndicators(.never)
     }
 
     private func selectPlan(_ plan: Plan) {
@@ -226,6 +241,7 @@ struct PlansListView: View {
 
 private struct PlanCard: View {
     let plan: Plan
+    var filterQuery: String = ""
     let onTap: () -> Void
     let onDelete: () -> Void
     @State
@@ -248,12 +264,12 @@ private struct PlanCard: View {
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(plan.name)
+                Text(HighlightedText.fuzzyAttributedString(plan.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 if !snippet.isEmpty {
-                    Text(snippet)
+                    Text(HighlightedText.fuzzyAttributedString(snippet, query: filterQuery))
                         .font(PoirotTheme.Typography.caption)
                         .foregroundStyle(PoirotTheme.Colors.textSecondary)
                         .lineLimit(2)
