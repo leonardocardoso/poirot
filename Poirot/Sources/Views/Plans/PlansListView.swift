@@ -168,7 +168,7 @@ struct PlansListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func plansForColumn(_ column: Int) -> [(offset: Int, element: Plan)] {
@@ -195,7 +195,7 @@ struct PlansListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func selectPlan(_ plan: Plan) {

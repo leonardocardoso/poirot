@@ -143,7 +143,7 @@ struct MCPServersListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func serversForColumn(_ column: Int) -> [(offset: Int, element: MCPServer)] {
@@ -175,7 +175,7 @@ struct MCPServersListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private var infoBanner: some View {

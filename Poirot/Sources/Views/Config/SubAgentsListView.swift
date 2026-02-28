@@ -93,7 +93,7 @@ struct SubAgentsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func agentsForColumn(_ column: Int) -> [(offset: Int, element: SubAgent)] {
@@ -120,7 +120,7 @@ struct SubAgentsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private var infoBanner: some View {

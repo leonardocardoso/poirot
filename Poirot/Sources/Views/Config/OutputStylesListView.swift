@@ -203,7 +203,7 @@ struct OutputStylesListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func stylesForColumn(_ column: Int) -> [(offset: Int, element: OutputStyle)] {
@@ -228,7 +228,7 @@ struct OutputStylesListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func selectStyle(_ style: OutputStyle) {

@@ -31,7 +31,7 @@ struct ConfigSkeletonView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private var listSkeleton: some View {
@@ -45,7 +45,7 @@ struct ConfigSkeletonView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func skeletonCard(delay: Double) -> some View {

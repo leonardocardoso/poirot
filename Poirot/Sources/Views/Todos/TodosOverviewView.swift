@@ -225,7 +225,7 @@ struct TodosOverviewView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     /// Distributes entries across two columns, balancing by estimated card height.
@@ -264,7 +264,7 @@ struct TodosOverviewView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func todoCard(entry: TodoSessionEntry, index: Int) -> some View {

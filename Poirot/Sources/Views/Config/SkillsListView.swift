@@ -205,7 +205,7 @@ struct SkillsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func skillsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeSkill)] {
@@ -230,7 +230,7 @@ struct SkillsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func selectSkill(_ skill: ClaudeSkill) {

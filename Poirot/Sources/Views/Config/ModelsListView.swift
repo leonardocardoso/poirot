@@ -123,7 +123,7 @@ struct ModelsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func modelsForColumn(_ column: Int) -> [(offset: Int, element: String)] {
@@ -158,7 +158,7 @@ struct ModelsListView: View {
                 .padding(.bottom, PoirotTheme.Spacing.xxl)
             }
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private var infoBanner: some View {

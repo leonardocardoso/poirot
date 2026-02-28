@@ -217,7 +217,7 @@ struct CommandsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func commandsForColumn(_ column: Int) -> [(offset: Int, element: ClaudeCommand)] {
@@ -242,7 +242,7 @@ struct CommandsListView: View {
             .padding(.top, PoirotTheme.Spacing.lg)
             .padding(.bottom, PoirotTheme.Spacing.xxl)
         }
-        .scrollIndicators(.hidden)
+        .scrollIndicators(.never)
     }
 
     private func selectCommand(_ command: ClaudeCommand) {
