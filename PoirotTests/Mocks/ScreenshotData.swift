@@ -1526,4 +1526,56 @@ enum ScreenshotData {
         }
     }
     """
+
+    // MARK: - Plans Mock Data
+
+    static let plans: [Plan] = [
+        Plan(
+            id: "plans-browser-enhancement",
+            name: "Plans Browser Enhancement",
+            content: """
+            # Plans Browser Enhancement
+
+            ## Context
+            Enhance Plans to be a first-class feature with delete, markdown/raw toggle, per-card actions, \
+            universal search integration, and local filter bars.
+
+            ## Steps
+            1. Enhance PlanDetailView with markdown/raw toggle
+            2. Add delete button on PlanCard
+            3. Add copy button on PlanCard
+            4. Add Plans to Universal Search
+            """,
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/plans-browser-enhancement.md")
+        ),
+        Plan(
+            id: "authentication-redesign",
+            name: "Authentication Redesign",
+            content: """
+            # Authentication Redesign
+
+            ## Overview
+            Migrate from session-based auth to JWT tokens with refresh token rotation.
+
+            ## Architecture
+            - Access tokens: 15min TTL
+            - Refresh tokens: 7 day TTL with rotation
+            - Token storage: Keychain on iOS, HttpOnly cookies on web
+            """,
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/authentication-redesign.md")
+        ),
+        Plan(
+            id: "performance-optimization",
+            name: "Performance Optimization",
+            content: """
+            # Performance Optimization Plan
+
+            ## Targets
+            - Reduce cold start time by 40%
+            - Improve scroll performance in session list
+            - Lazy load transcript blocks
+            """,
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/performance-optimization.md")
+        ),
+    ]
 }

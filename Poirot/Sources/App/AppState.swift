@@ -192,6 +192,7 @@ final class AppState {
     }
 
     var activeConfigDetail: ConfigDetailInfo?
+    var configDetailFormatted: Bool = true
     var configAddTrigger = UUID()
     var sidebarCounts: [String: Int] = [:]
 

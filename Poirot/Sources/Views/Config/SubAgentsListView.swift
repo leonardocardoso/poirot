@@ -4,9 +4,20 @@ struct SubAgentsListView: View {
     let item: ConfigurationItem
     @State
     private var isRevealed = false
+    @State
+    private var filterQuery = ""
 
     @Environment(AppState.self)
     private var appState
+
+    private var filteredAgents: [SubAgent] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return SubAgent.builtIn }
+        return SubAgent.builtIn.filter { agent in
+            HighlightedText.fuzzyMatch(agent.name, query: q) != nil
+                || HighlightedText.fuzzyMatch(agent.description, query: q) != nil
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,7 +28,19 @@ struct SubAgentsListView: View {
                 showLayoutToggle: true
             )
 
-            configContent
+            if !SubAgent.builtIn.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
+            if filteredAgents.isEmpty, !filterQuery.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No agents match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
+                )
+            } else {
+                configContent
+            }
         }
         .background(PoirotTheme.Colors.bgApp)
         .task {
@@ -65,7 +88,7 @@ struct SubAgentsListView: View {
     }
 
     private func agentsForColumn(_ column: Int) -> [(offset: Int, element: SubAgent)] {
-        Array(SubAgent.builtIn.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredAgents.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
@@ -74,7 +97,7 @@ struct SubAgentsListView: View {
                 infoBanner
 
                 LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                    ForEach(Array(SubAgent.builtIn.enumerated()), id: \.element.id) { index, agent in
+                    ForEach(Array(filteredAgents.enumerated()), id: \.element.id) { index, agent in
                         SubAgentCard(agent: agent)
                             .shimmerReveal(
                                 isRevealed: isRevealed,

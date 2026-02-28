@@ -8,9 +8,20 @@ struct PluginsListView: View {
     private var isRevealed = false
     @State
     private var isLoaded = false
+    @State
+    private var filterQuery = ""
 
     @Environment(AppState.self)
     private var appState
+
+    private var filteredPlugins: [ClaudePlugin] {
+        let q = filterQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return plugins }
+        return plugins.filter { plugin in
+            HighlightedText.fuzzyMatch(plugin.name, query: q) != nil
+                || HighlightedText.fuzzyMatch(plugin.author, query: q) != nil
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +32,10 @@ struct PluginsListView: View {
                 showLayoutToggle: true
             )
 
+            if !plugins.isEmpty {
+                ConfigFilterField(searchQuery: $filterQuery)
+            }
+
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -30,6 +45,12 @@ struct PluginsListView: View {
                     icon: "puzzlepiece",
                     message: "No plugins installed",
                     hint: "~/.claude/plugins/"
+                )
+            } else if filteredPlugins.isEmpty {
+                ConfigEmptyState(
+                    icon: "magnifyingglass",
+                    message: "No plugins match \"\(filterQuery)\"",
+                    hint: "Try a different search term"
                 )
             } else {
                 configContent
@@ -92,7 +113,7 @@ struct PluginsListView: View {
     }
 
     private func pluginsForColumn(_ column: Int) -> [(offset: Int, element: ClaudePlugin)] {
-        Array(plugins.enumerated()).filter { $0.offset % 2 == column }
+        Array(filteredPlugins.enumerated()).filter { $0.offset % 2 == column }
     }
 
     private var configList: some View {
@@ -101,7 +122,7 @@ struct PluginsListView: View {
                 infoBanner
 
                 LazyVStack(spacing: PoirotTheme.Spacing.md) {
-                    ForEach(Array(plugins.enumerated()), id: \.element.id) { index, plugin in
+                    ForEach(Array(filteredPlugins.enumerated()), id: \.element.id) { index, plugin in
                         PluginCard(
                             plugin: plugin,
                             onToggle: { togglePlugin(plugin) },

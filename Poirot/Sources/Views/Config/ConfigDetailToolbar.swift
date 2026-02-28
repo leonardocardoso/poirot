@@ -17,12 +17,30 @@ struct ConfigToolbarActions: View {
     private var copyContentTapped = false
     @State
     private var revealTapped = false
+    @State
+    private var formatTapped = false
 
     private var editor: PreferredEditor {
         PreferredEditor(rawValue: textEditor) ?? .vscode
     }
 
     var body: some View {
+        if appState.activeConfigDetail != nil {
+            @Bindable
+            var state = appState
+
+            Button {
+                state.configDetailFormatted.toggle()
+                formatTapped = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { formatTapped = false }
+            } label: {
+                Image(systemName: state.configDetailFormatted ? "doc.plaintext" : "text.document")
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            .help(state.configDetailFormatted ? "Show Raw" : "Show Formatted")
+            .animation(.easeInOut(duration: 0.2), value: formatTapped)
+        }
+
         if let info = appState.activeConfigDetail {
             Button {
                 EditorLauncher.open(filePath: info.filePath, editor: editor)

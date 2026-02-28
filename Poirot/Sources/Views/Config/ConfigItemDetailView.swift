@@ -29,6 +29,9 @@ struct ConfigItemDetailView<Badges: View>: View {
         self.badges = badges
     }
 
+    @Environment(AppState.self)
+    private var appState
+
     @State
     private var isRevealed = false
 
@@ -104,14 +107,22 @@ struct ConfigItemDetailView<Badges: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
-                Markdown(markdownBody)
-                    .markdownTheme(.poirot)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                    .padding(.vertical, PoirotTheme.Spacing.xl)
-                    .opacity(isRevealed ? 1 : 0)
-                    .animation(.easeOut(duration: 0.35), value: isRevealed)
+                Group {
+                    if appState.configDetailFormatted {
+                        Markdown(markdownBody)
+                            .markdownTheme(.poirot)
+                    } else {
+                        Text(markdownBody)
+                            .font(PoirotTheme.Typography.code)
+                            .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                    }
+                }
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                .padding(.vertical, PoirotTheme.Spacing.xl)
+                .opacity(isRevealed ? 1 : 0)
+                .animation(.easeOut(duration: 0.35), value: isRevealed)
             }
         }
     }
