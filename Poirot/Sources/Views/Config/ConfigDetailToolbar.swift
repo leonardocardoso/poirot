@@ -116,6 +116,10 @@ struct ConfigToolbarDelete: View {
             ) {
                 Button("Delete", role: .destructive) {
                     if ClaudeConfigLoader.deleteConfigFile(at: info.filePath) {
+                        let navID = appState.selectedNav.id
+                        if let current = appState.sidebarCounts[navID], current > 0 {
+                            appState.sidebarCounts[navID] = current - 1
+                        }
                         appState.showToast("Deleted \(info.name)", icon: "trash", style: .info)
                         appState.activeConfigDetail = nil
                     }
