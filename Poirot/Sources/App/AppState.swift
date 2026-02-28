@@ -48,6 +48,7 @@ struct ConfigDetailInfo: Equatable {
 
 enum NavigationEntry: Equatable {
     case session(Session)
+    case configList(navItemID: String)
     case configDetail(navItemID: String, detail: ConfigDetailInfo)
 }
 
@@ -149,6 +150,12 @@ final class AppState {
         if navigationHistoryIndex < navigationHistory.count - 1 {
             navigationHistory.removeSubrange((navigationHistoryIndex + 1)...)
         }
+        // Push a list entry first so the back button has somewhere to go
+        let currentEntry = navigationHistoryIndex >= 0 ? navigationHistory[navigationHistoryIndex] : nil
+        if currentEntry != .configList(navItemID: navItemID) {
+            navigationHistory.append(.configList(navItemID: navItemID))
+            navigationHistoryIndex = navigationHistory.count - 1
+        }
         let entry = NavigationEntry.configDetail(navItemID: navItemID, detail: detail)
         navigationHistory.append(entry)
         navigationHistoryIndex = navigationHistory.count - 1
@@ -160,6 +167,12 @@ final class AppState {
             selectedNav = .sessions
             activeConfigDetail = nil
             selectedSession = session
+        case let .configList(navItemID):
+            if let navItem = NavigationItem.allItems.first(where: { $0.id == navItemID }) {
+                selectedNav = navItem
+            }
+            selectedSession = nil
+            activeConfigDetail = nil
         case let .configDetail(navItemID, detail):
             if let navItem = NavigationItem.allItems.first(where: { $0.id == navItemID }) {
                 selectedNav = navItem
