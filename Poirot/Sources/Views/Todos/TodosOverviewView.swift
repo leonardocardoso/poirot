@@ -66,9 +66,15 @@ struct TodosOverviewView: View {
             header
 
             if !sessionEntries.isEmpty {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                    .padding(.vertical, PoirotTheme.Spacing.sm)
+                HStack(spacing: 0) {
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    Spacer().frame(maxWidth: .infinity)
+                    ConfigFilterField(searchQuery: $filterQuery)
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
             }
 
             if !isLoaded {
