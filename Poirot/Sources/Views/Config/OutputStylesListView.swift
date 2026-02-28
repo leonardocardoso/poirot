@@ -161,9 +161,9 @@ struct OutputStylesListView: View {
             Spacer()
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
                 ConfigProjectPicker()
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                ConfigFilterField(searchQuery: $filterQuery)
                     .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
@@ -214,7 +214,7 @@ struct OutputStylesListView: View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
                 ForEach(Array(filteredStyles.enumerated()), id: \.element.id) { index, style in
-                    OutputStyleCard(style: style) {
+                    OutputStyleCard(style: style, filterQuery: filterQuery) {
                         selectStyle(style)
                     }
                     .shimmerReveal(

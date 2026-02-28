@@ -175,9 +175,9 @@ struct CommandsListView: View {
             Spacer()
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
                 ConfigProjectPicker()
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                ConfigFilterField(searchQuery: $filterQuery)
                     .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
@@ -228,7 +228,7 @@ struct CommandsListView: View {
         ScrollView {
             LazyVStack(spacing: PoirotTheme.Spacing.md) {
                 ForEach(Array(filteredCommands.enumerated()), id: \.element.id) { index, command in
-                    CommandCard(command: command) {
+                    CommandCard(command: command, filterQuery: filterQuery) {
                         selectCommand(command)
                     }
                     .shimmerReveal(
