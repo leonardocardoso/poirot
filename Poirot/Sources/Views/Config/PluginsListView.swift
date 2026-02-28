@@ -44,7 +44,7 @@ struct PluginsListView: View {
                     Spacer().frame(maxWidth: .infinity)
                     Spacer().frame(maxWidth: .infinity)
                     ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(maxWidth: .infinity)
+                        .frame(minWidth: 300, maxWidth: .infinity)
                 }
                 .padding(.horizontal, PoirotTheme.Spacing.xxxl)
                 .padding(.vertical, PoirotTheme.Spacing.sm)

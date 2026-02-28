@@ -176,9 +176,9 @@ struct CommandsListView: View {
                 .frame(maxWidth: .infinity)
             HStack(spacing: PoirotTheme.Spacing.sm) {
                 ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 300, maxWidth: .infinity)
                 ConfigProjectPicker()
-                    .frame(maxWidth: .infinity)
+                    .frame(minWidth: 300, maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
         }
