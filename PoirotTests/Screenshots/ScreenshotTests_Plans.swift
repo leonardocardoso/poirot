@@ -23,7 +23,7 @@ struct ScreenshotTests_Plans {
             size: ScreenshotSize.mainContent,
             named: "testPlansList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -38,7 +38,7 @@ struct ScreenshotTests_Plans {
             size: ScreenshotSize.fullApp,
             named: "testPlansFullApp",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 }

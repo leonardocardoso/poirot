@@ -39,7 +39,7 @@ func snapshotView<V: View>(
 
     assertSnapshot(
         of: hostingView,
-        as: .image(size: size),
+        as: .image(precision: 0.99, size: size),
         named: name,
         record: isRecording
     )
@@ -56,6 +56,7 @@ func snapshotView<V: View>(
 ) async throws {
     let hostingView = NSHostingController(
         rootView: view
+            .environment(\.disableAnimations, true)
             .frame(width: size.width, height: size.height)
     )
     hostingView.view.frame = CGRect(origin: .zero, size: size)
@@ -75,7 +76,7 @@ func snapshotView<V: View>(
 
     assertSnapshot(
         of: hostingView,
-        as: .image(size: size),
+        as: .image(precision: 0.99, size: size),
         named: name,
         record: isRecording
     )

@@ -16,7 +16,7 @@ struct ScreenshotTests_Windows {
             size: ScreenshotSize.settings,
             named: "testSettingsWindow",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 

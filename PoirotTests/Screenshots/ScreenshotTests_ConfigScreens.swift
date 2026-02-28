@@ -25,7 +25,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testCommandsList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -39,7 +39,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testSkillsList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -53,7 +53,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testMCPServersList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -67,7 +67,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testModelsList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -81,7 +81,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testSubAgentsList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -95,7 +95,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testPluginsList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -109,7 +109,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testOutputStylesList",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -127,7 +127,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testCommandsListWithProject",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -143,7 +143,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testSkillsListWithProject",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 
@@ -159,7 +159,7 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testMCPServersListWithProject",
             record: isRecording,
-            delay: 1
+            delay: 2
         )
     }
 

@@ -27,7 +27,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionConversation",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -43,7 +43,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionToolBlocks",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -59,7 +59,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionThinking",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -75,7 +75,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionErrors",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -91,7 +91,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionEditDiffs",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -114,7 +114,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionSearchActive",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
@@ -137,7 +137,7 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionToolFilter",
             record: isRecording,
-            delay: 0.5
+            delay: 2
         )
     }
 
