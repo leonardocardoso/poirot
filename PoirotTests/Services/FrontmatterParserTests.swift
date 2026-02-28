@@ -118,4 +118,45 @@ struct FrontmatterParserTests {
         #expect(result.metadata["key"] == "value")
         #expect(result.body.isEmpty)
     }
+
+    // MARK: - Block Scalar Folded (>)
+
+    @Test
+    func parse_foldedBlockScalar_joinsWithSpaces() {
+        let input = "---\nname: my-skill\ndescription: >\n  Multi-line description\n  goes here\n---\nBody"
+        let result = FrontmatterParser.parse(input)
+        #expect(result.metadata["name"] == "my-skill")
+        #expect(result.metadata["description"] == "Multi-line description goes here")
+        #expect(result.body == "Body")
+    }
+
+    // MARK: - Block Scalar Literal (|)
+
+    @Test
+    func parse_literalBlockScalar_joinsWithNewlines() {
+        let input = "---\nname: my-skill\ndescription: |\n  Line one\n  Line two\n---\nBody"
+        let result = FrontmatterParser.parse(input)
+        #expect(result.metadata["name"] == "my-skill")
+        #expect(result.metadata["description"] == "Line one\nLine two")
+    }
+
+    // MARK: - Block Scalar Followed By Another Key
+
+    @Test
+    func parse_blockScalarFollowedByKey_bothExtracted() {
+        let input = "---\ndescription: >\n  A long\n  description\nmodel: opus\n---\nBody"
+        let result = FrontmatterParser.parse(input)
+        #expect(result.metadata["description"] == "A long description")
+        #expect(result.metadata["model"] == "opus")
+    }
+
+    // MARK: - Block Scalar At End Of YAML
+
+    @Test
+    func parse_blockScalarAtEnd_extracted() {
+        let input = "---\nname: test\nallowed-tools: >\n  Bash, Read,\n  Glob, Grep\n---\nBody"
+        let result = FrontmatterParser.parse(input)
+        #expect(result.metadata["name"] == "test")
+        #expect(result.metadata["allowed-tools"] == "Bash, Read, Glob, Grep")
+    }
 }
