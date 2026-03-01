@@ -221,17 +221,7 @@ struct ContentView: View {
     private var toolbarContextual: some ToolbarContent { // swiftlint:disable:this attributes
         switch toolbarMode {
         case let .session(session):
-            ToolbarItemGroup(placement: .principal) {
-                Spacer()
-            }
-            ToolbarItemGroup(placement: .primaryAction) {
-                SessionToolbarActions(session: session)
-                expandCollapseButton
-                SessionToolbarFilter()
-                SessionToolbarSearch()
-                SessionToolbarDelete(session: session)
-                SessionToolbarClose()
-            }
+            SessionToolbar(session: session)
         case .configDetail:
             ToolbarItemGroup(placement: .principal) {
                 Spacer()
@@ -246,19 +236,6 @@ struct ContentView: View {
         }
     }
 
-    private var expandCollapseButton: some View {
-        Button {
-            appState.allBlocksExpanded.toggle()
-        } label: {
-            Image(
-                systemName: appState.allBlocksExpanded
-                    ? "arrow.down.right.and.arrow.up.left"
-                    : "arrow.up.left.and.arrow.down.right"
-            )
-            .contentTransition(.symbolEffect(.replace))
-        }
-        .help(appState.allBlocksExpanded ? "Collapse All" : "Expand All")
-    }
 
     // MARK: - Batch Loading
 
