@@ -171,6 +171,13 @@ Browse your entire Claude Code input history from `~/.claude/history.jsonl`. Pro
   <img src="assets/showcase/21-history.png" alt="Prompt History" width="720" />
 </p>
 
+### Debug Log Viewer
+Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Logs are lazily loaded with paginated fetching for smooth performance on large files. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
+
+<p align="center">
+  <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
+</p>
+
 ---
 
 ## Capabilities
