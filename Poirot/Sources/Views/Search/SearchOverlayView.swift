@@ -6,6 +6,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     case sessions
     case debugLogs
     case todos
+    case history
     case commands
     case skills
     case plans
@@ -20,6 +21,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: "SESSIONS"
         case .debugLogs: "DEBUG LOGS"
         case .todos: "TODOS"
+        case .history: "HISTORY"
         case .commands: "COMMANDS"
         case .skills: "SKILLS"
         case .plans: "PLANS"
@@ -36,6 +38,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: .sessions
         case .debugLogs: .sessions
         case .todos: .todos
+        case .history: .history
         case .commands: .commands
         case .skills: .skills
         case .plans: .plans
@@ -102,6 +105,8 @@ struct SearchOverlayView: View {
     private var todoEntries: [(sessionId: String, todos: [SessionTodo])] = []
     @State
     private var debugLogSessionIds: Set<String> = []
+    @State
+    private var historyEntries: [HistoryEntry] = []
 
     // MARK: - Search Logic
 
@@ -119,6 +124,7 @@ struct SearchOverlayView: View {
         buildSessionResults(q, into: &all)
         buildDebugLogResults(q, into: &all)
         buildTodoResults(q, into: &all)
+        buildHistoryResults(q, into: &all)
         buildCommandResults(q, into: &all)
         buildSkillResults(q, into: &all)
         buildPlanResults(q, into: &all)
@@ -333,6 +339,29 @@ struct SearchOverlayView: View {
                     action: .navigateTo(.todos)
                 ))
             }
+        }
+    }
+
+    // MARK: - History Search
+
+    private func buildHistoryResults(
+        _ q: String, into results: inout [SearchResult]
+    ) {
+        for entry in historyEntries {
+            let displayScore = matchScore(entry.display, q)
+            let projectScore = matchScore(entry.projectName, q)
+            let best = max(displayScore, projectScore)
+            guard best > 0 else { continue }
+            results.append(SearchResult(
+                id: "history-\(entry.id)",
+                category: .history,
+                icon: NavigationItem.history.systemImage,
+                title: entry.snippet,
+                subtitle: entry.projectName,
+                trailing: entry.timeAgo,
+                score: best,
+                action: .navigateTo(.history)
+            ))
         }
     }
 
@@ -564,7 +593,7 @@ struct SearchOverlayView: View {
                 )
 
             TextField(
-                "Search sessions, commands, plans...",
+                "Search sessions, history, commands, plans...",
                 text: $query
             )
             .textFieldStyle(.plain)
@@ -798,7 +827,8 @@ struct SearchOverlayView: View {
                 ClaudeConfigLoader.loadPlugins(),
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
                 TodoLoader().loadAllTodos(),
-                Set(DebugLogLoader().allSessionIds())
+                Set(DebugLogLoader().allSessionIds()),
+                HistoryLoader().loadAll()
             )
         }.value
         commands = result.0
@@ -811,6 +841,7 @@ struct SearchOverlayView: View {
         todoEntries = allTodos.filter { !$0.value.isEmpty }
             .map { (sessionId: $0.key, todos: $0.value) }
         debugLogSessionIds = result.7
+        historyEntries = result.8
     }
 }
 
