@@ -55,7 +55,7 @@ enum AnalyticsCSVExporter {
     // MARK: - Daily Tokens
 
     nonisolated private static func exportDailyTokens(_ stats: StatsCache) -> String {
-        let allModels = Set(stats.dailyModelTokens.flatMap { $0.tokensByModel.keys }).sorted()
+        let allModels = Set(stats.dailyModelTokens.flatMap(\.tokensByModel.keys)).sorted()
         let friendlyNames = allModels.map { StatsCache.friendlyModelName($0) }
         var csv = "Date," + friendlyNames.joined(separator: ",") + "\n"
         for day in stats.dailyModelTokens {
