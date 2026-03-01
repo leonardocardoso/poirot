@@ -63,6 +63,16 @@ POIROT is a native macOS SwiftUI companion app for Claude Code. It reads session
 - Add snapshot tests when pertinent for new UI components
 - Update README with new feature documentation when pertinent, including snapshots
 
+### New Feature Checklist
+Every new feature or view must follow these steps:
+1. Use existing patterns (list, gallery) for page content layout — do not invent new layout paradigms
+2. Use markdown rendering as pertinent (see Sessions and Plans sidebar items for examples)
+3. Add items to the universal search (⌘K)
+4. Watch for file changes in the feature's respective folder/file for live updates
+5. Include in navigation history if pertinent
+6. Move new screenshots to `assets/showcase/`
+7. Add new information to the `README.md` file
+
 ### Git & PRs
 - Never mention AI co-authoring in commits or PRs
 - Branch naming: `feature/description` or `feature/TICKET-description`
