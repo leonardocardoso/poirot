@@ -65,18 +65,6 @@ struct TodosOverviewView: View {
         VStack(spacing: 0) {
             header
 
-            if !sessionEntries.isEmpty {
-                HStack(spacing: 0) {
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(minWidth: 300, maxWidth: .infinity)
-                }
-                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                .padding(.vertical, PoirotTheme.Spacing.sm)
-            }
-
             if !isLoaded {
                 ConfigSkeletonView(layout: appState.configLayout(for: Self.screenID))
             } else if sessionEntries.isEmpty {
@@ -96,6 +84,13 @@ struct TodosOverviewView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar {
+            ConfigLayoutToolbar(
+                screenID: Self.screenID,
+                filterQuery: $filterQuery,
+                placeholder: "Find in TODOs\u{2026}"
+            )
+        }
         .task {
             await loadTodos()
         }
@@ -166,8 +161,6 @@ struct TodosOverviewView: View {
                 }
 
                 Spacer()
-
-                layoutToggle
             }
 
             Text("TODOs tracked across your Claude Code sessions")
@@ -181,20 +174,6 @@ struct TodosOverviewView: View {
         .overlay(alignment: .bottom) {
             Divider().opacity(0.3)
         }
-    }
-
-    private var layoutToggle: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                appState.toggleConfigLayout(for: Self.screenID)
-            }
-        } label: {
-            Image(systemName: appState.configLayout(for: Self.screenID) == .grid ? "list.bullet" : "square.grid.2x2")
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                .contentTransition(.symbolEffect(.replace))
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Content
@@ -362,7 +341,7 @@ struct TodosOverviewView: View {
         }
     }
 
-    private nonisolated static func findSessionOnDisk(
+    nonisolated private static func findSessionOnDisk(
         sessionId: String,
         projectsPath: String
     ) -> (projectId: String, session: Session)? {
@@ -493,9 +472,9 @@ private struct SessionTodoCard: View {
                     .foregroundStyle(PoirotTheme.Colors.accent)
 
                 Text(HighlightedText.fuzzyAttributedString(sessionTitle ?? sessionId, query: filterQuery))
-                    .font(PoirotTheme.Typography.smallBold)
+                    .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(3)
 
                 statusSummary
 

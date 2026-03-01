@@ -3,6 +3,7 @@ import SwiftUI
 struct ConfigFilterField: View {
     @Binding
     var searchQuery: String
+    var placeholder: String = "Filter\u{2026}"
 
     var body: some View {
         HStack(spacing: PoirotTheme.Spacing.sm) {
@@ -10,7 +11,7 @@ struct ConfigFilterField: View {
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textTertiary)
 
-            TextField("Filter\u{2026}", text: $searchQuery)
+            TextField(placeholder, text: $searchQuery)
                 .textFieldStyle(.plain)
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textPrimary)
@@ -28,9 +29,5 @@ struct ConfigFilterField: View {
         }
         .padding(.horizontal, PoirotTheme.Spacing.md)
         .padding(.vertical, PoirotTheme.Spacing.sm)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                .fill(PoirotTheme.Colors.bgCard)
-        )
     }
 }

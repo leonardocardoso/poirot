@@ -4,8 +4,18 @@ import Testing
 @Suite("NavigationItem")
 struct NavigationItemTests {
     @Test
-    func allItems_hasTenItems() {
-        #expect(NavigationItem.allItems.count == 10)
+    func allItems_hasElevenItems() {
+        #expect(NavigationItem.allItems.count == 11)
+    }
+
+    @Test
+    func analytics_hasNoRequiredCapability() {
+        #expect(NavigationItem.analytics.requiredCapability == nil)
+    }
+
+    @Test
+    func analytics_hasCorrectSystemImage() {
+        #expect(NavigationItem.analytics.systemImage == "chart.xyaxis.line")
     }
 
     @Test

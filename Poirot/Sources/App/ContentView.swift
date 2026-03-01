@@ -184,7 +184,6 @@ struct ContentView: View {
     private enum ToolbarMode {
         case session(Session)
         case configDetail
-        case configList
         case none
     }
 
@@ -196,8 +195,6 @@ struct ContentView: View {
         } else {
             if appState.activeConfigDetail != nil {
                 return .configDetail
-            } else if Self.addableConfigScreenIDs.contains(appState.selectedNav.id) {
-                return .configList
             }
         }
         return .none
@@ -243,18 +240,6 @@ struct ContentView: View {
                 ConfigToolbarActions()
                 ConfigToolbarDelete()
                 ConfigToolbarClose()
-            }
-        case .configList:
-            ToolbarItemGroup(placement: .principal) {
-                Spacer()
-            }
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    appState.configAddTrigger = UUID()
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .help("Create New")
             }
         case .none:
             ToolbarItem(placement: .automatic) { EmptyView() }
@@ -351,6 +336,8 @@ struct ContentView: View {
         case NavigationItem.todos.id:
             TodosOverviewView()
                 .transition(.opacity)
+        case NavigationItem.analytics.id:
+            AnalyticsDashboardView()
         default:
             if let configItem = provider.configurationItems
                 .first(where: { $0.id == appState.selectedNav.id }) {
@@ -385,12 +372,6 @@ struct ContentView: View {
             ConfigScreenHeader(item: item)
         }
     }
-
-    private static let addableConfigScreenIDs: Set<String> = [
-        NavigationItem.commands.id,
-        NavigationItem.skills.id,
-        NavigationItem.outputStyles.id,
-    ]
 }
 
 // MARK: - Keyboard Shortcut Helper

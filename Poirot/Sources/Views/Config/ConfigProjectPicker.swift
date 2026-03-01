@@ -47,10 +47,6 @@ struct ConfigProjectPicker: View {
         }
         .padding(.horizontal, PoirotTheme.Spacing.md)
         .padding(.vertical, PoirotTheme.Spacing.sm)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                .fill(PoirotTheme.Colors.bgCard)
-        )
     }
 
     private func browseForProject() {
