@@ -26,10 +26,10 @@ struct ContributionHeatmap: View {
         let totalSlots = adjustedFirstDay + totalDays + 1
         let weekCount = (totalSlots + 6) / 7
 
-        var result = Array(repeating: Array<HeatmapEntry?>(repeating: nil, count: 7), count: weekCount)
+        var result = Array(repeating: [HeatmapEntry?](repeating: nil, count: 7), count: weekCount)
         let lookup = Dictionary(uniqueKeysWithValues: sorted.map { ($0.dateString, $0) })
 
-        for dayOffset in 0...totalDays {
+        for dayOffset in 0 ... totalDays {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: firstDate) else { continue }
             let weekday = calendar.component(.weekday, from: date)
             let row = (weekday + 5) % 7 // Monday=0
@@ -52,7 +52,7 @@ struct ContributionHeatmap: View {
                 HStack(alignment: .top, spacing: 0) {
                     // Day labels
                     VStack(spacing: cellSpacing) {
-                        ForEach(0..<7, id: \.self) { row in
+                        ForEach(0 ..< 7, id: \.self) { row in
                             Text(dayLabels[row])
                                 .font(PoirotTheme.Typography.pico)
                                 .foregroundStyle(PoirotTheme.Colors.textTertiary)
@@ -63,9 +63,9 @@ struct ContributionHeatmap: View {
 
                     // Grid
                     HStack(spacing: cellSpacing) {
-                        ForEach(0..<grid.count, id: \.self) { week in
+                        ForEach(0 ..< grid.count, id: \.self) { week in
                             VStack(spacing: cellSpacing) {
-                                ForEach(0..<7, id: \.self) { day in
+                                ForEach(0 ..< 7, id: \.self) { day in
                                     cellView(for: grid[week][day])
                                 }
                             }
@@ -130,11 +130,11 @@ struct ContributionHeatmap: View {
         }
         let ratio = Double(messages) / Double(maxMessages)
         switch ratio {
-        case 0..<0.25:
+        case 0 ..< 0.25:
             return PoirotTheme.Colors.accent.opacity(0.2)
-        case 0.25..<0.5:
+        case 0.25 ..< 0.5:
             return PoirotTheme.Colors.accent.opacity(0.4)
-        case 0.5..<0.75:
+        case 0.5 ..< 0.75:
             return PoirotTheme.Colors.accent.opacity(0.65)
         default:
             return PoirotTheme.Colors.accent
