@@ -136,6 +136,7 @@ attributes:
         - "@MainActor"
         - "@State"
         - "@ViewBuilder"
+        - "@ToolbarContentBuilder"
 
 closure_body_length:
     warning: 150

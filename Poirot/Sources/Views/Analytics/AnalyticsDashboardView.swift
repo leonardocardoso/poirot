@@ -211,41 +211,41 @@ struct AnalyticsDashboardView: View {
                 VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxl) {
                     summaryCards(stats)
 
-                DailyActivityChart(
-                    dailyActivity: viewModel.filteredDailyActivity,
-                    selectedDate: $dailySelectedDate
-                )
-
-                HourlyActivityChart(hourCounts: stats.sortedHourCounts)
-
-                ContributionHeatmap(entries: viewModel.heatmapData)
-
-                TokenUsageOverTimeChart(
-                    data: viewModel.tokenTimeSeriesData,
-                    selectedDate: $tokenSelectedDate
-                )
-
-                ToolCallsOverTimeChart(
-                    dailyActivity: viewModel.filteredDailyActivity,
-                    selectedDate: $toolCallSelectedDate
-                )
-
-                HStack(alignment: .top, spacing: PoirotTheme.Spacing.lg) {
-                    ModelUsageChart(
-                        modelUsage: stats.modelUsage,
-                        selectedAngle: $modelSelectedAngle
+                    DailyActivityChart(
+                        dailyActivity: viewModel.filteredDailyActivity,
+                        selectedDate: $dailySelectedDate
                     )
-                    .frame(maxHeight: .infinity)
 
-                    CostBreakdownView(
-                        entries: viewModel.costBreakdownEntries,
-                        totalCost: viewModel.totalCost
+                    HourlyActivityChart(hourCounts: stats.sortedHourCounts)
+
+                    ContributionHeatmap(entries: viewModel.heatmapData)
+
+                    TokenUsageOverTimeChart(
+                        data: viewModel.tokenTimeSeriesData,
+                        selectedDate: $tokenSelectedDate
                     )
-                    .frame(maxHeight: .infinity)
+
+                    ToolCallsOverTimeChart(
+                        dailyActivity: viewModel.filteredDailyActivity,
+                        selectedDate: $toolCallSelectedDate
+                    )
+
+                    HStack(alignment: .top, spacing: PoirotTheme.Spacing.lg) {
+                        ModelUsageChart(
+                            modelUsage: stats.modelUsage,
+                            selectedAngle: $modelSelectedAngle
+                        )
+                        .frame(maxHeight: .infinity)
+
+                        CostBreakdownView(
+                            entries: viewModel.costBreakdownEntries,
+                            totalCost: viewModel.totalCost
+                        )
+                        .frame(maxHeight: .infinity)
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
                 }
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(PoirotTheme.Spacing.xxl)
+                .padding(PoirotTheme.Spacing.xxl)
             }
         }
     }
@@ -280,14 +280,16 @@ struct AnalyticsDashboardView: View {
                             )
 
                         if case let .custom(start, end) = viewModel.selectedDateRange {
-                            Text("\(AnalyticsFormatters.formatShortDate(start)) — \(AnalyticsFormatters.formatShortDate(end))")
-                                .font(PoirotTheme.Typography.tiny)
-                                .foregroundStyle(PoirotTheme.Colors.accent)
-                                .padding(.horizontal, PoirotTheme.Spacing.sm)
-                                .padding(.vertical, PoirotTheme.Spacing.xxs)
-                                .background(
-                                    Capsule().fill(PoirotTheme.Colors.accentDim)
-                                )
+                            Text(
+                                "\(AnalyticsFormatters.formatShortDate(start)) — \(AnalyticsFormatters.formatShortDate(end))"
+                            )
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.accent)
+                            .padding(.horizontal, PoirotTheme.Spacing.sm)
+                            .padding(.vertical, PoirotTheme.Spacing.xxs)
+                            .background(
+                                Capsule().fill(PoirotTheme.Colors.accentDim)
+                            )
                         }
                     }
                 }
@@ -357,6 +359,7 @@ struct AnalyticsDashboardView: View {
                 dimmed: !viewModel.hasCostData,
                 info: viewModel
                     .hasCostData ? nil :
+                    // swiftlint:disable:next line_length
                     "API users see per-model costs here. Subscription plans (Max, Pro) include usage at no extra charge."
             )
             .frame(height: cardRowHeight)

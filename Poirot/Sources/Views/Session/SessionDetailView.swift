@@ -163,9 +163,11 @@ struct SessionDetailView: View {
                 Spacer()
             }
 
-            Text("\(session.projectName) · \(session.timeAgo) · \(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")")
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+            Text(
+                "\(session.projectName) · \(session.timeAgo) · \(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")"
+            )
+            .font(PoirotTheme.Typography.caption)
+            .foregroundStyle(PoirotTheme.Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, PoirotTheme.Spacing.xxxl)
