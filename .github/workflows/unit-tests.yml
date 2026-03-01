@@ -141,6 +141,7 @@ jobs:
           -resultBundlePath TestResults/Poirot.xcresult \
           -skip-testing PoirotTests/ScreenshotTests_Analytics \
           -skip-testing PoirotTests/ScreenshotTests_ConfigScreens \
+          -skip-testing PoirotTests/ScreenshotTests_DebugLog \
           -skip-testing PoirotTests/ScreenshotTests_EditDiff \
           -skip-testing PoirotTests/ScreenshotTests_FullViews \
           -skip-testing PoirotTests/ScreenshotTests_Plans \
