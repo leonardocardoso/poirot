@@ -79,6 +79,15 @@ struct ClaudeCodeProvider: ProviderDescribing {
             requiredCapability: .subAgents
         ),
         ConfigurationItem(
+            id: "memory",
+            icon: "brain.head.profile.fill",
+            iconColor: PoirotTheme.Colors.purple,
+            title: String(localized: "Memory"),
+            count: String(localized: "Per-project"),
+            description: String(localized: "Auto-memory files that Claude loads into every conversation"),
+            requiredCapability: .memory
+        ),
+        ConfigurationItem(
             id: "plugins",
             icon: "puzzlepiece.fill",
             iconColor: PoirotTheme.Colors.teal,

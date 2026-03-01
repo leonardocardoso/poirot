@@ -415,6 +415,80 @@ enum ClaudeConfigLoader {
             }
     }
 
+    // MARK: - Memory Files
+
+    /// Loads memory files for a given project directory hash within `~/.claude/projects/<hash>/memory/`.
+    nonisolated static func loadMemoryFiles(projectDirName: String) -> [MemoryFile] {
+        let memoryDir = claudeDir
+            .appendingPathComponent("projects")
+            .appendingPathComponent(projectDirName)
+            .appendingPathComponent("memory")
+
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: memoryDir, includingPropertiesForKeys: nil
+        ) else { return [] }
+
+        return files
+            .filter { $0.pathExtension == "md" }
+            .compactMap { url -> MemoryFile? in
+                guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+                let filename = url.lastPathComponent
+                return MemoryFile(
+                    id: "\(projectDirName)-\(filename)",
+                    name: MemoryFile.displayName(from: filename),
+                    filename: filename,
+                    content: content,
+                    fileURL: url,
+                    projectID: projectDirName
+                )
+            }
+            .sorted { lhs, rhs in
+                // MEMORY.md always first, then alphabetical
+                if lhs.isMain { return true }
+                if rhs.isMain { return false }
+                return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+            }
+    }
+
+    /// Returns the memory directory path for a given project hash.
+    nonisolated static func memoryDirectoryPath(projectDirName: String) -> String {
+        claudeDir
+            .appendingPathComponent("projects")
+            .appendingPathComponent(projectDirName)
+            .appendingPathComponent("memory")
+            .path
+    }
+
+    /// Returns all project directory names that have at least one memory file.
+    nonisolated static func projectsWithMemory() -> [(dirName: String, count: Int)] {
+        let projectsDir = claudeDir.appendingPathComponent("projects")
+        guard let projectDirs = try? FileManager.default.contentsOfDirectory(
+            at: projectsDir,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        return projectDirs.compactMap { dirURL -> (String, Int)? in
+            var isDir: ObjCBool = false
+            guard FileManager.default.fileExists(atPath: dirURL.path, isDirectory: &isDir),
+                  isDir.boolValue else { return nil }
+
+            let memoryDir = dirURL.appendingPathComponent("memory")
+            guard let files = try? FileManager.default.contentsOfDirectory(
+                at: memoryDir, includingPropertiesForKeys: nil
+            ) else { return nil }
+
+            let mdCount = files.filter { $0.pathExtension == "md" }.count
+            guard mdCount > 0 else { return nil }
+            return (dirURL.lastPathComponent, mdCount)
+        }
+    }
+
+    /// Counts total memory files across all projects.
+    nonisolated static func totalMemoryFileCount() -> Int {
+        projectsWithMemory().reduce(0) { $0 + $1.count }
+    }
+
     // MARK: - Settings
 
     nonisolated static func loadSettings() -> ClaudeSettings? {

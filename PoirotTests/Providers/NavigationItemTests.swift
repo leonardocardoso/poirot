@@ -42,4 +42,14 @@ struct NavigationItemTests {
     func plans_requiresPlansCapability() {
         #expect(NavigationItem.plans.requiredCapability == .plans)
     }
+
+    @Test
+    func memory_requiresMemoryCapability() {
+        #expect(NavigationItem.memory.requiredCapability == .memory)
+    }
+
+    @Test
+    func memory_hasCorrectSystemImage() {
+        #expect(NavigationItem.memory.systemImage == "brain.head.profile.fill")
+    }
 }
