@@ -3,10 +3,19 @@ name: Version Bump
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version number (e.g. 0.2.0)'
+      version_type:
+        description: 'Version bump type'
         required: true
+        default: 'new'
+        type: choice
+        options:
+          - 'new'      # Calendar-based YY.MM.BUILD from today's date
+          - 'current'  # Keep marketing version, only increment build number
+      force_version:
+        description: 'Force specific marketing version (e.g. 25.08.4) — leave empty for automatic'
+        required: false
         type: string
+        default: ''
 
 permissions:
   contents: write
@@ -19,38 +28,89 @@ jobs:
         with:
           token: ${{ secrets.TAP_GITHUB_TOKEN }}
 
-      - name: Validate version format
+      - name: Compute version
+        id: version
         run: |
-          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Invalid version format. Use semver (e.g. 0.2.0)"
-            exit 1
+          # Read current values from project.yml
+          CURRENT_VERSION=$(grep 'MARKETING_VERSION:' project.yml | sed 's/.*: *"//' | sed 's/"//')
+          CURRENT_BUILD=$(grep 'CURRENT_PROJECT_VERSION:' project.yml | sed 's/.*: *//')
+
+          echo "Current version: $CURRENT_VERSION ($CURRENT_BUILD)"
+
+          # Parse current version components (YY.MM.BUILD)
+          CUR_YEAR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+          CUR_MONTH=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+          CUR_BUILD_PART=$(echo "$CURRENT_VERSION" | cut -d. -f3)
+
+          # Increment project build number (always increments)
+          NEW_BUILD=$(( CURRENT_BUILD + 1 ))
+
+          # Determine marketing version
+          FORCE_VERSION="${{ inputs.force_version }}"
+          if [ -n "$FORCE_VERSION" ]; then
+            # Validate forced version format
+            if ! echo "$FORCE_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::Invalid version format. Use YY.MM.BUILD (e.g. 25.08.4)"
+              exit 1
+            fi
+            NEW_VERSION="$FORCE_VERSION"
+            echo "Using forced version: $NEW_VERSION"
+          elif [ "${{ inputs.version_type }}" = "current" ]; then
+            # Keep current marketing version, only bump build number
+            NEW_VERSION="$CURRENT_VERSION"
+            echo "Keeping current version: $NEW_VERSION"
+          else
+            # Calendar-based: YY.MM.BUILD
+            NEW_YEAR=$(date -u +%y)      # e.g. 26
+            NEW_MONTH=$(date -u +%m)     # e.g. 03 (zero-padded)
+            NEW_MONTH_INT=$(date -u +%-m) # e.g. 3 (no padding, for comparison)
+
+            if [ "$NEW_YEAR" = "$CUR_YEAR" ] && [ "$NEW_MONTH_INT" = "$((10#$CUR_MONTH))" ]; then
+              # Same year + same month: increment BUILD part
+              NEW_BUILD_PART=$(( CUR_BUILD_PART + 1 ))
+              NEW_VERSION="${CUR_YEAR}.${CUR_MONTH}.${NEW_BUILD_PART}"
+            elif [ "$NEW_YEAR" = "$CUR_YEAR" ]; then
+              # Same year, new month: reset BUILD to 1
+              NEW_VERSION="${NEW_YEAR}.${NEW_MONTH}.1"
+            else
+              # New year: reset month and BUILD
+              NEW_VERSION="${NEW_YEAR}.01.1"
+            fi
+            echo "Calendar-based version: $NEW_VERSION"
           fi
 
-      - name: Read current build number
-        id: current
-        run: |
-          BUILD=$(grep 'CURRENT_PROJECT_VERSION:' project.yml | sed 's/.*: //')
-          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "new_build=$NEW_BUILD" >> $GITHUB_OUTPUT
+          echo "previous_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "previous_build=$CURRENT_BUILD" >> $GITHUB_OUTPUT
 
-      - name: Update version
-        env:
-          NEW_BUILD: ${{ steps.current.outputs.build }}
+      - name: Update version files
         run: |
-          NEW_BUILD=$(( NEW_BUILD + 1 ))
+          VERSION="${{ steps.version.outputs.new_version }}"
+          BUILD="${{ steps.version.outputs.new_build }}"
 
           # Update project.yml
-          sed -i "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"${{ inputs.version }}\"/" project.yml
-          sed -i "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: $NEW_BUILD/" project.yml
+          sed -i "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"$VERSION\"/" project.yml
+          sed -i "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: $BUILD/" project.yml
 
           # Update Xcode project directly
-          sed -i "s/MARKETING_VERSION = .*/MARKETING_VERSION = ${{ inputs.version }};/" Poirot.xcodeproj/project.pbxproj
-          sed -i "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = $NEW_BUILD;/" Poirot.xcodeproj/project.pbxproj
+          sed -i "s/MARKETING_VERSION = .*/MARKETING_VERSION = $VERSION;/" Poirot.xcodeproj/project.pbxproj
+          sed -i "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = $BUILD;/" Poirot.xcodeproj/project.pbxproj
 
       - name: Commit and tag
         run: |
+          VERSION="${{ steps.version.outputs.new_version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add project.yml Poirot.xcodeproj/project.pbxproj
-          git commit -m "Bump version to ${{ inputs.version }}"
-          git tag "v${{ inputs.version }}"
+          git commit -m "Bump version to $VERSION"
+          git tag "v$VERSION"
           git push origin main --tags
+
+      - name: Post summary
+        run: |
+          echo "## Version Bump Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type:** ${{ inputs.version_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Marketing Version:** \`${{ steps.version.outputs.previous_version }}\` → \`${{ steps.version.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Number:** \`${{ steps.version.outputs.previous_build }}\` → \`${{ steps.version.outputs.new_build }}\`" >> $GITHUB_STEP_SUMMARY

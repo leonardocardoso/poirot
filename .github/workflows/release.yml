@@ -138,29 +138,24 @@ jobs:
           echo "" >> /tmp/release-body.md
 
           if [ -n "$PREV_TAG" ]; then
-            # Collect commit messages, skip version bumps and CI fixes
-            COMMITS=$(git log "${PREV_TAG}..${VERSION}" --oneline --no-merges \
+            # Collect commits with their SHAs, skip version bumps
+            COMMIT_LINES=$(git log "${PREV_TAG}..${VERSION}" --format="%H %s" --no-merges \
               | grep -v "Bump version" \
-              | grep -v "Fix version bump" \
-              | sed 's/^[a-f0-9]* //')
+              | grep -v "Fix version bump")
 
-            if [ -n "$COMMITS" ]; then
+            if [ -n "$COMMIT_LINES" ]; then
               echo "### What's Changed" >> /tmp/release-body.md
-              while IFS= read -r msg; do
-                echo "- ${msg}" >> /tmp/release-body.md
-              done <<< "$COMMITS"
-              echo "" >> /tmp/release-body.md
-            fi
-
-            # Find contributors via GitHub API (gets usernames, excludes bots)
-            CONTRIBUTORS=$(gh api "repos/${REPO}/compare/${PREV_TAG}...${VERSION}" \
-              --jq '[.commits[].author.login // empty] | unique | map(select(. != "github-actions[bot]" and . != "web-flow")) | .[]' 2>/dev/null)
-
-            if [ -n "$CONTRIBUTORS" ]; then
-              echo "### Contributors" >> /tmp/release-body.md
-              while IFS= read -r user; do
-                echo "- @${user}" >> /tmp/release-body.md
-              done <<< "$CONTRIBUTORS"
+              while IFS= read -r line; do
+                SHA=$(echo "$line" | cut -c1-40)
+                MSG=$(echo "$line" | cut -c42-)
+                # Look up GitHub username for this commit
+                AUTHOR=$(gh api "repos/${REPO}/commits/${SHA}" --jq '.author.login // empty' 2>/dev/null)
+                if [ -n "$AUTHOR" ] && [ "$AUTHOR" != "github-actions[bot]" ] && [ "$AUTHOR" != "web-flow" ]; then
+                  echo "- ${MSG} by @${AUTHOR}" >> /tmp/release-body.md
+                else
+                  echo "- ${MSG}" >> /tmp/release-body.md
+                fi
+              done <<< "$COMMIT_LINES"
               echo "" >> /tmp/release-body.md
             fi
 
