@@ -23,7 +23,8 @@ struct ScreenshotTests_Plans {
             size: ScreenshotSize.mainContent,
             named: "testPlansList",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 

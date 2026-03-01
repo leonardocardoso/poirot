@@ -15,39 +15,41 @@ struct ScreenshotTests_Analytics {
 
     @Test
     func testAnalyticsDashboard() async throws {
-        let state = makeAppState(
-            selectedNav: .analytics,
-            selectedProject: ScreenshotData.projects.first?.id
+        try await snapshotAnalytics(named: "testAnalyticsDashboard")
+    }
+
+    @Test
+    func testAnalyticsDashboardLight() async throws {
+        try await snapshotAnalytics(named: "testAnalyticsDashboardLight", colorScheme: .light)
+    }
+
+    // MARK: - Scrolled Sections
+
+    @Test
+    func testAnalyticsDashboardMid() async throws {
+        try await snapshotAnalytics(named: "testAnalyticsDashboardMid", scrollFraction: 0.4)
+    }
+
+    @Test
+    func testAnalyticsDashboardMidLight() async throws {
+        try await snapshotAnalytics(
+            named: "testAnalyticsDashboardMidLight",
+            colorScheme: .light,
+            scrollFraction: 0.4
         )
+    }
 
-        let vm = AnalyticsViewModel(preloaded: Self.mockStats)
-        let size = ScreenshotSize.fullApp
+    @Test
+    func testAnalyticsDashboardBottom() async throws {
+        try await snapshotAnalytics(named: "testAnalyticsDashboardBottom", scrollFraction: 0.85)
+    }
 
-        let hostingView = NSHostingController(
-            rootView: compositeAppView(state: state) {
-                AnalyticsDashboardView(viewModel: vm)
-            }
-            .environment(\.disableAnimations, true)
-            .frame(width: size.width, height: size.height)
-        )
-        hostingView.view.frame = CGRect(origin: .zero, size: size)
-
-        let window = NSWindow(
-            contentRect: CGRect(origin: .zero, size: size),
-            styleMask: [.borderless],
-            backing: .buffered,
-            defer: false
-        )
-        window.contentViewController = hostingView
-        window.makeKeyAndOrderFront(nil)
-
-        try await Task.sleep(for: .seconds(2))
-
-        assertSnapshot(
-            of: hostingView,
-            as: .image(precision: chartPrecision, size: size),
-            named: "testAnalyticsDashboard",
-            record: isRecording
+    @Test
+    func testAnalyticsDashboardBottomLight() async throws {
+        try await snapshotAnalytics(
+            named: "testAnalyticsDashboardBottomLight",
+            colorScheme: .light,
+            scrollFraction: 0.85
         )
     }
 
@@ -56,33 +58,40 @@ struct ScreenshotTests_Analytics {
     @Test
     func testAnalyticsDashboardContent() async throws {
         let vm = AnalyticsViewModel(preloaded: Self.mockStats)
-        let size = ScreenshotSize.mainContent
-
-        let hostingView = NSHostingController(
-            rootView: withEnvironment(
-                AnalyticsDashboardView(viewModel: vm)
-            )
-            .environment(\.disableAnimations, true)
-            .frame(width: size.width, height: size.height)
-        )
-        hostingView.view.frame = CGRect(origin: .zero, size: size)
-
-        let window = NSWindow(
-            contentRect: CGRect(origin: .zero, size: size),
-            styleMask: [.borderless],
-            backing: .buffered,
-            defer: false
-        )
-        window.contentViewController = hostingView
-        window.makeKeyAndOrderFront(nil)
-
-        try await Task.sleep(for: .seconds(2))
-
-        assertSnapshot(
-            of: hostingView,
-            as: .image(precision: chartPrecision, size: size),
+        try await snapshotView(
+            withEnvironment(AnalyticsDashboardView(viewModel: vm)),
+            size: ScreenshotSize.mainContent,
             named: "testAnalyticsDashboardContent",
-            record: isRecording
+            record: isRecording,
+            delay: 2,
+            precision: chartPrecision
+        )
+    }
+
+    // MARK: - Helpers
+
+    private func snapshotAnalytics(
+        named name: String,
+        colorScheme: ColorScheme = .dark,
+        scrollFraction: CGFloat? = nil
+    ) async throws {
+        let state = makeAppState(
+            selectedNav: .analytics,
+            selectedProject: ScreenshotData.projects.first?.id
+        )
+        let vm = AnalyticsViewModel(preloaded: Self.mockStats)
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                AnalyticsDashboardView(viewModel: vm)
+            },
+            size: ScreenshotSize.fullApp,
+            named: name,
+            record: isRecording,
+            delay: 2,
+            colorScheme: colorScheme,
+            scrollFraction: scrollFraction,
+            precision: chartPrecision
         )
     }
 
@@ -120,15 +129,15 @@ struct ScreenshotTests_Analytics {
                 toolCallCount: toolCallCount
             ))
 
-            // Token distribution — mix of models
+            // Token distribution — continuous data for all models (avoids stacked area gaps)
             var tokensByModel: [String: Int] = [:]
             tokensByModel["claude-opus-4-5-20251101"] = msgCount * 3200 + variance * 100
             if dayOffset > 20 {
                 tokensByModel["claude-opus-4-6"] = msgCount * 2800 + variance * 80
             }
-            if dayOffset % 5 == 0 {
-                tokensByModel["claude-sonnet-4-5-20250929"] = msgCount * 1200
-            }
+            // Sonnet: continuous but lower usage, ramping up mid-period
+            let sonnetBase = dayOffset > 10 ? (msgCount * 800 + variance * 40) : (msgCount * 200)
+            tokensByModel["claude-sonnet-4-5-20250929"] = sonnetBase
 
             dailyModelTokens.append(.init(date: dateStr, tokensByModel: tokensByModel))
         }

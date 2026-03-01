@@ -25,7 +25,8 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testCommandsList",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
@@ -53,7 +54,8 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testMCPServersList",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
@@ -81,7 +83,8 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testSubAgentsList",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
@@ -109,7 +112,8 @@ struct ScreenshotTests_ConfigScreens {
             size: ScreenshotSize.mainContent,
             named: "testOutputStylesList",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
