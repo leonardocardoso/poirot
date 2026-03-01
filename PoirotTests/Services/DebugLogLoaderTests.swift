@@ -234,4 +234,102 @@ struct DebugLogLoaderTests {
         #expect(ids.contains("sess-1"))
         #expect(ids.contains("sess-2"))
     }
+
+    // MARK: - Paginated loadEntries Tests
+
+    @Test
+    func loadEntries_paginated_firstPage() throws {
+        let dir = try makeTempDebugDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let content = (0 ..< 10).map {
+            "2026-02-06T16:01:\(String(format: "%02d", $0)).000Z [DEBUG] Message \($0)"
+        }.joined(separator: "\n")
+        try writeLogFile(in: dir, filename: "paged-session.txt", content: content)
+
+        let loader = DebugLogLoader(claudeDebugPath: dir.path)
+        let page = loader.loadEntries(for: "paged-session", offset: 0, limit: 3)
+        #expect(page.totalCount == 10)
+        #expect(page.entries.count == 3)
+        #expect(page.entries[0].id == 0)
+        #expect(page.entries[2].id == 2)
+    }
+
+    @Test
+    func loadEntries_paginated_secondPage() throws {
+        let dir = try makeTempDebugDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let content = (0 ..< 10).map {
+            "2026-02-06T16:01:\(String(format: "%02d", $0)).000Z [DEBUG] Message \($0)"
+        }.joined(separator: "\n")
+        try writeLogFile(in: dir, filename: "paged-session.txt", content: content)
+
+        let loader = DebugLogLoader(claudeDebugPath: dir.path)
+        let page = loader.loadEntries(for: "paged-session", offset: 3, limit: 3)
+        #expect(page.totalCount == 10)
+        #expect(page.entries.count == 3)
+        #expect(page.entries[0].id == 3)
+        #expect(page.entries[2].id == 5)
+    }
+
+    @Test
+    func loadEntries_paginated_lastPage_partialResults() throws {
+        let dir = try makeTempDebugDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let content = (0 ..< 5).map {
+            "2026-02-06T16:01:\(String(format: "%02d", $0)).000Z [DEBUG] Message \($0)"
+        }.joined(separator: "\n")
+        try writeLogFile(in: dir, filename: "paged-session.txt", content: content)
+
+        let loader = DebugLogLoader(claudeDebugPath: dir.path)
+        let page = loader.loadEntries(for: "paged-session", offset: 3, limit: 10)
+        #expect(page.totalCount == 5)
+        #expect(page.entries.count == 2)
+        #expect(page.entries[0].id == 3)
+        #expect(page.entries[1].id == 4)
+    }
+
+    @Test
+    func loadEntries_paginated_offsetBeyondEnd_returnsEmpty() throws {
+        let dir = try makeTempDebugDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let content = "2026-02-06T16:01:00.000Z [DEBUG] Only one"
+        try writeLogFile(in: dir, filename: "paged-session.txt", content: content)
+
+        let loader = DebugLogLoader(claudeDebugPath: dir.path)
+        let page = loader.loadEntries(for: "paged-session", offset: 10, limit: 5)
+        #expect(page.totalCount == 1)
+        #expect(page.entries.isEmpty)
+    }
+
+    @Test
+    func loadEntries_paginated_nonExistentSession() {
+        let loader = DebugLogLoader(
+            claudeDebugPath: "/nonexistent/\(UUID().uuidString)"
+        )
+        let page = loader.loadEntries(for: "no-session", offset: 0, limit: 10)
+        #expect(page.totalCount == 0)
+        #expect(page.entries.isEmpty)
+    }
+
+    // MARK: - parsePaged Tests
+
+    @Test
+    func parsePaged_returnsCorrectTotalCount() {
+        let loader = DebugLogLoader()
+        let text = """
+        2026-02-06T16:01:00.000Z [DEBUG] A
+        2026-02-06T16:01:01.000Z [WARN] B
+        2026-02-06T16:01:02.000Z [ERROR] C
+        2026-02-06T16:01:03.000Z [DEBUG] D
+        """
+        let page = loader.parsePaged(text, offset: 0, limit: 2)
+        #expect(page.totalCount == 4)
+        #expect(page.entries.count == 2)
+        #expect(page.entries[0].message == "A")
+        #expect(page.entries[1].message == "B")
+    }
 }

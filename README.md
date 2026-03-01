@@ -158,7 +158,7 @@ Browse your `~/.claude/plans/` markdown files with rendered markdown or raw text
 </p>
 
 ### Debug Log Viewer
-Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
+Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Logs are lazily loaded with paginated fetching for smooth performance on large files. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
 
 ---
 
@@ -178,7 +178,7 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
 | | Extended Thinking | Collapsible thinking blocks with distinct purple accent |
 | | Tool Blocks | Every tool invocation rendered with name, icon, file path, and result |
 | | In-Session Search | ⌘F to search within the current conversation |
-| **Diagnostics** | Debug Log Viewer | Parse and browse `~/.claude/debug/` logs with color-coded levels, search, and filtering |
+| **Diagnostics** | Debug Log Viewer | Parse and browse `~/.claude/debug/` logs with color-coded levels, search, filtering, and paginated lazy loading |
 | | Auto-scroll to Error | Opens directly at the first error entry for quick triage |
 | | Relative Timestamps | Toggle between absolute (HH:mm:ss.SSS) and relative (+offset) time display |
 | **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |

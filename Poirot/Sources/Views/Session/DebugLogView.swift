@@ -7,6 +7,15 @@ struct DebugLogView: View {
     private var entries: [DebugLogEntry] = []
 
     @State
+    private var totalCount = 0
+
+    @State
+    private var isLoading = true
+
+    @State
+    private var isLoadingMore = false
+
+    @State
     private var searchText = ""
 
     @State
@@ -91,7 +100,7 @@ struct DebugLogView: View {
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                 HStack(spacing: PoirotTheme.Spacing.sm) {
-                    Text("\(entries.count) entries")
+                    Text("\(totalCount) entries")
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
 
@@ -171,8 +180,8 @@ struct DebugLogView: View {
 
     private var dismissButton: some View {
         Button { dismiss() } label: {
-            Image(systemName: "xmark.circle.fill")
-                .font(PoirotTheme.Typography.large)
+            Image(systemName: "xmark")
+                .font(PoirotTheme.Typography.small)
                 .foregroundStyle(PoirotTheme.Colors.textTertiary)
         }
         .buttonStyle(.plain)
@@ -224,19 +233,6 @@ struct DebugLogView: View {
         }
         .padding(.horizontal, PoirotTheme.Spacing.sm)
         .padding(.vertical, PoirotTheme.Spacing.xs)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                .fill(PoirotTheme.Colors.bgElevated)
-                .overlay(
-                    RoundedRectangle(
-                        cornerRadius: PoirotTheme.Radius.sm
-                    )
-                    .stroke(
-                        PoirotTheme.Colors.border.opacity(0.3),
-                        lineWidth: 0.5
-                    )
-                )
-        )
         .frame(maxWidth: 300)
     }
 
@@ -258,7 +254,7 @@ struct DebugLogView: View {
                         .font(PoirotTheme.Typography.tiny)
                         .fontWeight(.medium)
                         .padding(.horizontal, PoirotTheme.Spacing.sm)
-                        .padding(.vertical, PoirotTheme.Spacing.xxs)
+                        .frame(height: 26)
                         .foregroundStyle(
                             isActive
                                 ? levelColor(level)
@@ -333,13 +329,20 @@ struct DebugLogView: View {
 
     // MARK: - Log List
 
+    private var hasMoreEntries: Bool {
+        entries.count < totalCount
+    }
+
     private var logList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                let visible = filteredEntries
-                if visible.isEmpty {
+                if isLoading {
+                    logSkeleton
+                        .transition(.opacity)
+                } else if filteredEntries.isEmpty {
                     emptyState
                 } else {
+                    let visible = filteredEntries
                     LazyVStack(
                         alignment: .leading,
                         spacing: 0
@@ -352,11 +355,31 @@ struct DebugLogView: View {
                                 searchQuery: searchText
                             )
                             .id(entry.id)
+                            .onAppear {
+                                if entry.id == visible.last?.id, hasMoreEntries {
+                                    Task { await loadMoreEntries() }
+                                }
+                            }
+                        }
+
+                        if hasMoreEntries {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                    .controlSize(.small)
+                                    .tint(PoirotTheme.Colors.textTertiary)
+                                Text("Loading more\u{2026}")
+                                    .font(PoirotTheme.Typography.tiny)
+                                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                                Spacer()
+                            }
+                            .padding(.vertical, PoirotTheme.Spacing.md)
                         }
                     }
                     .padding(.vertical, PoirotTheme.Spacing.xs)
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: isLoading)
             .onChange(of: scrollTarget) { _, target in
                 guard let target else { return }
                 withAnimation(.easeInOut(duration: 0.3)) {
@@ -399,24 +422,71 @@ struct DebugLogView: View {
         .padding(.top, 80)
     }
 
+    // MARK: - Skeleton
+
+    private static let skeletonMessageWidths: [CGFloat] = [
+        280, 200, 350, 160, 300, 240, 320, 180, 260, 340, 220, 290, 310, 190, 250,
+    ]
+
+    private var logSkeleton: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(0 ..< 15, id: \.self) { index in
+                HStack(spacing: PoirotTheme.Spacing.sm) {
+                    skeletonRect(width: 80, height: 10)
+                    skeletonRect(width: [45, 38, 50][index % 3], height: 16)
+                    skeletonRect(width: Self.skeletonMessageWidths[index], height: 10)
+                    Spacer()
+                }
+                .padding(.horizontal, PoirotTheme.Spacing.lg)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
+                .shimmer(cornerRadius: 0)
+            }
+        }
+    }
+
+    private func skeletonRect(width: CGFloat, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+            .fill(PoirotTheme.Colors.bgElevated)
+            .frame(width: width, height: height)
+    }
+
     // MARK: - Actions
 
-    private func loadEntries() async {
-        let sid = sessionId
-        let loaded = await Task.detached {
-            DebugLogLoader().loadEntries(for: sid)
-        }.value
-        entries = loaded
+    nonisolated private static let pageSize = 200
 
-        // Auto-scroll to first error
-        if let firstError = loaded.first(where: { $0.level == .error }) {
+    private func loadEntries() async {
+        isLoading = true
+        let sid = sessionId
+        let page = await Task.detached {
+            DebugLogLoader().loadEntries(for: sid, offset: 0, limit: Self.pageSize)
+        }.value
+        entries = page.entries
+        totalCount = page.totalCount
+        isLoading = false
+
+        // Auto-scroll to first error in loaded page
+        if let firstError = page.entries.first(where: { $0.level == .error }) {
             firstErrorId = firstError.id
             scrollTarget = firstError.id
         }
     }
 
+    private func loadMoreEntries() async {
+        guard !isLoadingMore, hasMoreEntries else { return }
+        isLoadingMore = true
+        let sid = sessionId
+        let currentOffset = entries.count
+        let page = await Task.detached {
+            DebugLogLoader().loadEntries(for: sid, offset: currentOffset, limit: Self.pageSize)
+        }.value
+        entries.append(contentsOf: page.entries)
+        isLoadingMore = false
+    }
+
     private func copyFullLog() {
-        let text = entries
+        let sid = sessionId
+        let allEntries = DebugLogLoader().loadEntries(for: sid)
+        let text = allEntries
             .map { entry in
                 "\(Self.absoluteFormatter.string(from: entry.timestamp)) "
                     + "[\(entry.level.rawValue)] \(entry.message)"

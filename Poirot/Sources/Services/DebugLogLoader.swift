@@ -26,6 +26,33 @@ nonisolated struct DebugLogLoader: Sendable {
         return parse(content)
     }
 
+    /// Returns a page of parsed log entries for a given session ID.
+    ///
+    /// - Parameters:
+    ///   - sessionId: The session whose debug log to load.
+    ///   - offset: The entry index to start from (0-based).
+    ///   - limit: Maximum number of entries to return.
+    /// - Returns: A `Page` containing the entries and total count.
+    func loadEntries(
+        for sessionId: String,
+        offset: Int,
+        limit: Int
+    ) -> Page {
+        let fileURL = URL(fileURLWithPath: claudeDebugPath)
+            .appendingPathComponent("\(sessionId).txt")
+
+        guard let content = try? String(contentsOf: fileURL, encoding: .utf8) else {
+            return Page(entries: [], totalCount: 0)
+        }
+
+        return parsePaged(content, offset: offset, limit: limit)
+    }
+
+    struct Page: Sendable, Equatable {
+        let entries: [DebugLogEntry]
+        let totalCount: Int
+    }
+
     /// Whether a debug log file exists for the given session ID.
     func hasLog(for sessionId: String) -> Bool {
         let path = (claudeDebugPath as NSString)
@@ -68,6 +95,32 @@ nonisolated struct DebugLogLoader: Sendable {
         }
 
         return entries
+    }
+
+    /// Parses a page of entries from raw debug log text.
+    func parsePaged(
+        _ text: String,
+        offset: Int,
+        limit: Int
+    ) -> Page {
+        let lines = text.components(separatedBy: .newlines)
+        var entries: [DebugLogEntry] = []
+        var index = 0
+        let end = offset + limit
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty else { continue }
+
+            if let entry = parseLine(trimmed, index: index) {
+                if index >= offset, index < end {
+                    entries.append(entry)
+                }
+                index += 1
+            }
+        }
+
+        return Page(entries: entries, totalCount: index)
     }
 
     // MARK: - Private
