@@ -74,7 +74,6 @@ struct PlansListView: View {
                 dynamicCount: "\(plans.count) \(plans.count == 1 ? "plan" : "plans")"
             )
 
-
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -96,7 +95,9 @@ struct PlansListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plans\u{2026}") }
+        .toolbar {
+            ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plans\u{2026}")
+        }
         .task {
             reloadPlans()
             if !isLoaded {
@@ -252,24 +253,10 @@ private struct PlanCard: View {
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(HighlightedText.fuzzyAttributedString(plan.name, query: filterQuery))
-                    .font(PoirotTheme.Typography.bodyMedium)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-
-                if !snippet.isEmpty {
-                    Text(HighlightedText.fuzzyAttributedString(snippet, query: filterQuery))
-                        .font(PoirotTheme.Typography.caption)
-                        .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                }
-
                 HStack(spacing: PoirotTheme.Spacing.sm) {
-                    ConfigBadge(
-                        text: plan.fileURL.lastPathComponent,
-                        fg: PoirotTheme.Colors.teal,
-                        bg: PoirotTheme.Colors.teal.opacity(0.15)
-                    )
+                    Text(HighlightedText.fuzzyAttributedString(plan.name, query: filterQuery))
+                        .font(PoirotTheme.Typography.bodyMedium)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
                     Spacer()
 
@@ -298,6 +285,24 @@ private struct PlanCard: View {
                     .buttonStyle(.plain)
                     .help("Delete Plan")
                 }
+
+                if !snippet.isEmpty {
+                    Text(HighlightedText.fuzzyAttributedString(snippet, query: filterQuery))
+                        .font(PoirotTheme.Typography.caption)
+                        .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+
+                Text(plan.fileURL.lastPathComponent)
+                    .font(PoirotTheme.Typography.code)
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    .padding(.horizontal, PoirotTheme.Spacing.sm)
+                    .padding(.vertical, 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                            .fill(PoirotTheme.Colors.bgElevated)
+                    )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(PoirotTheme.Spacing.lg)
