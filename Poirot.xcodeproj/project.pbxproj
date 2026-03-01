@@ -605,6 +605,7 @@
 				72818A517BE04CA1CA1A39A0 /* MCPServerStatusCheckerTests.swift */,
 				9919D9AADED6E3243644D940 /* HistoryLoaderTests.swift */,
 				72818A517BE04CA1CA1A39A0 /* MCPServerStatusCheckerTests.swift */,
+				9919D9AADED6E3243644D940 /* HistoryLoaderTests.swift */,
 				3498814047BCC0D3779C7559 /* SessionLoaderTests.swift */,
 				206C5507435CF92778FB1288 /* TodoLoaderTests.swift */,
 				64331E9C7E5267A192A427EE /* TranscriptParserTests.swift */,

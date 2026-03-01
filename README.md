@@ -178,6 +178,13 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
   <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
 </p>
 
+### Prompt History
+Browse your entire Claude Code input history from `~/.claude/history.jsonl`. Prompts are grouped by date (Today, Yesterday, This Week, etc.), filterable by project, and searchable with full-text fuzzy matching. Copy any prompt to clipboard for reuse. Live file watching keeps the view up to date.
+
+<p align="center">
+  <img src="assets/showcase/21-history.png" alt="Prompt History" width="720" />
+</p>
+
 ---
 
 ## Capabilities
