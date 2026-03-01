@@ -100,7 +100,7 @@ struct ScreenshotTests_Analytics {
         var dailyActivity: [StatsCache.DailyActivity] = []
         var dailyModelTokens: [StatsCache.DailyModelTokens] = []
 
-        for dayOffset in 0..<60 {
+        for dayOffset in 0 ..< 60 {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startDate) else { continue }
             let dateStr = dateFormatter.string(from: date)
 
@@ -172,7 +172,7 @@ struct ScreenshotTests_Analytics {
                     maxOutputTokens: 32000
                 ),
                 "claude-sonnet-4-5-20250929": .init(
-                    inputTokens: 32_900,
+                    inputTokens: 32900,
                     outputTokens: 130_944,
                     cacheReadInputTokens: 684_102_476,
                     cacheCreationInputTokens: 12_340_200,
@@ -183,7 +183,7 @@ struct ScreenshotTests_Analytics {
                 ),
             ],
             totalSessions: 466,
-            totalMessages: 18_742,
+            totalMessages: 18742,
             longestSession: .init(
                 sessionId: "ce55f01b-e4f4-4c6a-934e-f95ba536935f",
                 duration: 321_972_719,

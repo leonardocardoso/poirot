@@ -27,7 +27,10 @@ struct AnalyticsSnapshotView: View {
                     }
                 }
                 .chartXAxis {
-                    AxisMarks(values: .stride(by: .day, count: max(viewModel.filteredDailyActivity.count / 8, 7))) { _ in
+                    AxisMarks(values: .stride(
+                        by: .day,
+                        count: max(viewModel.filteredDailyActivity.count / 8, 7)
+                    )) { _ in
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
                             .foregroundStyle(PoirotTheme.Colors.border)
                         AxisValueLabel(format: .dateTime.month(.abbreviated).day())
@@ -117,12 +120,15 @@ struct AnalyticsSnapshotView: View {
                     }
                     .frame(height: 200)
                 }
+                .frame(maxHeight: .infinity)
 
                 CostBreakdownView(
                     entries: viewModel.costBreakdownEntries,
                     totalCost: viewModel.totalCost
                 )
+                .frame(maxHeight: .infinity)
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding(PoirotTheme.Spacing.xxl)
         .background(PoirotTheme.Colors.bgApp)
@@ -230,7 +236,7 @@ struct AnalyticsSnapshotView: View {
 
             HStack(alignment: .top, spacing: 0) {
                 VStack(spacing: cellSpacing) {
-                    ForEach(0..<7, id: \.self) { row in
+                    ForEach(0 ..< 7, id: \.self) { row in
                         Text(dayLabels[row])
                             .font(PoirotTheme.Typography.pico)
                             .foregroundStyle(PoirotTheme.Colors.textTertiary)
@@ -240,9 +246,9 @@ struct AnalyticsSnapshotView: View {
                 .padding(.trailing, PoirotTheme.Spacing.xs)
 
                 HStack(spacing: cellSpacing) {
-                    ForEach(0..<grid.count, id: \.self) { week in
+                    ForEach(0 ..< grid.count, id: \.self) { week in
                         VStack(spacing: cellSpacing) {
-                            ForEach(0..<7, id: \.self) { day in
+                            ForEach(0 ..< 7, id: \.self) { day in
                                 RoundedRectangle(cornerRadius: 2)
                                     .fill(Self.heatmapColor(messages: grid[week][day]?.messages ?? 0, max: maxMessages))
                                     .frame(width: cellSize, height: cellSize)
@@ -259,9 +265,9 @@ struct AnalyticsSnapshotView: View {
         guard messages > 0 else { return PoirotTheme.Colors.bgCard }
         let ratio = Double(messages) / Double(max)
         switch ratio {
-        case 0..<0.25: return PoirotTheme.Colors.accent.opacity(0.2)
-        case 0.25..<0.5: return PoirotTheme.Colors.accent.opacity(0.4)
-        case 0.5..<0.75: return PoirotTheme.Colors.accent.opacity(0.65)
+        case 0 ..< 0.25: return PoirotTheme.Colors.accent.opacity(0.2)
+        case 0.25 ..< 0.5: return PoirotTheme.Colors.accent.opacity(0.4)
+        case 0.5 ..< 0.75: return PoirotTheme.Colors.accent.opacity(0.65)
         default: return PoirotTheme.Colors.accent
         }
     }
@@ -279,14 +285,14 @@ struct AnalyticsSnapshotView: View {
         let totalSlots = adjustedFirstDay + totalDays + 1
         let weekCount = (totalSlots + 6) / 7
 
-        var result = Array(repeating: Array<HeatmapEntry?>(repeating: nil, count: 7), count: weekCount)
+        var result = Array(repeating: [HeatmapEntry?](repeating: nil, count: 7), count: weekCount)
         let lookup = Dictionary(uniqueKeysWithValues: sorted.map { ($0.dateString, $0) })
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.locale = Locale(identifier: "en_US_POSIX")
 
-        for dayOffset in 0...totalDays {
+        for dayOffset in 0 ... totalDays {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: firstDate) else { continue }
             let weekday = calendar.component(.weekday, from: date)
             let row = (weekday + 5) % 7

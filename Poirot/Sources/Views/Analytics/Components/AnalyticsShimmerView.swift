@@ -21,7 +21,7 @@ struct AnalyticsShimmerView: View {
                     columns: Array(repeating: GridItem(.flexible(), spacing: PoirotTheme.Spacing.md), count: 4),
                     spacing: PoirotTheme.Spacing.md
                 ) {
-                    ForEach(0..<8, id: \.self) { _ in
+                    ForEach(0 ..< 8, id: \.self) { _ in
                         shimmerCard
                     }
                 }
