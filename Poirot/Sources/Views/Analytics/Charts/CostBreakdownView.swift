@@ -5,15 +5,45 @@ struct CostBreakdownView: View {
     let entries: [CostBreakdownEntry]
     let totalCost: Double
 
+    private var hasCostData: Bool {
+        totalCost > 0
+    }
+
     var body: some View {
         ChartCard(title: "Cost & Token Breakdown", subtitle: "Per-model cost and token distribution") {
-            HStack(alignment: .top, spacing: PoirotTheme.Spacing.xxl) {
-                costDonut
-                    .frame(maxWidth: .infinity)
-                tokenTable
-                    .frame(maxWidth: .infinity)
+            if hasCostData {
+                costAndTokenLayout
+            } else {
+                tokenOnlyLayout
             }
-            .frame(height: 280)
+        }
+    }
+
+    // MARK: - Layout with cost data (API users)
+
+    private var costAndTokenLayout: some View {
+        HStack(alignment: .top, spacing: PoirotTheme.Spacing.xxl) {
+            costDonut
+                .frame(maxWidth: .infinity)
+            tokenTable
+                .frame(maxWidth: .infinity)
+        }
+        .frame(height: 280)
+    }
+
+    // MARK: - Layout without cost data (subscription users)
+
+    private var tokenOnlyLayout: some View {
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.md) {
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 12))
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                Text("Cost tracking is available for API users only")
+                    .font(PoirotTheme.Typography.micro)
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            }
+            tokenTable
         }
     }
 
@@ -72,11 +102,11 @@ struct CostBreakdownView: View {
                 Text("Model")
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text("Input")
-                    .frame(width: 60, alignment: .trailing)
+                    .frame(width: 70, alignment: .trailing)
                 Text("Output")
-                    .frame(width: 60, alignment: .trailing)
+                    .frame(width: 70, alignment: .trailing)
                 Text("Cache")
-                    .frame(width: 60, alignment: .trailing)
+                    .frame(width: 70, alignment: .trailing)
             }
             .font(PoirotTheme.Typography.microSemibold)
             .foregroundStyle(PoirotTheme.Colors.textTertiary)
@@ -89,11 +119,11 @@ struct CostBreakdownView: View {
                     Text(entry.model)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(AnalyticsFormatters.formatLargeNumber(entry.inputTokens))
-                        .frame(width: 60, alignment: .trailing)
+                        .frame(width: 70, alignment: .trailing)
                     Text(AnalyticsFormatters.formatLargeNumber(entry.outputTokens))
-                        .frame(width: 60, alignment: .trailing)
+                        .frame(width: 70, alignment: .trailing)
                     Text(AnalyticsFormatters.formatLargeNumber(entry.cacheTokens))
-                        .frame(width: 60, alignment: .trailing)
+                        .frame(width: 70, alignment: .trailing)
                 }
                 .font(PoirotTheme.Typography.micro)
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
