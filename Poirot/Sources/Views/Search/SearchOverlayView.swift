@@ -345,11 +345,13 @@ struct SearchOverlayView: View {
             let nameScore = matchScore(server.name, q)
             let toolScore = server.tools
                 .map { matchScore($0, q) }.max() ?? 0
-            let best = max(nameScore, toolScore)
+            let statusScore = matchScore(server.status.label, q)
+            let best = max(nameScore, max(toolScore, statusScore))
             guard best > 0 else { continue }
             let toolLabel = server.isWildcard
                 ? "All tools"
                 : "\(server.tools.count) tools"
+            let trailing = "\(server.status.label) · \(toolLabel)"
             results.append(SearchResult(
                 id: "mcp-\(server.id)",
                 category: .mcpServers,
@@ -357,7 +359,7 @@ struct SearchOverlayView: View {
                 title: server.name,
                 subtitle: server.tools.prefix(3)
                     .joined(separator: ", "),
-                trailing: toolLabel,
+                trailing: trailing,
                 score: best,
                 action: .navigateTo(.mcpServers)
             ))
@@ -785,11 +787,14 @@ struct SearchOverlayView: View {
     private func loadConfigItems() async {
         let projectPath = appState.effectiveConfigProjectPath
         let result = await Task.detached {
-            (
+            let rawServers = ClaudeConfigLoader.loadMCPServers(
+                projectPath: projectPath
+            )
+            return (
                 ClaudeConfigLoader.loadCommands(projectPath: projectPath),
                 ClaudeConfigLoader.loadSkills(projectPath: projectPath),
                 ClaudeConfigLoader.loadPlans(),
-                ClaudeConfigLoader.loadMCPServers(projectPath: projectPath),
+                MCPServerStatusChecker.resolveStatuses(for: rawServers),
                 ClaudeConfigLoader.loadPlugins(),
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
                 TodoLoader().loadAllTodos(),
