@@ -205,10 +205,11 @@ struct AnalyticsDashboardView: View {
     // MARK: - Dashboard Content
 
     private func dashboardContent(_ stats: StatsCache) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxl) {
-                header(stats)
-                summaryCards(stats)
+        VStack(spacing: 0) {
+            header(stats)
+            ScrollView {
+                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxl) {
+                    summaryCards(stats)
 
                 DailyActivityChart(
                     dailyActivity: viewModel.filteredDailyActivity,
@@ -245,30 +246,64 @@ struct AnalyticsDashboardView: View {
                 .fixedSize(horizontal: false, vertical: true)
             }
             .padding(PoirotTheme.Spacing.xxl)
+            }
         }
     }
 
     // MARK: - Header
 
     private func header(_ stats: StatsCache) -> some View {
-        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
-            Text("Session Analytics")
-                .font(PoirotTheme.Typography.heading)
-                .foregroundStyle(PoirotTheme.Colors.textPrimary)
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
+            HStack(spacing: PoirotTheme.Spacing.md) {
+                Image(systemName: "chart.xyaxis.line")
+                    .font(PoirotTheme.Typography.headingSmall)
+                    .foregroundStyle(PoirotTheme.Colors.accent)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
+                            .fill(PoirotTheme.Colors.accent.opacity(0.15))
+                    )
 
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                Text("Last computed: \(AnalyticsFormatters.formatLocalizedDate(stats.lastComputedDate))")
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                    Text("Session Analytics")
+                        .font(PoirotTheme.Typography.heading)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
-                if case let .custom(start, end) = viewModel.selectedDateRange {
-                    Text("·")
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    Text("\(AnalyticsFormatters.formatShortDate(start)) — \(AnalyticsFormatters.formatShortDate(end))")
-                        .font(PoirotTheme.Typography.small)
-                        .foregroundStyle(PoirotTheme.Colors.accent)
+                    HStack(spacing: PoirotTheme.Spacing.xs) {
+                        Text("Last computed: \(AnalyticsFormatters.formatLocalizedDate(stats.lastComputedDate))")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                            .padding(.horizontal, PoirotTheme.Spacing.sm)
+                            .padding(.vertical, PoirotTheme.Spacing.xxs)
+                            .background(
+                                Capsule().fill(PoirotTheme.Colors.bgElevated)
+                            )
+
+                        if case let .custom(start, end) = viewModel.selectedDateRange {
+                            Text("\(AnalyticsFormatters.formatShortDate(start)) — \(AnalyticsFormatters.formatShortDate(end))")
+                                .font(PoirotTheme.Typography.tiny)
+                                .foregroundStyle(PoirotTheme.Colors.accent)
+                                .padding(.horizontal, PoirotTheme.Spacing.sm)
+                                .padding(.vertical, PoirotTheme.Spacing.xxs)
+                                .background(
+                                    Capsule().fill(PoirotTheme.Colors.accentDim)
+                                )
+                        }
+                    }
                 }
+
+                Spacer()
             }
+
+            Text("Claude Code usage statistics from ~/.claude/stats-cache.json")
+                .font(PoirotTheme.Typography.caption)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.xl)
+        .overlay(alignment: .bottom) {
+            Divider().opacity(0.3)
         }
     }
 

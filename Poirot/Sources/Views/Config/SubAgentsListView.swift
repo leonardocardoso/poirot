@@ -29,22 +29,9 @@ struct SubAgentsListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(SubAgent.builtIn.count) \(SubAgent.builtIn.count == 1 ? "agent" : "agents")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(SubAgent.builtIn.count) \(SubAgent.builtIn.count == 1 ? "agent" : "agents")"
             )
 
-            if !SubAgent.builtIn.isEmpty {
-                HStack(spacing: 0) {
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(minWidth: 300, maxWidth: .infinity)
-                }
-                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                .padding(.vertical, PoirotTheme.Spacing.sm)
-            }
 
             if filteredAgents.isEmpty, !filterQuery.isEmpty {
                 ConfigEmptyState(
@@ -57,6 +44,7 @@ struct SubAgentsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Sub-Agents\u{2026}") }
         .task {
             isRevealed = false
             try? await Task.sleep(for: .milliseconds(50))

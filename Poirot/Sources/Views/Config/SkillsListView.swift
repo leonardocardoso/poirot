@@ -106,14 +106,8 @@ struct SkillsListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(skills.count) \(skills.count == 1 ? "skill" : "skills")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(skills.count) \(skills.count == 1 ? "skill" : "skills")"
             )
-
-            if !skills.isEmpty {
-                configToolbar
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -136,6 +130,7 @@ struct SkillsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Skills\u{2026}", showProjectPicker: true, showAddButton: true) }
         .task {
             reloadSkills()
             if !isLoaded {
@@ -158,21 +153,6 @@ struct SkillsListView: View {
         }
     }
 
-    private var configToolbar: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(maxWidth: .infinity)
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigProjectPicker()
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
-    }
 
     @ViewBuilder
     private var configContent: some View {

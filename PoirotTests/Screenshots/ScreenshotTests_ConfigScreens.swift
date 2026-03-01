@@ -171,9 +171,7 @@ struct ScreenshotTests_ConfigScreens {
             withEnvironment(
                 ConfigScreenHeader(
                     item: configItem(id: "commands"),
-                    dynamicCount: "12",
-                    screenID: "commands",
-                    showLayoutToggle: true
+                    dynamicCount: "12"
                 ),
                 provider: provider
             ),

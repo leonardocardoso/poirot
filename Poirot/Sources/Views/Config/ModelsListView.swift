@@ -31,14 +31,9 @@ struct ModelsListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")"
             )
 
-            if !provider.supportedModels.isEmpty {
-                configToolbar
-            }
 
             if filteredModels.isEmpty, !filterQuery.isEmpty {
                 ConfigEmptyState(
@@ -51,6 +46,7 @@ struct ModelsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Models\u{2026}") }
         .task {
             currentDefault = provider.defaultModelName
             loadProjectModel()
@@ -65,21 +61,6 @@ struct ModelsListView: View {
         }
     }
 
-    private var configToolbar: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(maxWidth: .infinity)
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigProjectPicker()
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
-    }
 
     @ViewBuilder
     private var configContent: some View {

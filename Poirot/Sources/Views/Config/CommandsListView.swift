@@ -118,14 +118,8 @@ struct CommandsListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(commands.count) \(commands.count == 1 ? "command" : "commands")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(commands.count) \(commands.count == 1 ? "command" : "commands")"
             )
-
-            if !commands.isEmpty {
-                configToolbar
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -148,6 +142,7 @@ struct CommandsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Commands\u{2026}", showProjectPicker: true, showAddButton: true) }
         .task {
             reloadCommands()
             if !isLoaded {
@@ -170,21 +165,6 @@ struct CommandsListView: View {
         }
     }
 
-    private var configToolbar: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(maxWidth: .infinity)
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigProjectPicker()
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
-    }
 
     @ViewBuilder
     private var configContent: some View {

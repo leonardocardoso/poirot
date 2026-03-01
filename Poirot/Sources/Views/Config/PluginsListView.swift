@@ -33,22 +33,9 @@ struct PluginsListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(plugins.count) \(plugins.count == 1 ? "plugin" : "plugins")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(plugins.count) \(plugins.count == 1 ? "plugin" : "plugins")"
             )
 
-            if !plugins.isEmpty {
-                HStack(spacing: 0) {
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(minWidth: 300, maxWidth: .infinity)
-                }
-                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                .padding(.vertical, PoirotTheme.Spacing.sm)
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -71,6 +58,7 @@ struct PluginsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plugins\u{2026}") }
         .task {
             reloadPlugins()
             if !isLoaded {

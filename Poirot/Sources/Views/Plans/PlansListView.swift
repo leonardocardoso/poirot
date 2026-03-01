@@ -71,22 +71,9 @@ struct PlansListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(plans.count) \(plans.count == 1 ? "plan" : "plans")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(plans.count) \(plans.count == 1 ? "plan" : "plans")"
             )
 
-            if !plans.isEmpty {
-                HStack(spacing: 0) {
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(minWidth: 300, maxWidth: .infinity)
-                }
-                .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-                .padding(.vertical, PoirotTheme.Spacing.sm)
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -109,6 +96,7 @@ struct PlansListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plans\u{2026}") }
         .task {
             reloadPlans()
             if !isLoaded {

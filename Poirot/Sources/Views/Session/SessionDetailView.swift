@@ -119,55 +119,60 @@ struct SessionDetailView: View {
 
     private var sessionHeader: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-            Text(session.title)
-                .font(PoirotTheme.Typography.subheading)
-                .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                .lineLimit(2)
+            HStack(spacing: PoirotTheme.Spacing.md) {
+                Image(systemName: "rectangle.stack.fill")
+                    .font(PoirotTheme.Typography.headingSmall)
+                    .foregroundStyle(PoirotTheme.Colors.accent)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
+                            .fill(PoirotTheme.Colors.accent.opacity(0.15))
+                    )
 
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                if let model = session.model {
-                    Text(model)
-                        .font(PoirotTheme.Typography.tiny)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(PoirotTheme.Colors.accent)
-                        .padding(.horizontal, PoirotTheme.Spacing.sm)
-                        .padding(.vertical, PoirotTheme.Spacing.xxs)
-                        .background(
-                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
-                                .fill(PoirotTheme.Colors.accentDim)
-                        )
+                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                    Text(session.title)
+                        .font(PoirotTheme.Typography.heading)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                        .lineLimit(2)
+
+                    HStack(spacing: PoirotTheme.Spacing.xs) {
+                        if let model = session.model {
+                            Text(model)
+                                .font(PoirotTheme.Typography.tiny)
+                                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                                .padding(.horizontal, PoirotTheme.Spacing.sm)
+                                .padding(.vertical, PoirotTheme.Spacing.xxs)
+                                .background(
+                                    Capsule().fill(PoirotTheme.Colors.bgElevated)
+                                )
+                        }
+
+                        if session.totalTokens > 0 {
+                            Text("\(session.totalTokens.formattedTokens) tokens")
+                                .font(PoirotTheme.Typography.tiny)
+                                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                                .padding(.horizontal, PoirotTheme.Spacing.sm)
+                                .padding(.vertical, PoirotTheme.Spacing.xxs)
+                                .background(
+                                    Capsule().fill(PoirotTheme.Colors.bgElevated)
+                                )
+                        }
+                    }
                 }
-
-                if session.totalTokens > 0 {
-                    Text("\(session.totalTokens.formattedTokens) tokens")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.blue)
-                        .padding(.horizontal, PoirotTheme.Spacing.sm)
-                        .padding(.vertical, PoirotTheme.Spacing.xxs)
-                        .background(
-                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
-                                .fill(PoirotTheme.Colors.blue.opacity(0.1))
-                        )
-                }
-
-                Text("\(session.timeAgo) · \(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")")
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
 
                 Spacer()
             }
+
+            Text("\(session.projectName) · \(session.timeAgo) · \(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")")
+                .font(PoirotTheme.Typography.caption)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
         }
-        .padding(.horizontal, PoirotTheme.Spacing.lg)
-        .padding(.vertical, PoirotTheme.Spacing.md)
-        .background {
-            GlassBackground(in: .rect(cornerRadius: PoirotTheme.Radius.md))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.xl)
+        .overlay(alignment: .bottom) {
+            Divider().opacity(0.3)
         }
-        .overlay {
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .stroke(PoirotTheme.Colors.border.opacity(0.3), lineWidth: 0.5)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.md)
-        .padding(.top, PoirotTheme.Spacing.sm)
     }
 
     // MARK: - Search Bar
