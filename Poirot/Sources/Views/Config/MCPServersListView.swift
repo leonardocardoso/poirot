@@ -310,39 +310,41 @@ private struct MCPServerCard: View {
                         )
                 }
 
-                ConfigScopeBadge(scope: server.scope)
+                MCPServerSourceBadge(server: server)
 
                 Spacer()
 
-                Button {
-                    onOpenInEditor()
-                } label: {
-                    Image(systemName: "curlybraces")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Open in editor")
+                if server.source == .user {
+                    Button {
+                        onOpenInEditor()
+                    } label: {
+                        Image(systemName: "curlybraces")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Open in editor")
 
-                Button {
-                    onShowInFinder()
-                } label: {
-                    Image(systemName: "folder")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Show in Finder")
+                    Button {
+                        onShowInFinder()
+                    } label: {
+                        Image(systemName: "folder")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Show in Finder")
 
-                Button {
-                    showDeleteConfirmation = true
-                } label: {
-                    Image(systemName: "trash")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    Button {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Remove server")
                 }
-                .buttonStyle(.plain)
-                .help("Remove server")
             }
 
             if let info = connectionInfo {

@@ -38,6 +38,44 @@ struct ConfigScopeBadge: View {
     }
 }
 
+struct MCPServerSourceBadge: View {
+    let server: MCPServer
+
+    var body: some View {
+        switch server.source {
+        case .user:
+            ConfigScopeBadge(scope: server.scope)
+        case .cloudIntegration:
+            badgeView(
+                icon: "cloud.fill",
+                text: "claude.ai",
+                fg: PoirotTheme.Colors.purple,
+                bg: PoirotTheme.Colors.purple.opacity(0.12)
+            )
+        case .plugin:
+            badgeView(
+                icon: "puzzlepiece.fill",
+                text: "Built-in",
+                fg: PoirotTheme.Colors.blue,
+                bg: PoirotTheme.Colors.blue.opacity(0.12)
+            )
+        }
+    }
+
+    private func badgeView(icon: String, text: String, fg: Color, bg: Color) -> some View {
+        HStack(spacing: PoirotTheme.Spacing.xxs) {
+            Image(systemName: icon)
+                .font(PoirotTheme.Typography.pico)
+            Text(text)
+                .font(PoirotTheme.Typography.pico)
+        }
+        .foregroundStyle(fg)
+        .padding(.horizontal, PoirotTheme.Spacing.sm)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(bg))
+    }
+}
+
 enum ConfigHelpers {
     static func formatModel(_ model: String) -> String {
         model.replacingOccurrences(of: "claude-", with: "")

@@ -251,7 +251,6 @@ struct ContentView: View {
         }
     }
 
-
     // MARK: - Batch Loading
 
     private func loadProjectsInBatches() async {

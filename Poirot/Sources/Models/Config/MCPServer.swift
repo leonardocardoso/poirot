@@ -16,6 +16,16 @@ enum MCPServerStatus: String, Sendable, CaseIterable {
     case unknown
 }
 
+/// Where an MCP server originates from.
+enum MCPServerSource: String, Sendable {
+    /// User-configured in ~/.claude.json or .mcp.json.
+    case user
+    /// Cloud integration managed by claude.ai (e.g. Gmail, Google Calendar).
+    case cloudIntegration
+    /// Built-in MCP provided by an installed plugin.
+    case plugin
+}
+
 struct MCPServer: Identifiable, Sendable {
     let id: String
     let name: String
@@ -23,6 +33,7 @@ struct MCPServer: Identifiable, Sendable {
     let tools: [String]
     let isWildcard: Bool
     let scope: ConfigScope
+    let source: MCPServerSource
     let type: String?
     let command: String?
     let args: [String]

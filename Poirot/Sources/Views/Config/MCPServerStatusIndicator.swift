@@ -13,10 +13,6 @@ struct MCPServerStatusIndicator: View {
             .font(.system(size: 8))
             .foregroundStyle(status.color)
             .symbolEffect(
-                .breathe,
-                isActive: status == .connected && !reduceMotion
-            )
-            .symbolEffect(
                 .pulse,
                 isActive: status == .starting && !reduceMotion
             )

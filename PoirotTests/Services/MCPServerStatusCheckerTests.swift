@@ -12,6 +12,7 @@ struct MCPServerStatusCheckerTests {
         command: String? = nil,
         args: [String] = [],
         url: String? = nil,
+        source: MCPServerSource = .user,
         status: MCPServerStatus = .unknown
     ) -> MCPServer {
         MCPServer(
@@ -21,6 +22,7 @@ struct MCPServerStatusCheckerTests {
             tools: [],
             isWildcard: false,
             scope: .global,
+            source: source,
             type: type,
             command: command,
             args: args,
@@ -185,5 +187,48 @@ struct MCPServerStatusCheckerTests {
             for: server, authServers: authServers
         )
         #expect(result == .needsAuth)
+    }
+
+    // MARK: - Cloud Integration Status
+
+    @Test("Cloud integration server preserves its pre-set status")
+    func cloudIntegrationPreservesStatus() {
+        let server = makeServer(
+            name: "claude.ai Gmail",
+            source: .cloudIntegration,
+            status: .needsAuth
+        )
+        let result = MCPServerStatusChecker.status(
+            for: server, authServers: []
+        )
+        #expect(result == .needsAuth)
+    }
+
+    @Test("Cloud integration server ignores auth cache lookup")
+    func cloudIntegrationIgnoresAuthCache() {
+        let server = makeServer(
+            name: "claude.ai Gmail",
+            source: .cloudIntegration,
+            status: .needsAuth
+        )
+        // Even with a different auth cache, cloud servers keep their pre-set status
+        let result = MCPServerStatusChecker.status(
+            for: server, authServers: ["some-other-server"]
+        )
+        #expect(result == .needsAuth)
+    }
+
+    // MARK: - Plugin Server Status
+
+    @Test("Plugin server with no running process returns unknown")
+    func pluginServerNoProcess() {
+        let server = makeServer(
+            name: "plugin:nonexistent-plugin:nonexistent-plugin",
+            source: .plugin
+        )
+        let result = MCPServerStatusChecker.status(
+            for: server, authServers: []
+        )
+        #expect(result == .unknown)
     }
 }
