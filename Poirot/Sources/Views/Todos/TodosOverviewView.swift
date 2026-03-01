@@ -65,7 +65,6 @@ struct TodosOverviewView: View {
         VStack(spacing: 0) {
             header
 
-
             if !isLoaded {
                 ConfigSkeletonView(layout: appState.configLayout(for: Self.screenID))
             } else if sessionEntries.isEmpty {
@@ -85,7 +84,13 @@ struct TodosOverviewView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: Self.screenID, filterQuery: $filterQuery, placeholder: "Find in TODOs\u{2026}") }
+        .toolbar {
+            ConfigLayoutToolbar(
+                screenID: Self.screenID,
+                filterQuery: $filterQuery,
+                placeholder: "Find in TODOs\u{2026}"
+            )
+        }
         .task {
             await loadTodos()
         }
@@ -336,7 +341,7 @@ struct TodosOverviewView: View {
         }
     }
 
-    private nonisolated static func findSessionOnDisk(
+    nonisolated private static func findSessionOnDisk(
         sessionId: String,
         projectsPath: String
     ) -> (projectId: String, session: Session)? {
