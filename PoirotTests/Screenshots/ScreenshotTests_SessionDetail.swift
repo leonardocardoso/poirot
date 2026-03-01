@@ -75,7 +75,8 @@ struct ScreenshotTests_SessionDetail {
             size: ScreenshotSize.mainContent,
             named: "testSessionErrors",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 

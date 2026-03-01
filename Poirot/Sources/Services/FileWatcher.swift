@@ -62,7 +62,7 @@ final class FileWatcher: @unchecked Sendable {
             try? await Task.sleep(for: debounceInterval)
             guard !Task.isCancelled else { return }
             lastChangeDate = Date()
-            await onChange()
+            onChange()
         }
     }
 }

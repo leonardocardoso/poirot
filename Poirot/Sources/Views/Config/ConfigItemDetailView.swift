@@ -56,39 +56,36 @@ struct ConfigItemDetailView<Badges: View>: View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.md) {
                 Image(systemName: icon)
-                    .font(PoirotTheme.Typography.large)
+                    .font(PoirotTheme.Typography.headingSmall)
                     .foregroundStyle(iconColor)
-                    .frame(width: 30, height: 30)
+                    .frame(width: 36, height: 36)
                     .background(
-                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
                             .fill(iconColor.opacity(0.15))
                     )
 
-                Text(title)
-                    .font(PoirotTheme.Typography.subheading)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                    Text(title)
+                        .font(PoirotTheme.Typography.heading)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+                    HStack(spacing: PoirotTheme.Spacing.sm) {
+                        if let scope {
+                            ConfigScopeBadge(scope: scope)
+                        }
+                        badges()
+                    }
+                }
 
                 Spacer()
             }
-
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                if let scope {
-                    ConfigScopeBadge(scope: scope)
-                }
-                badges()
-            }
         }
-        .padding(.horizontal, PoirotTheme.Spacing.lg)
-        .padding(.vertical, PoirotTheme.Spacing.md)
-        .background {
-            GlassBackground(in: .rect(cornerRadius: PoirotTheme.Radius.md))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.xl)
+        .overlay(alignment: .bottom) {
+            Divider().opacity(0.3)
         }
-        .overlay {
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .stroke(PoirotTheme.Colors.border.opacity(0.3), lineWidth: 0.5)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.md)
-        .padding(.top, PoirotTheme.Spacing.sm)
     }
 
     // MARK: - Content

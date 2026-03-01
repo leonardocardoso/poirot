@@ -104,14 +104,8 @@ struct OutputStylesListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(styles.count) \(styles.count == 1 ? "style" : "styles")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(styles.count) \(styles.count == 1 ? "style" : "styles")"
             )
-
-            if !styles.isEmpty {
-                configToolbar
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -134,6 +128,14 @@ struct OutputStylesListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(
+            screenID: item.id,
+            filterQuery: $filterQuery,
+            placeholder: "Find in Output Styles\u{2026}",
+            showProjectPicker: true,
+            showAddButton: true
+        )
+        }
         .task {
             reloadStyles()
             if !isLoaded {
@@ -154,22 +156,6 @@ struct OutputStylesListView: View {
         .onChange(of: appState.configProjectPath) {
             reloadStyles()
         }
-    }
-
-    private var configToolbar: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(maxWidth: .infinity)
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigProjectPicker()
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
     }
 
     @ViewBuilder

@@ -39,14 +39,8 @@ struct MCPServersListView: View {
         VStack(spacing: 0) {
             ConfigScreenHeader(
                 item: item,
-                dynamicCount: "\(servers.count) \(servers.count == 1 ? "server" : "servers")",
-                screenID: item.id,
-                showLayoutToggle: true
+                dynamicCount: "\(servers.count) \(servers.count == 1 ? "server" : "servers")"
             )
-
-            if !servers.isEmpty {
-                configToolbar
-            }
 
             if !isLoaded {
                 ConfigSkeletonView(
@@ -69,6 +63,13 @@ struct MCPServersListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { ConfigLayoutToolbar(
+            screenID: item.id,
+            filterQuery: $filterQuery,
+            placeholder: "Find in MCP Servers\u{2026}",
+            showProjectPicker: true
+        )
+        }
         .task {
             reloadServers()
             if !isLoaded {
@@ -86,22 +87,6 @@ struct MCPServersListView: View {
         .onChange(of: appState.configProjectPath) {
             reloadServers()
         }
-    }
-
-    private var configToolbar: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(maxWidth: .infinity)
-            HStack(spacing: PoirotTheme.Spacing.sm) {
-                ConfigProjectPicker()
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                ConfigFilterField(searchQuery: $filterQuery)
-                    .frame(minWidth: 300, maxWidth: .infinity)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
     }
 
     @ViewBuilder

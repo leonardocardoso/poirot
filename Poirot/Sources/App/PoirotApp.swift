@@ -17,7 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc
     private func newWindow(_ sender: Any?) {
         NSApp.activate()
-        NSApp.sendAction(Selector(("newWindowForTab:")), to: nil, from: nil)
+        NSApp.sendAction(#selector(NSResponder.newWindowForTab(_:)), to: nil, from: nil)
     }
 }
 

@@ -30,7 +30,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Session Browser (Sidebar + Project Grid)
+    // MARK: - Session Browser (Sidebar + Project Grid) — light mode
 
     @Test
     func testSessionBrowser() async throws {
@@ -45,7 +45,8 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.fullApp,
             named: "testSessionBrowser",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
@@ -65,7 +66,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Tool Blocks
+    // MARK: - Tool Blocks — light mode
 
     @Test
     func testToolBlocks() async throws {
@@ -77,7 +78,8 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.mainContent,
             named: "testToolBlocks",
             record: isRecording,
-            delay: 0.5
+            delay: 0.5,
+            colorScheme: .light
         )
     }
 
@@ -97,7 +99,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Search Overlay (Sidebar + Home + Overlay)
+    // MARK: - Search Overlay (Sidebar + Home + Overlay) — light mode
 
     @Test
     func testSearch() async throws {
@@ -113,7 +115,8 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.fullApp,
             named: "testSearch",
             record: isRecording,
-            delay: 2
+            delay: 2,
+            colorScheme: .light
         )
     }
 
@@ -134,7 +137,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Home
+    // MARK: - Home — light mode
 
     @Test
     func testHome() async throws {
@@ -143,7 +146,8 @@ struct ScreenshotTests_FullViews {
             size: ScreenshotSize.mainContent,
             named: "testHome",
             record: isRecording,
-            delay: 0.5
+            delay: 0.5,
+            colorScheme: .light
         )
     }
 

@@ -24,21 +24,11 @@ struct ProjectSessionsView: View {
             .map(\.0)
     }
 
+    private static let screenID = "projectSessions"
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-
-            if !project.sessions.isEmpty {
-                HStack(spacing: 0) {
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    Spacer().frame(maxWidth: .infinity)
-                    ConfigFilterField(searchQuery: $filterQuery)
-                        .frame(minWidth: 300, maxWidth: .infinity)
-                }
-                .padding(.horizontal, PoirotTheme.Spacing.xxl)
-                .padding(.vertical, PoirotTheme.Spacing.sm)
-            }
 
             if filteredSessions.isEmpty, !filterQuery.isEmpty {
                 ConfigEmptyState(
@@ -51,6 +41,7 @@ struct ProjectSessionsView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
+        .toolbar { projectToolbar }
         .task(id: project.id) {
             filterQuery = ""
             isRevealed = false
@@ -64,39 +55,68 @@ struct ProjectSessionsView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(project.name)
-                .font(PoirotTheme.Typography.title)
-                .foregroundStyle(PoirotTheme.Colors.textPrimary)
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
+            HStack(spacing: PoirotTheme.Spacing.md) {
+                Image(systemName: "folder.fill")
+                    .font(PoirotTheme.Typography.headingSmall)
+                    .foregroundStyle(PoirotTheme.Colors.green)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
+                            .fill(PoirotTheme.Colors.green.opacity(0.15))
+                    )
 
-            Text("\(project.sessions.count) \(project.sessions.count == 1 ? "session" : "sessions")")
+                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                    Text(project.name)
+                        .font(PoirotTheme.Typography.heading)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+                    Text("\(project.sessions.count) \(project.sessions.count == 1 ? "session" : "sessions")")
+                        .font(PoirotTheme.Typography.tiny)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .padding(.horizontal, PoirotTheme.Spacing.sm)
+                        .padding(.vertical, PoirotTheme.Spacing.xxs)
+                        .background(
+                            Capsule().fill(PoirotTheme.Colors.bgElevated)
+                        )
+                }
+
+                Spacer()
+            }
+
+            Text("Claude Code sessions for this project")
                 .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textTertiary)
-
-            Spacer()
-
-            layoutToggle
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+                .lineSpacing(PoirotTheme.Spacing.xxs)
         }
-        .padding(.horizontal, PoirotTheme.Spacing.xxl)
-        .padding(.top, PoirotTheme.Spacing.xl)
-        .padding(.bottom, PoirotTheme.Spacing.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
+        .padding(.vertical, PoirotTheme.Spacing.xl)
         .overlay(alignment: .bottom) {
-            Divider()
+            Divider().opacity(0.3)
         }
     }
 
-    private var layoutToggle: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                appState.sessionLayout = appState.sessionLayout == .grid ? .list : .grid
-            }
-        } label: {
-            Image(systemName: appState.sessionLayout == .grid ? "list.bullet" : "square.grid.2x2")
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                .contentTransition(.symbolEffect(.replace))
+    @ToolbarContentBuilder
+    private var projectToolbar: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Spacer()
         }
-        .buttonStyle(.plain)
+        ToolbarItemGroup(placement: .primaryAction) {
+            ConfigFilterField(searchQuery: $filterQuery, placeholder: "Find in Sessions\u{2026}")
+                .frame(width: 200)
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    appState.sessionLayout = appState.sessionLayout == .grid ? .list : .grid
+                }
+            } label: {
+                Image(systemName: appState.sessionLayout == .grid ? "list.bullet" : "square.grid.2x2")
+                    .frame(width: 16, height: 16)
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            .help("Toggle layout")
+        }
     }
 
     // MARK: - Sessions Content
