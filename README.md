@@ -150,6 +150,9 @@ Browse your `~/.claude/plans/` markdown files with rendered markdown or raw text
   <img src="assets/showcase/19-plans.png" alt="Plans" width="720" />
 </p>
 
+### Debug Log Viewer
+Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
+
 ---
 
 ## Capabilities
@@ -167,7 +170,10 @@ Browse your `~/.claude/plans/` markdown files with rendered markdown or raw text
 | | Extended Thinking | Collapsible thinking blocks with distinct purple accent |
 | | Tool Blocks | Every tool invocation rendered with name, icon, file path, and result |
 | | In-Session Search | ⌘F to search within the current conversation |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, and TODOs |
+| **Diagnostics** | Debug Log Viewer | Parse and browse `~/.claude/debug/` logs with color-coded levels, search, and filtering |
+| | Auto-scroll to Error | Opens directly at the first error entry for quick triage |
+| | Relative Timestamps | Toggle between absolute (HH:mm:ss.SSS) and relative (+offset) time display |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |

@@ -172,6 +172,36 @@ struct SessionToolbarDelete: View {
     }
 }
 
+struct SessionToolbarDebugLog: View {
+    let session: Session
+
+    @State
+    private var hasLog = false
+
+    @Environment(AppState.self)
+    private var appState
+
+    var body: some View {
+        Group {
+            if hasLog {
+                Button {
+                    appState.showDebugLogSessionId = session.id
+                } label: {
+                    Image(systemName: "ladybug")
+                }
+                .help("View Debug Log")
+            }
+        }
+        .task(id: session.id) {
+            let sid = session.id
+            let found = await Task.detached {
+                DebugLogLoader().hasLog(for: sid)
+            }.value
+            hasLog = found
+        }
+    }
+}
+
 struct SessionToolbarClose: View {
     @Environment(AppState.self)
     private var appState

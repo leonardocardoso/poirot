@@ -206,6 +206,7 @@ final class AppState {
 
     var activeConfigDetail: ConfigDetailInfo?
     var configDetailFormatted: Bool = true
+    var showDebugLogSessionId: String?
     var configAddTrigger = UUID()
     var sidebarCounts: [String: Int] = [:]
 
