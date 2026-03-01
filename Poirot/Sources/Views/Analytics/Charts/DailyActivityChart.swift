@@ -22,9 +22,6 @@ struct DailyActivityChart: View {
                     RuleMark(x: .value("Selected", selectedDate))
                         .foregroundStyle(PoirotTheme.Colors.textTertiary.opacity(0.5))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                        .annotation(position: .top, alignment: .center) {
-                            annotationView(for: selectedDate)
-                        }
                 }
             }
             .chartXSelection(value: $selectedDate)
@@ -50,30 +47,42 @@ struct DailyActivityChart: View {
                 plotArea.background(PoirotTheme.Colors.bgCard.opacity(0.3))
             }
             .frame(height: 220)
+            .chartOverlay { proxy in
+                GeometryReader { geometry in
+                    if let selectedDate,
+                       let entry = entryForDate(selectedDate),
+                       let xPos = proxy.position(forX: selectedDate) {
+                        let clampedX = min(max(xPos, 80), geometry.size.width - 80)
+
+                        annotationView(for: entry)
+                            .position(x: clampedX, y: 12)
+                    }
+                }
+                .allowsHitTesting(false)
+            }
         }
     }
 
-    private func annotationView(for date: Date) -> some View {
-        let entry = dailyActivity.first {
+    private func entryForDate(_ date: Date) -> StatsCache.DailyActivity? {
+        dailyActivity.first {
             Calendar.current.isDate(AnalyticsFormatters.parseDate($0.date), inSameDayAs: date)
         }
-        return Group {
-            if let entry {
-                VStack(spacing: PoirotTheme.Spacing.xxs) {
-                    Text(entry.date)
-                        .font(PoirotTheme.Typography.micro)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    Text("\(entry.messageCount) msgs · \(entry.sessionCount) sessions")
-                        .font(PoirotTheme.Typography.microMedium)
-                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                }
-                .padding(PoirotTheme.Spacing.xs)
-                .background(
-                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
-                        .fill(PoirotTheme.Colors.bgElevated)
-                        .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
-                )
-            }
+    }
+
+    private func annotationView(for entry: StatsCache.DailyActivity) -> some View {
+        VStack(spacing: PoirotTheme.Spacing.xxs) {
+            Text(AnalyticsFormatters.formatLocalizedDate(entry.date))
+                .font(PoirotTheme.Typography.micro)
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            Text("\(entry.messageCount) msgs · \(entry.sessionCount) sessions")
+                .font(PoirotTheme.Typography.microMedium)
+                .foregroundStyle(PoirotTheme.Colors.textPrimary)
         }
+        .padding(PoirotTheme.Spacing.xs)
+        .background(
+            RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+                .fill(PoirotTheme.Colors.bgElevated)
+                .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
+        )
     }
 }
