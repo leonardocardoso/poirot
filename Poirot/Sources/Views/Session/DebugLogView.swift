@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DebugLogView: View {
     let sessionId: String
+    var claudeDebugPath: String?
 
     @State
     private var entries: [DebugLogEntry] = []
@@ -457,8 +458,9 @@ struct DebugLogView: View {
     private func loadEntries() async {
         isLoading = true
         let sid = sessionId
+        let path = claudeDebugPath
         let page = await Task.detached {
-            DebugLogLoader().loadEntries(for: sid, offset: 0, limit: Self.pageSize)
+            DebugLogLoader(claudeDebugPath: path).loadEntries(for: sid, offset: 0, limit: Self.pageSize)
         }.value
         entries = page.entries
         totalCount = page.totalCount
@@ -476,8 +478,9 @@ struct DebugLogView: View {
         isLoadingMore = true
         let sid = sessionId
         let currentOffset = entries.count
+        let path = claudeDebugPath
         let page = await Task.detached {
-            DebugLogLoader().loadEntries(for: sid, offset: currentOffset, limit: Self.pageSize)
+            DebugLogLoader(claudeDebugPath: path).loadEntries(for: sid, offset: currentOffset, limit: Self.pageSize)
         }.value
         entries.append(contentsOf: page.entries)
         isLoadingMore = false
@@ -485,7 +488,7 @@ struct DebugLogView: View {
 
     private func copyFullLog() {
         let sid = sessionId
-        let allEntries = DebugLogLoader().loadEntries(for: sid)
+        let allEntries = DebugLogLoader(claudeDebugPath: claudeDebugPath).loadEntries(for: sid)
         let text = allEntries
             .map { entry in
                 "\(Self.absoluteFormatter.string(from: entry.timestamp)) "
