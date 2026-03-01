@@ -130,6 +130,7 @@ enum ClaudeConfigLoader {
                     name: name,
                     definition: definition,
                     scope: .global,
+                    source: .user,
                     tools: toolPermissions[name]
                 )
                 serversByName[name] = server
@@ -144,6 +145,7 @@ enum ClaudeConfigLoader {
                         name: name,
                         definition: definition,
                         scope: .project,
+                        source: .user,
                         tools: toolPermissions[name]
                     )
                     serversByName[name] = server // local overrides user
@@ -160,11 +162,22 @@ enum ClaudeConfigLoader {
                         name: name,
                         definition: definition,
                         scope: .project,
+                        source: .user,
                         tools: toolPermissions[name]
                     )
                     serversByName[name] = server
                 }
             }
+        }
+
+        // 4. Plugin MCP servers (built-in via installed plugins)
+        for server in loadPluginMCPServers(toolPermissions: toolPermissions) {
+            serversByName[server.rawName] = server
+        }
+
+        // 5. Cloud integration servers (claude.ai managed, e.g. Gmail)
+        for server in loadCloudIntegrationServers(existingNames: Set(serversByName.keys)) {
+            serversByName[server.rawName] = server
         }
 
         return serversByName.values
@@ -175,21 +188,145 @@ enum ClaudeConfigLoader {
         name: String,
         definition: MCPServerDefinition,
         scope: ConfigScope,
+        source: MCPServerSource,
         tools: [String]?
     ) -> MCPServer {
         MCPServer(
-            id: "\(scope.rawValue)-\(name)",
+            id: "\(source.rawValue)-\(name)",
             name: formatServerName(name),
             rawName: name,
             tools: (tools ?? []).sorted(),
             isWildcard: tools == nil,
             scope: scope,
+            source: source,
             type: definition.type,
             command: definition.command,
             args: definition.args ?? [],
             env: definition.env ?? [:],
             url: definition.url
         )
+    }
+
+    /// Discovers plugin-provided MCP servers from tool permissions.
+    /// Plugin MCP tools use the format: mcp__plugin_{name}_{name}__{tool}
+    nonisolated private static func loadPluginMCPServers(
+        toolPermissions: [String: [String]]
+    ) -> [MCPServer] {
+        let settings = loadSettings()
+        let enabledPlugins = settings?.enabledPlugins ?? [:]
+
+        // Find tool permission keys that start with "plugin_"
+        let pluginServerNames = toolPermissions.keys.filter { $0.hasPrefix("plugin_") }
+        guard !pluginServerNames.isEmpty else { return [] }
+
+        // Load installed plugins for metadata
+        let installedURL = claudeDir
+            .appendingPathComponent("plugins")
+            .appendingPathComponent("installed_plugins.json")
+        let installed: InstalledPlugins? = {
+            guard let data = try? Data(contentsOf: installedURL) else { return nil }
+            return try? JSONDecoder().decode(InstalledPlugins.self, from: data)
+        }()
+
+        return pluginServerNames.compactMap { permissionName in
+            // permissionName is like "plugin_context-mode_context-mode"
+            // Convert underscores back to colons for the raw name: "plugin:context-mode:context-mode"
+            let rawName = convertPluginPermissionToRawName(permissionName)
+
+            // Extract the plugin identifier to check if it's enabled
+            let pluginKey = findPluginKey(
+                for: permissionName,
+                installed: installed,
+                enabledPlugins: enabledPlugins
+            )
+
+            // Only include if the plugin is enabled (or if we can't determine)
+            if let key = pluginKey, enabledPlugins[key] == false {
+                return nil
+            }
+
+            let tools = toolPermissions[permissionName]
+            return MCPServer(
+                id: "plugin-\(rawName)",
+                name: formatPluginServerName(permissionName),
+                rawName: rawName,
+                tools: (tools ?? []).sorted(),
+                isWildcard: tools == nil,
+                scope: .global,
+                source: .plugin,
+                type: "stdio",
+                command: nil,
+                args: [],
+                env: [:],
+                url: nil
+            )
+        }
+    }
+
+    /// Converts a plugin permission name (plugin_context-mode_context-mode)
+    /// to the raw name shown by Claude Code (plugin:context-mode:context-mode).
+    nonisolated private static func convertPluginPermissionToRawName(_ permissionName: String) -> String {
+        // Split on "plugin_" prefix, then rejoin parts with colons
+        let withoutPrefix = String(permissionName.dropFirst("plugin_".count))
+        return "plugin:" + withoutPrefix.replacingOccurrences(of: "_", with: ":")
+    }
+
+    /// Formats a plugin server name for display.
+    /// "plugin_context-mode_context-mode" → "Context Mode"
+    nonisolated private static func formatPluginServerName(_ permissionName: String) -> String {
+        // Extract the plugin name part (first segment after "plugin_")
+        let withoutPrefix = String(permissionName.dropFirst("plugin_".count))
+        let parts = withoutPrefix.split(separator: "_")
+        let pluginName = parts.first.map(String.init) ?? withoutPrefix
+        return formatServerName(pluginName)
+    }
+
+    /// Finds the installed plugin key matching a permission name.
+    nonisolated private static func findPluginKey(
+        for permissionName: String,
+        installed: InstalledPlugins?,
+        enabledPlugins: [String: Bool]
+    ) -> String? {
+        let withoutPrefix = String(permissionName.dropFirst("plugin_".count))
+        let parts = withoutPrefix.split(separator: "_")
+        let pluginName = parts.first.map(String.init) ?? withoutPrefix
+
+        // Match against installed plugin keys (format: "name@author")
+        return enabledPlugins.keys.first { key in
+            let keyParts = key.split(separator: "@", maxSplits: 1)
+            let name = keyParts.first.map(String.init) ?? key
+            return name == pluginName
+        }
+    }
+
+    /// Loads cloud integration servers from the auth cache.
+    /// Entries prefixed with "claude.ai " that aren't in mcpServers are cloud integrations.
+    nonisolated private static func loadCloudIntegrationServers(
+        existingNames: Set<String>
+    ) -> [MCPServer] {
+        let authServers = MCPServerStatusChecker.loadAuthCache()
+        let cloudPrefix = "claude.ai "
+
+        return authServers
+            .filter { $0.hasPrefix(cloudPrefix) && !existingNames.contains($0) }
+            .map { name in
+                let displayName = String(name.dropFirst(cloudPrefix.count))
+                return MCPServer(
+                    id: "cloud-\(name)",
+                    name: displayName,
+                    rawName: name,
+                    tools: [],
+                    isWildcard: true,
+                    scope: .global,
+                    source: .cloudIntegration,
+                    type: "http",
+                    command: nil,
+                    args: [],
+                    env: [:],
+                    url: nil,
+                    status: .needsAuth
+                )
+            }
     }
 
     /// Collects tool permissions from settings.json keyed by server name.

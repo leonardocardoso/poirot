@@ -10,6 +10,10 @@ struct MCPServersListView: View {
     private var isLoaded = false
     @State
     private var filterQuery = ""
+    @State
+    private var configFileWatcher: FileWatcher?
+    @State
+    private var authCacheWatcher: FileWatcher?
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -87,6 +91,36 @@ struct MCPServersListView: View {
         .onChange(of: appState.configProjectPath) {
             reloadServers()
         }
+        .onAppear { startFileWatchers() }
+        .onDisappear { stopFileWatchers() }
+    }
+
+    private func startFileWatchers() {
+        guard configFileWatcher == nil else { return }
+
+        // Watch ~/.claude.json for config changes
+        let configPath = SettingsWriter.claudeConfigFileURL().path
+        let cfgWatcher = FileWatcher { [weak appState] in
+            reloadServers()
+            appState?.sidebarCounts[NavigationItem.mcpServers.id] = servers.count
+        }
+        cfgWatcher.start(path: configPath)
+        configFileWatcher = cfgWatcher
+
+        // Watch ~/.claude/mcp-needs-auth-cache.json for auth status changes
+        let authPath = MCPServerStatusChecker.authCacheURL.path
+        let authWatcher = FileWatcher {
+            reloadServers()
+        }
+        authWatcher.start(path: authPath)
+        authCacheWatcher = authWatcher
+    }
+
+    private func stopFileWatchers() {
+        configFileWatcher?.stop()
+        configFileWatcher = nil
+        authCacheWatcher?.stop()
+        authCacheWatcher = nil
     }
 
     @ViewBuilder
@@ -215,7 +249,10 @@ struct MCPServersListView: View {
     }
 
     private func reloadServers() {
-        servers = ClaudeConfigLoader.loadMCPServers(projectPath: appState.effectiveConfigProjectPath)
+        let loaded = ClaudeConfigLoader.loadMCPServers(
+            projectPath: appState.effectiveConfigProjectPath
+        )
+        servers = MCPServerStatusChecker.resolveStatuses(for: loaded)
     }
 }
 
@@ -254,9 +291,8 @@ private struct MCPServerCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Circle()
-                    .fill(PoirotTheme.Colors.green)
-                    .frame(width: 8, height: 8)
+                MCPServerStatusIndicator(status: server.status)
+                    .help(server.status.label)
 
                 Text(HighlightedText.fuzzyAttributedString(server.name, query: filterQuery))
                     .font(PoirotTheme.Typography.bodyMedium)
@@ -274,39 +310,41 @@ private struct MCPServerCard: View {
                         )
                 }
 
-                ConfigScopeBadge(scope: server.scope)
+                MCPServerSourceBadge(server: server)
 
                 Spacer()
 
-                Button {
-                    onOpenInEditor()
-                } label: {
-                    Image(systemName: "curlybraces")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Open in editor")
+                if server.source == .user {
+                    Button {
+                        onOpenInEditor()
+                    } label: {
+                        Image(systemName: "curlybraces")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Open in editor")
 
-                Button {
-                    onShowInFinder()
-                } label: {
-                    Image(systemName: "folder")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Show in Finder")
+                    Button {
+                        onShowInFinder()
+                    } label: {
+                        Image(systemName: "folder")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Show in Finder")
 
-                Button {
-                    showDeleteConfirmation = true
-                } label: {
-                    Image(systemName: "trash")
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    Button {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Remove server")
                 }
-                .buttonStyle(.plain)
-                .help("Remove server")
             }
 
             if let info = connectionInfo {

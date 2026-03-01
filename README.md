@@ -109,7 +109,7 @@ Explore reusable skill modules with their full documentation. Skills are rendere
 </p>
 
 ### MCP Servers
-See all configured Model Context Protocol servers with their connection details, tool counts, and scope badges. Quickly check which servers are available globally vs. per-project.
+See all configured Model Context Protocol servers with their connection details, tool counts, and scope badges. Quickly check which servers are available globally vs. per-project. Each server displays a live connection status indicator — Connected, Needs Auth, Failed, Unreachable, Starting, or Unknown — with color-coded SF Symbols and animated effects. Status updates automatically by watching the config and auth cache files.
 
 <p align="center">
   <img src="assets/showcase/12-mcp-servers.png" alt="MCP Servers" width="720" />
@@ -190,7 +190,7 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
 | | Skills | Browse and manage reusable skill modules |
-| | MCP Servers | Browse configured Model Context Protocol servers |
+| | MCP Servers | Browse configured Model Context Protocol servers with live connection status |
 | | Models | Browse available models and capabilities |
 | | Sub-agents | Browse custom sub-agent definitions |
 | | Plugins | Browse installed plugins |
