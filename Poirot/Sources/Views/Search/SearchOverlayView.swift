@@ -4,6 +4,7 @@ import SwiftUI
 
 private enum SearchCategory: Int, CaseIterable, Hashable {
     case sessions
+    case debugLogs
     case todos
     case commands
     case skills
@@ -17,6 +18,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     var label: String {
         switch self {
         case .sessions: "SESSIONS"
+        case .debugLogs: "DEBUG LOGS"
         case .todos: "TODOS"
         case .commands: "COMMANDS"
         case .skills: "SKILLS"
@@ -32,6 +34,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     var navItem: NavigationItem {
         switch self {
         case .sessions: .sessions
+        case .debugLogs: .sessions
         case .todos: .todos
         case .commands: .commands
         case .skills: .skills
@@ -47,6 +50,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
 
 private enum SearchAction {
     case openSession(Session, projectId: String)
+    case openDebugLog(sessionId: String, projectId: String)
     case navigateTo(NavigationItem)
     case openDetail(NavigationItem, ConfigDetailInfo)
 }
@@ -96,6 +100,8 @@ struct SearchOverlayView: View {
     private var outputStyles: [OutputStyle] = []
     @State
     private var todoEntries: [(sessionId: String, todos: [SessionTodo])] = []
+    @State
+    private var debugLogSessionIds: Set<String> = []
 
     // MARK: - Search Logic
 
@@ -111,6 +117,7 @@ struct SearchOverlayView: View {
 
         var all: [SearchResult] = []
         buildSessionResults(q, into: &all)
+        buildDebugLogResults(q, into: &all)
         buildTodoResults(q, into: &all)
         buildCommandResults(q, into: &all)
         buildSkillResults(q, into: &all)
@@ -170,6 +177,37 @@ struct SearchOverlayView: View {
                     score: best,
                     action: .openSession(
                         session, projectId: project.id
+                    )
+                ))
+            }
+        }
+    }
+
+    // MARK: - Debug Log Search
+
+    private func buildDebugLogResults(
+        _ q: String, into results: inout [SearchResult]
+    ) {
+        // Only show debug log results for sessions that have logs
+        for project in appState.projects {
+            for session in project.sessions {
+                guard debugLogSessionIds.contains(session.id)
+                else { continue }
+                let titleScore = matchScore(session.title, q)
+                let debugScore = matchScore("debug log", q)
+                let best = max(titleScore, debugScore)
+                guard best > 0 else { continue }
+                results.append(SearchResult(
+                    id: "debuglog-\(session.id)",
+                    category: .debugLogs,
+                    icon: "ladybug",
+                    title: session.title,
+                    subtitle: "Debug Log",
+                    trailing: project.name,
+                    score: best,
+                    action: .openDebugLog(
+                        sessionId: session.id,
+                        projectId: project.id
                     )
                 ))
             }
@@ -708,6 +746,11 @@ struct SearchOverlayView: View {
             appState.selectedSession = session
             appState.selectedNav = .sessions
 
+        case let .openDebugLog(sessionId, projectId):
+            appState.selectedProject = projectId
+            appState.selectedNav = .sessions
+            appState.showDebugLogSessionId = sessionId
+
         case let .navigateTo(navItem):
             appState.selectedNav = navItem
 
@@ -749,7 +792,8 @@ struct SearchOverlayView: View {
                 ClaudeConfigLoader.loadMCPServers(projectPath: projectPath),
                 ClaudeConfigLoader.loadPlugins(),
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
-                TodoLoader().loadAllTodos()
+                TodoLoader().loadAllTodos(),
+                Set(DebugLogLoader().allSessionIds())
             )
         }.value
         commands = result.0
@@ -761,6 +805,7 @@ struct SearchOverlayView: View {
         let allTodos = result.6
         todoEntries = allTodos.filter { !$0.value.isEmpty }
             .map { (sessionId: $0.key, todos: $0.value) }
+        debugLogSessionIds = result.7
     }
 }
 

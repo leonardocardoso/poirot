@@ -15,6 +15,7 @@ struct SessionToolbar: ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             SessionToolbarFilterField()
             SessionToolbarActions(session: session)
+            SessionToolbarDebugLog(session: session)
             SessionToolbarExpandCollapse()
             SessionToolbarFilter()
             SessionToolbarDelete(session: session)
@@ -217,6 +218,22 @@ struct SessionToolbarDelete: View {
         } message: {
             Text("This will permanently delete the session file. This action cannot be undone.")
         }
+    }
+}
+
+struct SessionToolbarDebugLog: View {
+    let session: Session
+
+    @Environment(AppState.self)
+    private var appState
+
+    var body: some View {
+        Button {
+            appState.showDebugLogSessionId = session.id
+        } label: {
+            Image(systemName: "ladybug")
+        }
+        .help("View Debug Log")
     }
 }
 

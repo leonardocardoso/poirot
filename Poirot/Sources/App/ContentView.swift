@@ -14,6 +14,8 @@ struct ContentView: View {
     private var sessionLoadTask: Task<Void, Never>?
     @State
     private var fileWatcher: FileWatcher?
+    @State
+    private var debugFileWatcher: FileWatcher?
     @AppStorage("hasCompletedOnboarding")
     private var hasCompletedOnboarding = false
     @AppStorage("accentColor")
@@ -119,10 +121,23 @@ struct ContentView: View {
         .onDisappear {
             fileWatcher?.stop()
             fileWatcher = nil
+            debugFileWatcher?.stop()
+            debugFileWatcher = nil
+        }
+        .sheet(item: Binding(
+            get: { appState.showDebugLogSessionId.map(DebugLogSheetId.init) },
+            set: { appState.showDebugLogSessionId = $0?.sessionId }
+        )) { item in
+            DebugLogView(sessionId: item.sessionId)
+        }
+        .onAppear {
+            startDebugFileWatcher()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             fileWatcher?.stop()
             fileWatcher = nil
+            debugFileWatcher?.stop()
+            debugFileWatcher = nil
         }
     }
 
@@ -349,6 +364,35 @@ struct ContentView: View {
             ConfigScreenHeader(item: item)
         }
     }
+}
+
+// MARK: - Debug File Watcher
+
+extension ContentView {
+    func startDebugFileWatcher() {
+        guard debugFileWatcher == nil else { return }
+        let debugPath = DebugLogLoader().claudeDebugPath
+        let fm = FileManager.default
+        // Create the directory if it doesn't exist so the watcher can attach
+        if !fm.fileExists(atPath: debugPath) {
+            try? fm.createDirectory(
+                atPath: debugPath,
+                withIntermediateDirectories: true
+            )
+        }
+        let watcher = FileWatcher { [weak appState] in
+            appState?.refreshID = UUID()
+        }
+        watcher.start(path: debugPath)
+        debugFileWatcher = watcher
+    }
+}
+
+// MARK: - Debug Log Sheet ID
+
+private struct DebugLogSheetId: Identifiable {
+    let sessionId: String
+    var id: String { sessionId }
 }
 
 // MARK: - Keyboard Shortcut Helper
