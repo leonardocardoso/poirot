@@ -84,24 +84,18 @@ struct AnalyticsViewModelTests {
         let vm = AnalyticsViewModel()
         vm.isLoading = false
 
-        // Create entries: one from today, one from 30 days ago
-        let today = Date.now
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-
-        let todayStr = formatter.string(from: today)
-        let oldDate = Calendar.current.date(byAdding: .day, value: -30, to: today)!
-        let oldStr = formatter.string(from: oldDate)
+        // Dates relative to lastComputedDate ("2026-02-17") used in makeStats
+        let recentStr = "2026-02-15" // 2 days before lastComputed → within 7d
+        let oldStr = "2026-01-18" // 30 days before lastComputed → outside 7d
 
         vm.stats = Self.makeStats(dailyActivity: [
-            .init(date: todayStr, messageCount: 10, sessionCount: 1, toolCallCount: 5),
+            .init(date: recentStr, messageCount: 10, sessionCount: 1, toolCallCount: 5),
             .init(date: oldStr, messageCount: 20, sessionCount: 2, toolCallCount: 10),
         ])
         vm.selectedDateRange = .week
 
         #expect(vm.filteredDailyActivity.count == 1)
-        #expect(vm.filteredDailyActivity.first?.date == todayStr)
+        #expect(vm.filteredDailyActivity.first?.date == recentStr)
     }
 
     // MARK: - Token Time Series
@@ -183,12 +177,57 @@ struct AnalyticsViewModelTests {
     }
 
     @Test
-    func timeSavedFormatted_zeroMs_showsZeroMinutes() {
+    func timeSavedFormatted_zeroMs_showsDash() {
         let vm = AnalyticsViewModel()
         vm.isLoading = false
         vm.stats = Self.makeStats(totalSpeculationTimeSavedMs: 0)
 
-        #expect(vm.timeSavedFormatted == "0m")
+        #expect(vm.timeSavedFormatted == "—")
+        #expect(vm.hasTimeSavedData == false)
+    }
+
+    @Test
+    func hasCostData_zeroCost_returnsFalse() {
+        let vm = AnalyticsViewModel()
+        vm.isLoading = false
+        vm.stats = Self.makeStats(modelUsage: [:])
+
+        #expect(vm.hasCostData == false)
+    }
+
+    @Test
+    func hasCostData_withCost_returnsTrue() {
+        let vm = AnalyticsViewModel()
+        vm.isLoading = false
+        vm.stats = Self.makeStats(modelUsage: Self.sampleModelUsage)
+
+        #expect(vm.hasCostData == true)
+    }
+
+    // MARK: - Custom Date Range
+
+    @Test
+    func customRange_filtersCorrectly() {
+        let vm = AnalyticsViewModel()
+        vm.isLoading = false
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        vm.stats = Self.makeStats(dailyActivity: [
+            .init(date: "2026-01-01", messageCount: 10, sessionCount: 1, toolCallCount: 5),
+            .init(date: "2026-01-15", messageCount: 20, sessionCount: 2, toolCallCount: 10),
+            .init(date: "2026-02-01", messageCount: 30, sessionCount: 3, toolCallCount: 15),
+        ])
+
+        let start = formatter.date(from: "2026-01-10")!
+        let end = formatter.date(from: "2026-01-20")!
+        vm.selectedDateRange = .custom(start: start, end: end)
+
+        #expect(vm.filteredDailyActivity.count == 1)
+        #expect(vm.filteredDailyActivity.first?.date == "2026-01-15")
+        #expect(vm.isCustomRange == true)
     }
 
     // MARK: - Heatmap Data

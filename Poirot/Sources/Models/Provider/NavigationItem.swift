@@ -74,6 +74,7 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
     )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .todos, .analytics, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models, .subAgents,
+        .sessions, .analytics, .todos, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models,
+        .subAgents,
     ]
 }

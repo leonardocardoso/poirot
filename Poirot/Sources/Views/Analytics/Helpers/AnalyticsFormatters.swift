@@ -15,7 +15,8 @@ enum AnalyticsFormatters {
     static func formatFirstSessionDate(_ date: Date?) -> String {
         guard let date else { return "Unknown" }
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
         return formatter.string(from: date)
     }
 
@@ -43,6 +44,39 @@ enum AnalyticsFormatters {
             return String(format: "$%.1f", cost)
         }
         return String(format: "$%.2f", cost)
+    }
+
+    static func formatShortDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: date)
+    }
+
+    /// Formats a `yyyy-MM-dd` string into the user's locale (e.g. "Feb 17, 2026" or "17 fev. 2026").
+    static func formatLocalizedDate(_ dateString: String) -> String {
+        let date = parseDate(dateString)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
+    /// Converts a Date back to `yyyy-MM-dd` string for lookup.
+    static func dateToString(_ date: Date) -> String {
+        dateParser.string(from: date)
+    }
+
+    /// Formats a `yyyy-MM-dd` string into a localized date + time (e.g. "Feb 17, 2026 at 3:45 PM").
+    /// When the source is date-only, the time portion will be midnight.
+    static func formatLocalizedDateTime(_ dateString: String) -> String {
+        // Try ISO8601 with time first, fall back to date-only
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let date = iso.date(from: dateString) ?? parseDate(dateString)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 
     static func formatDuration(milliseconds: Int) -> String {

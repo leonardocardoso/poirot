@@ -3,22 +3,26 @@ import SwiftUI
 
 // MARK: - Date Range
 
-enum AnalyticsDateRange: String, CaseIterable, Identifiable {
-    case week = "7d"
-    case month = "30d"
-    case quarter = "90d"
-    case all = "All"
+enum AnalyticsDateRange: Hashable, Identifiable {
+    case week
+    case month
+    case quarter
+    case all
+    case custom(start: Date, end: Date)
 
-    var id: String { rawValue }
-
-    var dayCount: Int? {
+    var id: String {
         switch self {
-        case .week: 7
-        case .month: 30
-        case .quarter: 90
-        case .all: nil
+        case .week: "7d"
+        case .month: "30d"
+        case .quarter: "90d"
+        case .all: "All"
+        case .custom: "Custom"
         }
     }
+
+    var label: String { id }
+
+    static let presets: [AnalyticsDateRange] = [.week, .month, .quarter, .all]
 }
 
 // MARK: - Supporting Types
@@ -54,6 +58,19 @@ final class AnalyticsViewModel {
     var isLoading = true
     var selectedDateRange: AnalyticsDateRange = .all
 
+    // Custom range state
+    var isCustomRangePresented = false
+    var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: .now) ?? .now
+    var customEndDate = Date.now
+
+    /// Creates a ViewModel with pre-loaded stats (for previews and snapshot tests).
+    init(preloaded stats: StatsCache? = nil) {
+        if let stats {
+            self.stats = stats
+            self.isLoading = false
+        }
+    }
+
     // MARK: - Loading
 
     func loadStats() async {
@@ -61,29 +78,68 @@ final class AnalyticsViewModel {
         let loaded = await Task.detached {
             StatsCacheLoader.load()
         }.value
-        stats = loaded
-        isLoading = false
+        withAnimation(.easeInOut(duration: 0.4)) {
+            stats = loaded
+            isLoading = false
+        }
     }
 
     // MARK: - Date Filtering
 
-    private var cutoffDate: Date? {
-        guard let dayCount = selectedDateRange.dayCount else { return nil }
-        return Calendar.current.date(byAdding: .day, value: -dayCount, to: .now)
+    private var referenceDate: Date {
+        if let stats {
+            return AnalyticsFormatters.parseDate(stats.lastComputedDate)
+        }
+        return .now
+    }
+
+    private var dateRange: (start: Date, end: Date)? {
+        let ref = referenceDate
+        switch selectedDateRange {
+        case .week:
+            guard let start = Calendar.current.date(byAdding: .day, value: -7, to: ref) else { return nil }
+            return (start, ref)
+        case .month:
+            guard let start = Calendar.current.date(byAdding: .day, value: -30, to: ref) else { return nil }
+            return (start, ref)
+        case .quarter:
+            guard let start = Calendar.current.date(byAdding: .day, value: -90, to: ref) else { return nil }
+            return (start, ref)
+        case .all:
+            return nil
+        case let .custom(start, end):
+            return (start, end)
+        }
+    }
+
+    func applyCustomRange() {
+        selectedDateRange = .custom(start: customStartDate, end: customEndDate)
+        isCustomRangePresented = false
+    }
+
+    var isCustomRange: Bool {
+        if case .custom = selectedDateRange { return true }
+        return false
     }
 
     // MARK: - Filtered Data
 
     var filteredDailyActivity: [StatsCache.DailyActivity] {
         guard let stats else { return [] }
-        guard let cutoff = cutoffDate else { return stats.dailyActivity }
-        return stats.dailyActivity.filter { AnalyticsFormatters.parseDate($0.date) >= cutoff }
+        guard let range = dateRange else { return stats.dailyActivity }
+        return stats.dailyActivity.filter {
+            let date = AnalyticsFormatters.parseDate($0.date)
+            return date >= range.start && date <= range.end
+        }
     }
 
     var filteredDailyModelTokens: [StatsCache.DailyModelTokens] {
         guard let stats else { return [] }
-        guard let cutoff = cutoffDate else { return stats.dailyModelTokens }
-        return stats.dailyModelTokens.filter { AnalyticsFormatters.parseDate($0.date) >= cutoff }
+        guard let range = dateRange else { return stats.dailyModelTokens }
+        return stats.dailyModelTokens.filter {
+            let date = AnalyticsFormatters.parseDate($0.date)
+            return date >= range.start && date <= range.end
+        }
     }
 
     // MARK: - Token Time Series
@@ -135,6 +191,10 @@ final class AnalyticsViewModel {
         stats?.totalCostUSD ?? 0
     }
 
+    var hasCostData: Bool {
+        totalCost > 0
+    }
+
     var totalTokens: Int {
         guard let stats else { return 0 }
         return stats.totalInputTokens + stats.totalOutputTokens
@@ -157,7 +217,13 @@ final class AnalyticsViewModel {
     }
 
     var timeSavedFormatted: String {
-        guard let stats else { return "0m" }
-        return AnalyticsFormatters.formatDuration(milliseconds: stats.totalSpeculationTimeSavedMs)
+        guard let stats else { return "—" }
+        let ms = stats.totalSpeculationTimeSavedMs
+        if ms == 0 { return "—" }
+        return AnalyticsFormatters.formatDuration(milliseconds: ms)
+    }
+
+    var hasTimeSavedData: Bool {
+        (stats?.totalSpeculationTimeSavedMs ?? 0) > 0
     }
 }

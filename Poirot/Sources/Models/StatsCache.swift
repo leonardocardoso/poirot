@@ -51,7 +51,7 @@ nonisolated struct StatsCache: Codable, Sendable, Equatable {
 
 // MARK: - Computed Helpers
 
-extension StatsCache {
+nonisolated extension StatsCache {
     /// First session date parsed as a `Date`.
     var firstSessionParsedDate: Date? {
         let formatter = ISO8601DateFormatter()
@@ -83,6 +83,11 @@ extension StatsCache {
     /// Total cost across all models.
     var totalCostUSD: Double {
         modelUsage.values.reduce(0) { $0 + $1.costUSD }
+    }
+
+    /// Total tool calls across all daily activity.
+    var totalToolCalls: Int {
+        dailyActivity.reduce(0) { $0 + $1.toolCallCount }
     }
 
     /// Hour counts sorted by hour (0-23).

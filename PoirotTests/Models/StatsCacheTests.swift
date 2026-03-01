@@ -202,6 +202,14 @@ struct StatsCacheTests {
         #expect(components.day == 31)
     }
 
+    @Test
+    func totalToolCalls_sumsAcrossDays() throws {
+        let data = Data(Self.validJSON.utf8)
+        let stats = try JSONDecoder().decode(StatsCache.self, from: data)
+
+        #expect(stats.totalToolCalls == 5324 + 100)
+    }
+
     // MARK: - StatsCacheLoader
 
     @Test

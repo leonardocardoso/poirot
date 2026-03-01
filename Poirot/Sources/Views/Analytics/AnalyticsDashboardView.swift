@@ -3,42 +3,183 @@ import SwiftUI
 
 struct AnalyticsDashboardView: View {
     @State
-    private var stats: StatsCache?
-    @State
-    private var isLoading = true
+    private var viewModel: AnalyticsViewModel
     @State
     private var loadBounce = 0
 
+    // Interactive chart selections
+    @State
+    private var dailySelectedDate: Date?
+    @State
+    private var tokenSelectedDate: Date?
+    @State
+    private var toolCallSelectedDate: Date?
+    @State
+    private var modelSelectedAngle: Int?
+
+    init(viewModel: AnalyticsViewModel = AnalyticsViewModel()) {
+        _viewModel = State(initialValue: viewModel)
+    }
+
     var body: some View {
         Group {
-            if isLoading {
-                loadingState
-            } else if let stats {
+            if viewModel.isLoading {
+                AnalyticsShimmerView()
+                    .transition(.opacity)
+            } else if let stats = viewModel.stats {
                 dashboardContent(stats)
+                    .transition(.opacity)
             } else {
                 emptyState
+                    .transition(.opacity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(PoirotTheme.Colors.bgApp)
+        .animation(.easeInOut(duration: 0.35), value: viewModel.isLoading)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.selectedDateRange)
+        .toolbar {
+            analyticsToolbar
+        }
         .task {
-            await loadStats()
+            if viewModel.stats == nil {
+                await viewModel.loadStats()
+            }
         }
     }
 
-    // MARK: - Loading
+    // MARK: - Toolbar
 
-    private var loadingState: some View {
-        VStack(spacing: PoirotTheme.Spacing.md) {
-            Image(systemName: "chart.xyaxis.line")
-                .font(.system(size: 36))
-                .foregroundStyle(PoirotTheme.Colors.accent)
-                .symbolEffect(.pulse, isActive: isLoading)
-
-            Text("Loading analytics...")
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+    @ToolbarContentBuilder
+    private var analyticsToolbar: some ToolbarContent { // swiftlint:disable:this attributes
+        ToolbarItemGroup(placement: .principal) {
+            Spacer()
         }
+        ToolbarItemGroup(placement: .primaryAction) {
+            dateRangePicker
+            customRangeButton
+            exportMenu
+            refreshButton
+        }
+    }
+
+    private var dateRangePicker: some View {
+        Picker("Range", selection: Binding(
+            get: {
+                if viewModel.isCustomRange { return "Custom" }
+                return viewModel.selectedDateRange.id
+            },
+            set: { newValue in
+                switch newValue {
+                case "7d": viewModel.selectedDateRange = .week
+                case "30d": viewModel.selectedDateRange = .month
+                case "90d": viewModel.selectedDateRange = .quarter
+                case "All": viewModel.selectedDateRange = .all
+                default: break
+                }
+            }
+        )) {
+            ForEach(AnalyticsDateRange.presets) { range in
+                Text(range.label).tag(range.id)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 200)
+    }
+
+    private var customRangeButton: some View {
+        Button {
+            viewModel.isCustomRangePresented.toggle()
+        } label: {
+            Image(systemName: viewModel.isCustomRange ? "calendar.circle.fill" : "calendar")
+                .foregroundStyle(viewModel.isCustomRange ? PoirotTheme.Colors.accent : PoirotTheme.Colors.textTertiary)
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .help("Custom date range")
+        .popover(isPresented: $viewModel.isCustomRangePresented, arrowEdge: .bottom) {
+            customRangePopover
+        }
+    }
+
+    private var customRangePopover: some View {
+        VStack(spacing: PoirotTheme.Spacing.md) {
+            Text("Custom Range")
+                .font(PoirotTheme.Typography.bodyMedium)
+                .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+            DatePicker("From", selection: $viewModel.customStartDate, displayedComponents: .date)
+                .datePickerStyle(.field)
+            DatePicker("To", selection: $viewModel.customEndDate, displayedComponents: .date)
+                .datePickerStyle(.field)
+
+            HStack {
+                Button("Cancel") {
+                    viewModel.isCustomRangePresented = false
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+
+                Spacer()
+
+                Button("Apply") {
+                    viewModel.applyCustomRange()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(PoirotTheme.Colors.accent)
+            }
+        }
+        .padding(PoirotTheme.Spacing.lg)
+        .frame(width: 260)
+    }
+
+    private var exportMenu: some View {
+        Menu {
+            if let stats = viewModel.stats {
+                Section("Share") {
+                    Button {
+                        shareAsImage(stats)
+                    } label: {
+                        Label("Share as Image", systemImage: "photo")
+                    }
+                }
+                Section("Export CSV") {
+                    ForEach(AnalyticsExportType.allCases) { type in
+                        Button(type.rawValue) {
+                            let csv = AnalyticsCSVExporter.export(stats, type: type)
+                            AnalyticsCSVExporter.presentSavePanel(csv: csv, suggestedName: type.suggestedFileName)
+                        }
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .frame(width: 24)
+        .disabled(viewModel.stats == nil)
+    }
+
+    private func shareAsImage(_ stats: StatsCache) {
+        let snapshotContent = AnalyticsSnapshotView(
+            stats: stats,
+            viewModel: viewModel
+        )
+        guard let image = AnalyticsImageExporter.renderToImage(snapshotContent) else { return }
+        AnalyticsImageExporter.presentSavePanel(image: image)
+    }
+
+    private var refreshButton: some View {
+        Button {
+            Task { await viewModel.loadStats() }
+        } label: {
+            Image(systemName: "arrow.clockwise")
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                .symbolEffect(.rotate, value: viewModel.isLoading)
+        }
+        .disabled(viewModel.isLoading)
+        .help("Refresh analytics")
     }
 
     // MARK: - Empty State
@@ -68,11 +209,40 @@ struct AnalyticsDashboardView: View {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxl) {
                 header(stats)
                 summaryCards(stats)
-                dailyActivityChart(stats)
+
+                DailyActivityChart(
+                    dailyActivity: viewModel.filteredDailyActivity,
+                    selectedDate: $dailySelectedDate
+                )
+
+                HourlyActivityChart(hourCounts: stats.sortedHourCounts)
+
+                ContributionHeatmap(entries: viewModel.heatmapData)
+
+                TokenUsageOverTimeChart(
+                    data: viewModel.tokenTimeSeriesData,
+                    selectedDate: $tokenSelectedDate
+                )
+
+                ToolCallsOverTimeChart(
+                    dailyActivity: viewModel.filteredDailyActivity,
+                    selectedDate: $toolCallSelectedDate
+                )
+
                 HStack(alignment: .top, spacing: PoirotTheme.Spacing.lg) {
-                    modelUsageChart(stats)
-                    hourlyActivityChart(stats)
+                    ModelUsageChart(
+                        modelUsage: stats.modelUsage,
+                        selectedAngle: $modelSelectedAngle
+                    )
+                    .frame(maxHeight: .infinity)
+
+                    CostBreakdownView(
+                        entries: viewModel.costBreakdownEntries,
+                        totalCost: viewModel.totalCost
+                    )
+                    .frame(maxHeight: .infinity)
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
             .padding(PoirotTheme.Spacing.xxl)
         }
@@ -81,49 +251,49 @@ struct AnalyticsDashboardView: View {
     // MARK: - Header
 
     private func header(_ stats: StatsCache) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
-                Text("Session Analytics")
-                    .font(PoirotTheme.Typography.heading)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
+            Text("Session Analytics")
+                .font(PoirotTheme.Typography.heading)
+                .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
-                Text("Last computed: \(stats.lastComputedDate)")
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                Text("Last computed: \(AnalyticsFormatters.formatLocalizedDate(stats.lastComputedDate))")
                     .font(PoirotTheme.Typography.small)
                     .foregroundStyle(PoirotTheme.Colors.textTertiary)
-            }
 
-            Spacer()
-
-            Button {
-                Task { await loadStats() }
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(PoirotTheme.Typography.caption)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .symbolEffect(.rotate, value: isLoading)
+                if case let .custom(start, end) = viewModel.selectedDateRange {
+                    Text("·")
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    Text("\(AnalyticsFormatters.formatShortDate(start)) — \(AnalyticsFormatters.formatShortDate(end))")
+                        .font(PoirotTheme.Typography.small)
+                        .foregroundStyle(PoirotTheme.Colors.accent)
+                }
             }
-            .buttonStyle(.plain)
-            .disabled(isLoading)
         }
     }
 
     // MARK: - Summary Cards
 
+    private let cardColumns = Array(repeating: GridItem(.flexible(), spacing: PoirotTheme.Spacing.md), count: 4)
+    private let cardRowHeight: CGFloat = 110
+
     private func summaryCards(_ stats: StatsCache) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: PoirotTheme.Spacing.md), count: 4), spacing: PoirotTheme.Spacing.md) {
+        LazyVGrid(columns: cardColumns, spacing: PoirotTheme.Spacing.md) {
             StatCard(
                 title: "Total Sessions",
                 value: "\(stats.totalSessions)",
                 icon: "rectangle.stack.fill",
                 color: PoirotTheme.Colors.accent
             )
+            .frame(height: cardRowHeight)
 
             StatCard(
                 title: "Total Messages",
-                value: Self.formatLargeNumber(stats.totalMessages),
+                value: AnalyticsFormatters.formatLargeNumber(stats.totalMessages),
                 icon: "message.fill",
                 color: PoirotTheme.Colors.blue
             )
+            .frame(height: cardRowHeight)
 
             StatCard(
                 title: "Longest Session",
@@ -132,279 +302,55 @@ struct AnalyticsDashboardView: View {
                 icon: "timer",
                 color: PoirotTheme.Colors.orange
             )
+            .frame(height: cardRowHeight)
 
             StatCard(
                 title: "First Session",
-                value: Self.formatFirstSessionDate(stats.firstSessionParsedDate),
+                value: AnalyticsFormatters.formatFirstSessionDate(stats.firstSessionParsedDate),
                 icon: "calendar",
                 color: PoirotTheme.Colors.green
             )
-        }
-    }
+            .frame(height: cardRowHeight)
 
-    // MARK: - Daily Activity Chart
-
-    private func dailyActivityChart(_ stats: StatsCache) -> some View {
-        ChartCard(title: "Daily Activity", subtitle: "Messages and sessions over time") {
-            Chart {
-                ForEach(stats.dailyActivity) { day in
-                    BarMark(
-                        x: .value("Date", Self.parseDate(day.date)),
-                        y: .value("Messages", day.messageCount)
-                    )
-                    .foregroundStyle(PoirotTheme.Colors.accent.opacity(0.8))
-                    .cornerRadius(2)
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .day, count: 7)) { _ in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
-                        .foregroundStyle(PoirotTheme.Colors.border)
-                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                        .font(PoirotTheme.Typography.micro)
-                }
-            }
-            .chartYAxis {
-                AxisMarks { _ in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
-                        .foregroundStyle(PoirotTheme.Colors.border)
-                    AxisValueLabel()
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                        .font(PoirotTheme.Typography.micro)
-                }
-            }
-            .chartPlotStyle { plotArea in
-                plotArea.background(PoirotTheme.Colors.bgCard.opacity(0.3))
-            }
-            .frame(height: 220)
-        }
-    }
-
-    // MARK: - Model Usage Chart
-
-    private func modelUsageChart(_ stats: StatsCache) -> some View {
-        let modelData = stats.modelUsage.map { key, value in
-            ModelChartEntry(
-                model: StatsCache.friendlyModelName(key),
-                tokens: value.outputTokens + value.inputTokens
+            // Row 2
+            StatCard(
+                title: "Total Cost",
+                value: viewModel.hasCostData ? AnalyticsFormatters.formatCost(viewModel.totalCost) : "—",
+                subtitle: viewModel.hasCostData ? nil : "included in subscription",
+                icon: "dollarsign.circle.fill",
+                color: PoirotTheme.Colors.green,
+                dimmed: !viewModel.hasCostData,
+                info: viewModel
+                    .hasCostData ? nil :
+                    "API users see per-model costs here. Subscription plans (Max, Pro) include usage at no extra charge."
             )
+            .frame(height: cardRowHeight)
+
+            StatCard(
+                title: "Total Tokens",
+                value: AnalyticsFormatters.formatLargeNumber(viewModel.totalTokens),
+                icon: "number.circle.fill",
+                color: PoirotTheme.Colors.purple
+            )
+            .frame(height: cardRowHeight)
+
+            StatCard(
+                title: "Tool Calls",
+                value: AnalyticsFormatters.formatLargeNumber(viewModel.totalToolCalls),
+                icon: "wrench.and.screwdriver.fill",
+                color: PoirotTheme.Colors.teal
+            )
+            .frame(height: cardRowHeight)
+
+            StatCard(
+                title: "Time Saved",
+                value: viewModel.timeSavedFormatted,
+                subtitle: viewModel.hasTimeSavedData ? "speculation cache" : "no cache data",
+                icon: "clock.arrow.2.circlepath",
+                color: PoirotTheme.Colors.blue,
+                dimmed: !viewModel.hasTimeSavedData
+            )
+            .frame(height: cardRowHeight)
         }
-        .sorted { $0.tokens > $1.tokens }
-
-        return ChartCard(title: "Model Usage", subtitle: "Token distribution by model") {
-            Chart(modelData, id: \.model) { entry in
-                SectorMark(
-                    angle: .value("Tokens", entry.tokens),
-                    innerRadius: .ratio(0.6),
-                    angularInset: 2
-                )
-                .foregroundStyle(by: .value("Model", entry.model))
-                .cornerRadius(4)
-            }
-            .chartForegroundStyleScale(domain: modelData.map(\.model), range: modelColors(count: modelData.count))
-            .chartLegend(position: .bottom, alignment: .center, spacing: PoirotTheme.Spacing.sm) {
-                HStack(spacing: PoirotTheme.Spacing.md) {
-                    ForEach(Array(modelData.enumerated()), id: \.element.model) { index, entry in
-                        HStack(spacing: PoirotTheme.Spacing.xs) {
-                            Circle()
-                                .fill(modelColors(count: modelData.count)[index])
-                                .frame(width: 8, height: 8)
-                            Text(entry.model)
-                                .font(PoirotTheme.Typography.micro)
-                                .foregroundStyle(PoirotTheme.Colors.textSecondary)
-                        }
-                    }
-                }
-            }
-            .frame(height: 200)
-        }
-    }
-
-    // MARK: - Hourly Activity Chart
-
-    private func hourlyActivityChart(_ stats: StatsCache) -> some View {
-        ChartCard(title: "Activity by Hour", subtitle: "Session start times (UTC)") {
-            Chart(stats.sortedHourCounts, id: \.hour) { entry in
-                BarMark(
-                    x: .value("Hour", entry.hour),
-                    y: .value("Sessions", entry.count)
-                )
-                .foregroundStyle(
-                    Gradient(colors: [
-                        PoirotTheme.Colors.accent.opacity(0.6),
-                        PoirotTheme.Colors.accent,
-                    ])
-                )
-                .cornerRadius(3)
-            }
-            .chartXAxis {
-                AxisMarks(values: [0, 6, 12, 18, 23]) { value in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
-                        .foregroundStyle(PoirotTheme.Colors.border)
-                    AxisValueLabel {
-                        if let hour = value.as(Int.self) {
-                            Text(Self.formatHour(hour))
-                                .font(PoirotTheme.Typography.micro)
-                                .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                        }
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks { _ in
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
-                        .foregroundStyle(PoirotTheme.Colors.border)
-                    AxisValueLabel()
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                        .font(PoirotTheme.Typography.micro)
-                }
-            }
-            .chartPlotStyle { plotArea in
-                plotArea.background(PoirotTheme.Colors.bgCard.opacity(0.3))
-            }
-            .frame(height: 200)
-        }
-    }
-
-    // MARK: - Helpers
-
-    private func loadStats() async {
-        isLoading = true
-        let loaded = await Task.detached {
-            StatsCacheLoader.load()
-        }.value
-        stats = loaded
-        isLoading = false
-    }
-
-    private static func parseDate(_ string: String) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter.date(from: string) ?? .now
-    }
-
-    private static func formatFirstSessionDate(_ date: Date?) -> String {
-        guard let date else { return "Unknown" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        return formatter.string(from: date)
-    }
-
-    private static func formatLargeNumber(_ number: Int) -> String {
-        if number >= 1_000_000 {
-            return String(format: "%.1fM", Double(number) / 1_000_000)
-        }
-        if number >= 1000 {
-            return String(format: "%.1fK", Double(number) / 1000)
-        }
-        return "\(number)"
-    }
-
-    private static func formatHour(_ hour: Int) -> String {
-        let period = hour >= 12 ? "PM" : "AM"
-        let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
-        return "\(displayHour)\(period)"
-    }
-
-    private func modelColors(count: Int) -> [Color] {
-        let palette: [Color] = [
-            PoirotTheme.Colors.accent,
-            PoirotTheme.Colors.blue,
-            PoirotTheme.Colors.purple,
-            PoirotTheme.Colors.teal,
-            PoirotTheme.Colors.green,
-            PoirotTheme.Colors.orange,
-        ]
-        return Array(palette.prefix(count))
-    }
-}
-
-// MARK: - Supporting Types
-
-private struct ModelChartEntry {
-    let model: String
-    let tokens: Int
-}
-
-// MARK: - Stat Card
-
-private struct StatCard: View {
-    let title: String
-    let value: String
-    var subtitle: String?
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: 14))
-                    .foregroundStyle(color)
-
-                Spacer()
-            }
-
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-                Text(value)
-                    .font(PoirotTheme.Typography.heading)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-
-                Text(title)
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-
-                if let subtitle {
-                    Text(subtitle)
-                        .font(PoirotTheme.Typography.micro)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-            }
-        }
-        .padding(PoirotTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .fill(PoirotTheme.Colors.bgCard)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .stroke(PoirotTheme.Colors.border, lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - Chart Card
-
-private struct ChartCard<Content: View>: View {
-    let title: String
-    let subtitle: String
-    @ViewBuilder
-    let content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.md) {
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-                Text(title)
-                    .font(PoirotTheme.Typography.bodyMedium)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-
-                Text(subtitle)
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-            }
-
-            content
-        }
-        .padding(PoirotTheme.Spacing.lg)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .fill(PoirotTheme.Colors.bgCard)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .stroke(PoirotTheme.Colors.border, lineWidth: 1)
-        )
     }
 }

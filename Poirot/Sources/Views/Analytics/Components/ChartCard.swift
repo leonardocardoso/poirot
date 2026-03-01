@@ -19,8 +19,11 @@ struct ChartCard<Content: View>: View {
             }
 
             content
+
+            Spacer(minLength: 0)
         }
         .padding(PoirotTheme.Spacing.lg)
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(
             RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
                 .fill(PoirotTheme.Colors.bgCard)
