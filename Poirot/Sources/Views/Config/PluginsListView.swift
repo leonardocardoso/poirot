@@ -36,7 +36,6 @@ struct PluginsListView: View {
                 dynamicCount: "\(plugins.count) \(plugins.count == 1 ? "plugin" : "plugins")"
             )
 
-
             if !isLoaded {
                 ConfigSkeletonView(
                     layout: appState.configLayout(for: item.id)
@@ -58,7 +57,9 @@ struct PluginsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plugins\u{2026}") }
+        .toolbar {
+            ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plugins\u{2026}")
+        }
         .task {
             reloadPlugins()
             if !isLoaded {

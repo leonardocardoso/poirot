@@ -32,7 +32,6 @@ struct SubAgentsListView: View {
                 dynamicCount: "\(SubAgent.builtIn.count) \(SubAgent.builtIn.count == 1 ? "agent" : "agents")"
             )
 
-
             if filteredAgents.isEmpty, !filterQuery.isEmpty {
                 ConfigEmptyState(
                     icon: "magnifyingglass",
@@ -44,7 +43,13 @@ struct SubAgentsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Sub-Agents\u{2026}") }
+        .toolbar {
+            ConfigLayoutToolbar(
+                screenID: item.id,
+                filterQuery: $filterQuery,
+                placeholder: "Find in Sub-Agents\u{2026}"
+            )
+        }
         .task {
             isRevealed = false
             try? await Task.sleep(for: .milliseconds(50))

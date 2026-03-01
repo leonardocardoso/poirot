@@ -34,7 +34,6 @@ struct ModelsListView: View {
                 dynamicCount: "\(provider.supportedModels.count) \(provider.supportedModels.count == 1 ? "model" : "models")"
             )
 
-
             if filteredModels.isEmpty, !filterQuery.isEmpty {
                 ConfigEmptyState(
                     icon: "magnifyingglass",
@@ -46,7 +45,9 @@ struct ModelsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Models\u{2026}") }
+        .toolbar {
+            ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Models\u{2026}")
+        }
         .task {
             currentDefault = provider.defaultModelName
             loadProjectModel()
@@ -60,7 +61,6 @@ struct ModelsListView: View {
             loadProjectModel()
         }
     }
-
 
     @ViewBuilder
     private var configContent: some View {

@@ -63,7 +63,13 @@ struct MCPServersListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in MCP Servers\u{2026}", showProjectPicker: true) }
+        .toolbar { ConfigLayoutToolbar(
+            screenID: item.id,
+            filterQuery: $filterQuery,
+            placeholder: "Find in MCP Servers\u{2026}",
+            showProjectPicker: true
+        )
+        }
         .task {
             reloadServers()
             if !isLoaded {
@@ -82,7 +88,6 @@ struct MCPServersListView: View {
             reloadServers()
         }
     }
-
 
     @ViewBuilder
     private var configContent: some View {

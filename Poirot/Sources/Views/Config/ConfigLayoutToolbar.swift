@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ConfigLayoutToolbar: ToolbarContent {
     let screenID: String
-    @Binding var filterQuery: String
+    @Binding
+    var filterQuery: String
     var placeholder: String = "Filter\u{2026}"
     var showProjectPicker: Bool = false
     var showAddButton: Bool = false

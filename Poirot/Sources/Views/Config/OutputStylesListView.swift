@@ -128,7 +128,14 @@ struct OutputStylesListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Output Styles\u{2026}", showProjectPicker: true, showAddButton: true) }
+        .toolbar { ConfigLayoutToolbar(
+            screenID: item.id,
+            filterQuery: $filterQuery,
+            placeholder: "Find in Output Styles\u{2026}",
+            showProjectPicker: true,
+            showAddButton: true
+        )
+        }
         .task {
             reloadStyles()
             if !isLoaded {
@@ -150,7 +157,6 @@ struct OutputStylesListView: View {
             reloadStyles()
         }
     }
-
 
     @ViewBuilder
     private var configContent: some View {

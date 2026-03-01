@@ -142,7 +142,14 @@ struct CommandsListView: View {
             }
         }
         .background(PoirotTheme.Colors.bgApp)
-        .toolbar { ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Commands\u{2026}", showProjectPicker: true, showAddButton: true) }
+        .toolbar { ConfigLayoutToolbar(
+            screenID: item.id,
+            filterQuery: $filterQuery,
+            placeholder: "Find in Commands\u{2026}",
+            showProjectPicker: true,
+            showAddButton: true
+        )
+        }
         .task {
             reloadCommands()
             if !isLoaded {
@@ -164,7 +171,6 @@ struct CommandsListView: View {
             reloadCommands()
         }
     }
-
 
     @ViewBuilder
     private var configContent: some View {
