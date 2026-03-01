@@ -16,6 +16,8 @@ struct ContentView: View {
     private var fileWatcher: FileWatcher?
     @State
     private var debugFileWatcher: FileWatcher?
+    @State
+    private var facetsWatcher: FileWatcher?
     @AppStorage("hasCompletedOnboarding")
     private var hasCompletedOnboarding = false
     @AppStorage("accentColor")
@@ -107,6 +109,20 @@ struct ContentView: View {
             }
             watcher.start(path: sessionLoader.claudeProjectsPath)
             fileWatcher = watcher
+
+            // Watch facets directory for live updates
+            if facetsWatcher == nil {
+                let fWatcher = FileWatcher { [weak appState] in
+                    appState?.refreshID = UUID()
+                }
+                let facetsPath = FacetsLoader().claudeFacetsPath
+                // Ensure directory exists before watching
+                let fm = FileManager.default
+                if fm.fileExists(atPath: facetsPath) {
+                    fWatcher.start(path: facetsPath)
+                    facetsWatcher = fWatcher
+                }
+            }
         }
         .task {
             if let release = await UpdateChecker.checkForUpdate() {
@@ -123,6 +139,8 @@ struct ContentView: View {
             fileWatcher = nil
             debugFileWatcher?.stop()
             debugFileWatcher = nil
+            facetsWatcher?.stop()
+            facetsWatcher = nil
         }
         .sheet(item: Binding(
             get: { appState.showDebugLogSessionId.map(DebugLogSheetId.init) },
@@ -138,6 +156,8 @@ struct ContentView: View {
             fileWatcher = nil
             debugFileWatcher?.stop()
             debugFileWatcher = nil
+            facetsWatcher?.stop()
+            facetsWatcher = nil
         }
     }
 

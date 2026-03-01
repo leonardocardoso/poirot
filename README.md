@@ -178,6 +178,13 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
   <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
 </p>
 
+### AI Session Summaries
+See AI-generated session analysis at the top of each session detail. A collapsible card shows the brief summary, underlying goal, outcome badge, helpfulness rating, session type, goal categories as tags, and friction indicators — all parsed from `~/.claude/usage-data/facets/`. Facets are also searchable via the universal search overlay.
+
+<p align="center">
+  <img src="assets/showcase/21-ai-summaries.png" alt="AI Session Summaries" width="720" />
+</p>
+
 ---
 
 ## Capabilities
@@ -201,6 +208,12 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
 | | Relative Timestamps | Toggle between absolute (HH:mm:ss.SSS) and relative (+offset) time display |
 | **History** | Prompt History Browser | Browse `~/.claude/history.jsonl` with date grouping, project filtering, full-text search, and copy-to-clipboard |
 | **Search** | Universal Search (⌘K) | Fuzzy search across sessions, history, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
+| **AI Summaries** | Session Facets | AI-generated analysis (goal, outcome, helpfulness) from `~/.claude/usage-data/facets/` |
+| | Outcome & Helpfulness Badges | Color-coded badges for success/partial/failure and helpfulness rating |
+| | Goal Categories | Tag chips showing categorized session goals with counts |
+| | Friction Indicators | Subtle indicators for tool failures, misunderstandings, and other friction |
+| | Live File Watching | Auto-updates when new facets appear via GCD dispatch sources |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, AI summaries, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, and TODOs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
