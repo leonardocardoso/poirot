@@ -47,7 +47,12 @@ struct AnalyticsCSVExporterTests {
             ],
             totalSessions: 10,
             totalMessages: 300,
-            longestSession: .init(sessionId: "test", duration: 3_600_000, messageCount: 50, timestamp: "2026-01-01T00:00:00.000Z"),
+            longestSession: .init(
+                sessionId: "test",
+                duration: 3_600_000,
+                messageCount: 50,
+                timestamp: "2026-01-01T00:00:00.000Z"
+            ),
             firstSessionDate: "2025-12-31T00:00:00.000Z",
             hourCounts: ["9": 5, "14": 10, "22": 3],
             totalSpeculationTimeSavedMs: 0
