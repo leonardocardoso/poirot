@@ -41,7 +41,6 @@ struct SessionFacetsCard: View {
                     .font(PoirotTheme.Typography.small)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(PoirotTheme.Colors.purple)
-                    .symbolEffect(.breathe, isActive: !reduceMotion)
 
                 Text("AI Summary")
                     .font(PoirotTheme.Typography.smallBold)
