@@ -5,7 +5,7 @@ import Foundation
 /// Each line is a JSON object with `display`, `pastedContents`, `timestamp`, and `project` fields.
 /// The file can grow to thousands of entries; this loader streams line-by-line and supports
 /// pagination via `offset` / `limit`.
-nonisolated struct HistoryLoader {
+nonisolated struct HistoryLoader: HistoryLoading {
     let historyFilePath: String
 
     init(historyFilePath: String? = nil) {

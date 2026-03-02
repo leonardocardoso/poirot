@@ -7,6 +7,9 @@ struct HistoryListView: View {
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
 
+    @Environment(\.historyLoader)
+    private var historyLoader
+
     @State
     private var entries: [HistoryEntry] = []
 
@@ -334,7 +337,7 @@ struct HistoryListView: View {
     }
 
     private func deleteEntry(_ entry: HistoryEntry) {
-        HistoryLoader().delete(entry: entry)
+        historyLoader.delete(entry: entry)
         withAnimation(.easeInOut(duration: 0.25)) {
             entries.removeAll { $0.id == entry.id }
         }
@@ -352,8 +355,9 @@ struct HistoryListView: View {
     }
 
     private func loadHistory() async {
+        let loader = historyLoader
         let result = await Task.detached {
-            HistoryLoader().loadAll()
+            loader.loadAll()
         }.value
 
         entries = result
@@ -390,7 +394,7 @@ struct HistoryListView: View {
     }
 
     private func clearHistory(olderThanDays days: Int) {
-        let removed = HistoryLoader().deleteOlderThan(days: days)
+        let removed = historyLoader.deleteOlderThan(days: days)
         guard removed > 0 else {
             appState.showToast("No prompts older than \(Self.clearOptionLabel(for: days))")
             return
