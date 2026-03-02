@@ -178,6 +178,13 @@ See AI-generated session analysis at the top of each session detail. A collapsib
   <img src="assets/showcase/22-ai-summaries.png" alt="AI Session Summaries" width="720" />
 </p>
 
+### Memory
+Browse Claude Code's auto-memory files per project. MEMORY.md is the main entrypoint loaded into every conversation, and topic files contain detailed notes organized by subject. Filter by project, view rendered markdown, and search across all memories with live file watching.
+
+<p align="center">
+  <img src="assets/showcase/23-memory.png" alt="Memory" width="720" />
+</p>
+
 ---
 
 ## Capabilities
@@ -205,7 +212,7 @@ See AI-generated session analysis at the top of each session detail. A collapsib
 | | Goal Categories | Tag chips showing categorized session goals with counts |
 | | Friction Indicators | Subtle indicators for tool failures, misunderstandings, and other friction |
 | | Live File Watching | Auto-updates when new facets appear via GCD dispatch sources |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, AI summaries, history, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, AI summaries, history, commands, skills, memory, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
@@ -217,6 +224,7 @@ See AI-generated session analysis at the top of each session detail. A collapsib
 | | Output Styles | Browse and manage output style configurations |
 | | TODOs | Browse per-session todo lists with status tracking and session navigation |
 | | Plans | Browse `~/.claude/plans/` markdown files with rendered/raw toggle, copy, delete, and file watching |
+| | Memory | Browse per-project auto-memory files with rendered markdown, project filtering, and file watching |
 | | Grid & List Views | Toggle between card grid and compact list layouts |
 | | Scope Badges | Visual distinction between Global and Project-scoped items |
 | **Integrations** | IDE/Editor | One-click open files in VS Code, Cursor, Xcode, or Zed |
@@ -297,6 +305,7 @@ Poirot/Sources/
     ├── Configuration/ # Config dashboard
     ├── History/       # Prompt history browser
     ├── Home/          # Welcome / empty state
+    ├── Memory/        # Memory file browser
     ├── Project/       # Project sessions list
     ├── Plans/         # Plans browser
     ├── Search/        # &#x2318;K overlay

@@ -66,6 +66,12 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "speaker.wave.3.fill",
         requiredCapability: .outputStyles
     )
+    static let memory = NavigationItem(
+        id: "memory",
+        title: String(localized: "Memory"),
+        systemImage: "brain.head.profile.fill",
+        requiredCapability: .memory
+    )
     static let analytics = NavigationItem(
         id: "analytics",
         title: String(localized: "Analytics"),
@@ -80,7 +86,7 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
     )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .analytics, .todos, .history, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles,
+        .sessions, .analytics, .todos, .history, .commands, .skills, .plans, .memory, .mcpServers, .plugins, .outputStyles,
         .models, .subAgents,
     ]
 }

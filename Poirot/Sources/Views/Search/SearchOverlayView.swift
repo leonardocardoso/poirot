@@ -11,6 +11,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     case commands
     case skills
     case plans
+    case memory
     case mcpServers
     case plugins
     case outputStyles
@@ -27,6 +28,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .commands: "COMMANDS"
         case .skills: "SKILLS"
         case .plans: "PLANS"
+        case .memory: "MEMORY"
         case .mcpServers: "MCP SERVERS"
         case .plugins: "PLUGINS"
         case .outputStyles: "OUTPUT STYLES"
@@ -45,6 +47,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .commands: .commands
         case .skills: .skills
         case .plans: .plans
+        case .memory: .memory
         case .mcpServers: .mcpServers
         case .plugins: .plugins
         case .outputStyles: .outputStyles
@@ -114,6 +117,8 @@ struct SearchOverlayView: View {
     private var plugins: [ClaudePlugin] = []
     @State
     private var outputStyles: [OutputStyle] = []
+    @State
+    private var memoryFiles: [MemoryFile] = []
     @State
     private var todoEntries: [(sessionId: String, todos: [SessionTodo])] = []
     @State
@@ -426,6 +431,35 @@ struct SearchOverlayView: View {
             ))
         }
 
+        // Memory
+        for memory in memoryFiles {
+            let nameScore = score(memory.name)
+            let best = nameScore > 0
+                ? nameScore
+                : (memory.content.localizedCaseInsensitiveContains(q) ? 1 : 0)
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "memory-\(memory.id)",
+                category: .memory,
+                icon: memory.isMain
+                    ? "brain.head.profile.fill"
+                    : "doc.text.fill",
+                title: memory.name,
+                subtitle: memory.filename,
+                trailing: memory.isMain ? "Entrypoint" : "",
+                score: best,
+                action: .openDetail(
+                    .memory,
+                    ConfigDetailInfo(
+                        name: memory.name,
+                        markdownContent: memory.content,
+                        filePath: memory.fileURL.path,
+                        scope: nil
+                    )
+                )
+            ))
+        }
+
         let grouped = Dictionary(grouping: all) { $0.category }
         let maxPerGroup = 5
         return SearchCategory.allCases.compactMap { cat in
@@ -552,7 +586,7 @@ struct SearchOverlayView: View {
                 )
 
             TextField(
-                "Search sessions, history, commands, plans...",
+                "Search sessions, history, commands, memory, plans...",
                 text: $query
             )
             .textFieldStyle(.plain)
@@ -821,7 +855,10 @@ struct SearchOverlayView: View {
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
                 TodoLoader().loadAllTodos(),
                 Set(DebugLogLoader().allSessionIds()),
-                HistoryLoader().loadAll()
+                HistoryLoader().loadAll(),
+                ClaudeConfigLoader.projectsWithMemory().flatMap { dirName, _ in
+                    ClaudeConfigLoader.loadMemoryFiles(projectDirName: dirName)
+                }
             )
         }.value
         commands = result.0
@@ -835,6 +872,7 @@ struct SearchOverlayView: View {
             .map { (sessionId: $0.key, todos: $0.value) }
         debugLogSessionIds = result.7
         historyEntries = result.8
+        memoryFiles = result.9
         allFacets = await Task.detached {
             FacetsLoader().loadAllFacets()
         }.value

@@ -4,8 +4,8 @@ import Testing
 @Suite("NavigationItem")
 struct NavigationItemTests {
     @Test
-    func allItems_hasTwelveItems() {
-        #expect(NavigationItem.allItems.count == 12)
+    func allItems_hasThirteenItems() {
+        #expect(NavigationItem.allItems.count == 13)
     }
 
     @Test
@@ -41,5 +41,15 @@ struct NavigationItemTests {
     @Test
     func plans_requiresPlansCapability() {
         #expect(NavigationItem.plans.requiredCapability == .plans)
+    }
+
+    @Test
+    func memory_requiresMemoryCapability() {
+        #expect(NavigationItem.memory.requiredCapability == .memory)
+    }
+
+    @Test
+    func memory_hasCorrectSystemImage() {
+        #expect(NavigationItem.memory.systemImage == "brain.head.profile.fill")
     }
 }

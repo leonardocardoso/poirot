@@ -7,4 +7,5 @@ enum ProviderCapability: String, CaseIterable, Sendable {
     case plugins
     case models
     case outputStyles
+    case memory
 }
