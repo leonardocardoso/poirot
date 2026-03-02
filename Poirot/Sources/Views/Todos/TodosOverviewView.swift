@@ -465,7 +465,7 @@ private struct SessionTodoCard: View {
 
     private var groupHeader: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-            HStack(spacing: PoirotTheme.Spacing.sm) {
+            HStack(alignment: .firstTextBaseline, spacing: PoirotTheme.Spacing.sm) {
                 Image(systemName: "rectangle.stack")
                     .font(PoirotTheme.Typography.small)
                     .symbolRenderingMode(.hierarchical)

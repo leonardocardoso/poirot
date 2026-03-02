@@ -23,10 +23,10 @@ struct HistoryListView: View {
     private var selectedProject: String?
 
     @State
-    private var selectedEntry: HistoryEntry?
+    private var fileWatcher: FileWatcher?
 
     @State
-    private var fileWatcher: FileWatcher?
+    private var clearOlderThanDays: Int?
 
     private static let screenID = NavigationItem.history.id
     private static let pageSize = 30
@@ -92,24 +92,7 @@ struct HistoryListView: View {
     // MARK: - Body
 
     var body: some View {
-        Group {
-            if let entry = selectedEntry {
-                HistoryDetailView(
-                    entry: entry,
-                    filterQuery: filterQuery,
-                    onBack: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedEntry = nil
-                        }
-                    },
-                    onCopy: { copyPrompt(entry) }
-                )
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-            } else {
-                listContent
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-            }
-        }
+        listContent
     }
 
     // MARK: - List Content
@@ -142,7 +125,9 @@ struct HistoryListView: View {
                 screenID: Self.screenID,
                 filterQuery: $filterQuery,
                 selectedProject: $selectedProject,
-                allProjects: allProjects
+                allProjects: allProjects,
+                clearOlderThanDays: $clearOlderThanDays,
+                hasEntries: !entries.isEmpty
             )
         }
         .task {
@@ -163,6 +148,21 @@ struct HistoryListView: View {
         .onDisappear {
             fileWatcher?.stop()
             fileWatcher = nil
+        }
+        .confirmationDialog(
+            clearConfirmationTitle,
+            isPresented: Binding(
+                get: { clearOlderThanDays != nil },
+                set: { if !$0 { clearOlderThanDays = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let days = clearOlderThanDays {
+                    clearHistory(olderThanDays: days)
+                }
+                clearOlderThanDays = nil
+            }
         }
     }
 
@@ -238,14 +238,17 @@ struct HistoryListView: View {
                                     HistoryCard(
                                         entry: entry,
                                         filterQuery: filterQuery,
-                                        onTap: { selectEntry(entry) },
-                                        onCopy: { copyPrompt(entry) }
+                                        onCopy: { copyPrompt(entry) },
+                                        onDelete: { deleteEntry(entry) }
                                     )
                                     .shimmerReveal(
                                         isRevealed: isRevealed,
                                         delay: Double(min(index, 7)) * 0.04,
                                         cornerRadius: PoirotTheme.Radius.md
                                     )
+                                    .onAppear {
+                                        loadMoreIfNeeded(entry: entry)
+                                    }
                                 }
                             }
                         }
@@ -269,8 +272,8 @@ struct HistoryListView: View {
                         HistoryCard(
                             entry: entry,
                             filterQuery: filterQuery,
-                            onTap: { selectEntry(entry) },
-                            onCopy: { copyPrompt(entry) }
+                            onCopy: { copyPrompt(entry) },
+                            onDelete: { deleteEntry(entry) }
                         )
                         .shimmerReveal(
                             isRevealed: isRevealed,
@@ -324,16 +327,19 @@ struct HistoryListView: View {
         return columns
     }
 
-    private func selectEntry(_ entry: HistoryEntry) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            selectedEntry = entry
-        }
-    }
-
     private func copyPrompt(_ entry: HistoryEntry) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(entry.display, forType: .string)
         appState.showToast("Copied prompt to clipboard")
+    }
+
+    private func deleteEntry(_ entry: HistoryEntry) {
+        HistoryLoader().delete(entry: entry)
+        withAnimation(.easeInOut(duration: 0.25)) {
+            entries.removeAll { $0.id == entry.id }
+        }
+        syncSidebarCount()
+        appState.showToast("Prompt deleted", icon: "trash")
     }
 
     private func loadMoreIfNeeded(entry: HistoryEntry) {
@@ -367,6 +373,40 @@ struct HistoryListView: View {
         }
     }
 
+    private var clearConfirmationTitle: String {
+        guard let days = clearOlderThanDays else { return "Delete old prompts?" }
+        let label = Self.clearOptionLabel(for: days)
+        return "Delete prompts older than \(label)?"
+    }
+
+    private static func clearOptionLabel(for days: Int) -> String {
+        switch days {
+        case 14: "2 weeks"
+        case 30: "1 month"
+        case 90: "3 months"
+        case 180: "6 months"
+        default: "\(days) days"
+        }
+    }
+
+    private func clearHistory(olderThanDays days: Int) {
+        let removed = HistoryLoader().deleteOlderThan(days: days)
+        guard removed > 0 else {
+            appState.showToast("No prompts older than \(Self.clearOptionLabel(for: days))")
+            return
+        }
+        let cutoff = Date().addingTimeInterval(-Double(days) * 86400)
+        withAnimation(.easeInOut(duration: 0.25)) {
+            entries.removeAll { $0.timestamp < cutoff }
+        }
+        syncSidebarCount()
+        let label = Self.clearOptionLabel(for: days)
+        appState.showToast(
+            "Deleted \(removed) \(removed == 1 ? "prompt" : "prompts") older than \(label)",
+            icon: "trash"
+        )
+    }
+
     private func syncSidebarCount() {
         appState.sidebarCounts[NavigationItem.history.id] = entries.count
     }
@@ -377,8 +417,8 @@ struct HistoryListView: View {
 private struct HistoryCard: View {
     let entry: HistoryEntry
     var filterQuery: String = ""
-    let onTap: () -> Void
     let onCopy: () -> Void
+    let onDelete: () -> Void
 
     @State
     private var isHovered = false
@@ -386,223 +426,79 @@ private struct HistoryCard: View {
     @State
     private var copyTapped = false
 
-    var body: some View {
-        Button { onTap() } label: {
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                HStack(spacing: PoirotTheme.Spacing.sm) {
-                    Text(HighlightedText.fuzzyAttributedString(entry.snippet, query: filterQuery))
-                        .font(PoirotTheme.Typography.bodyMedium)
-                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
-
-                    Spacer()
-
-                    Button {
-                        onCopy()
-                        copyTapped = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copyTapped = false }
-                    } label: {
-                        Image(systemName: copyTapped ? "checkmark" : "doc.on.doc")
-                            .font(PoirotTheme.Typography.tiny)
-                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                            .contentTransition(.symbolEffect(.replace))
-                    }
-                    .buttonStyle(.plain)
-                    .help("Copy Prompt")
-                }
-
-                HStack(spacing: PoirotTheme.Spacing.sm) {
-                    Label {
-                        Text(HighlightedText.fuzzyAttributedString(entry.projectName, query: filterQuery))
-                    } icon: {
-                        Image(systemName: "shippingbox")
-                    }
-                    .font(PoirotTheme.Typography.code)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .lineLimit(1)
-                    .padding(.horizontal, PoirotTheme.Spacing.sm)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                            .fill(PoirotTheme.Colors.bgElevated)
-                    )
-
-                    Spacer()
-
-                    Text(entry.timeAgo)
-                        .font(PoirotTheme.Typography.tiny)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(PoirotTheme.Spacing.lg)
-            .cardChrome(isHovered: isHovered)
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovered = $0 }
-    }
-}
-
-// MARK: - History Detail View
-
-private struct HistoryDetailView: View {
-    let entry: HistoryEntry
-    var filterQuery: String = ""
-    let onBack: () -> Void
-    let onCopy: () -> Void
-
     @State
-    private var copyTapped = false
+    private var showDeleteConfirmation = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            detailHeader
-            Divider().opacity(0.3)
-            detailContent
-        }
-        .background(PoirotTheme.Colors.bgApp)
-    }
-
-    private var detailHeader: some View {
-        HStack(spacing: PoirotTheme.Spacing.md) {
-            Button { onBack() } label: {
-                Image(systemName: "chevron.left")
-                    .font(PoirotTheme.Typography.captionMedium)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-            }
-            .buttonStyle(.plain)
-
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-                Text("Prompt Detail")
-                    .font(PoirotTheme.Typography.heading)
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
+            HStack(alignment: .top, spacing: PoirotTheme.Spacing.sm) {
+                Text(HighlightedText.fuzzyAttributedString(entry.snippet, query: filterQuery))
+                    .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
 
-                HStack(spacing: PoirotTheme.Spacing.sm) {
-                    Label(entry.projectName, systemImage: "shippingbox")
+                Spacer()
+
+                Button {
+                    onCopy()
+                    copyTapped = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copyTapped = false }
+                } label: {
+                    Image(systemName: copyTapped ? "checkmark" : "doc.on.doc")
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .contentTransition(.symbolEffect(.replace))
+                }
+                .buttonStyle(.plain)
+                .help("Copy Prompt")
 
-                    Text(entry.timestamp.formatted(date: .abbreviated, time: .shortened))
+                Button {
+                    showDeleteConfirmation = true
+                } label: {
+                    Image(systemName: "trash")
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
                 }
+                .buttonStyle(.plain)
+                .help("Delete Prompt")
             }
 
-            Spacer()
-
-            Button {
-                onCopy()
-                copyTapped = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copyTapped = false }
-            } label: {
-                Label(
-                    copyTapped ? "Copied" : "Copy Prompt",
-                    systemImage: copyTapped ? "checkmark" : "doc.on.doc"
-                )
-                .font(PoirotTheme.Typography.captionMedium)
-                .foregroundStyle(copyTapped ? PoirotTheme.Colors.green : PoirotTheme.Colors.accent)
-                .contentTransition(.symbolEffect(.replace))
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, PoirotTheme.Spacing.md)
-            .padding(.vertical, PoirotTheme.Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                    .fill(PoirotTheme.Colors.bgCard)
-            )
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-        .padding(.vertical, PoirotTheme.Spacing.xl)
-    }
-
-    private var detailContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.lg) {
-                Text(entry.display)
-                    .font(PoirotTheme.Typography.body)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(PoirotTheme.Spacing.lg)
-                    .background(
-                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                            .fill(PoirotTheme.Colors.bgCard)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                            .strokeBorder(PoirotTheme.Colors.border, lineWidth: 1)
-                    )
-
-                if !entry.pastedContents.isEmpty {
-                    VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                        Text("Pasted Contents")
-                            .font(PoirotTheme.Typography.bodyMedium)
-                            .foregroundStyle(PoirotTheme.Colors.textSecondary)
-
-                        ForEach(Array(entry.pastedContents.keys.sorted()), id: \.self) { key in
-                            if let value = entry.pastedContents[key] {
-                                VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
-                                    Text(key)
-                                        .font(PoirotTheme.Typography.code)
-                                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-
-                                    Text(value)
-                                        .font(PoirotTheme.Typography.code)
-                                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                                        .textSelection(.enabled)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(PoirotTheme.Spacing.md)
-                                .background(
-                                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                                        .fill(PoirotTheme.Colors.bgElevated)
-                                )
-                            }
-                        }
-                    }
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                Label {
+                    Text(HighlightedText.fuzzyAttributedString(entry.projectName, query: filterQuery))
+                } icon: {
+                    Image(systemName: "shippingbox")
                 }
-
-                metadataSection
-            }
-            .padding(.horizontal, PoirotTheme.Spacing.xxxl)
-            .padding(.vertical, PoirotTheme.Spacing.lg)
-        }
-        .scrollIndicators(.never)
-    }
-
-    private var metadataSection: some View {
-        HStack(spacing: PoirotTheme.Spacing.lg) {
-            metadataItem(icon: "shippingbox", label: "Project", value: entry.projectName)
-            metadataItem(icon: "folder", label: "Path", value: entry.project)
-            metadataItem(
-                icon: "clock",
-                label: "Time",
-                value: entry.timestamp.formatted(date: .abbreviated, time: .shortened)
-            )
-        }
-        .padding(PoirotTheme.Spacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .fill(PoirotTheme.Colors.bgCard)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.md)
-                .strokeBorder(PoirotTheme.Colors.border, lineWidth: 1)
-        )
-    }
-
-    private func metadataItem(icon: String, label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
-            Label(label, systemImage: icon)
-                .font(PoirotTheme.Typography.tiny)
+                .font(PoirotTheme.Typography.code)
                 .foregroundStyle(PoirotTheme.Colors.textTertiary)
-
-            Text(value)
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textPrimary)
                 .lineLimit(1)
-                .textSelection(.enabled)
+                .padding(.horizontal, PoirotTheme.Spacing.sm)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                        .fill(PoirotTheme.Colors.bgElevated)
+                )
+
+                Spacer()
+
+                Text(entry.timeAgo)
+                    .font(PoirotTheme.Typography.tiny)
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(PoirotTheme.Spacing.lg)
+        .cardChrome(isHovered: isHovered)
+        .onHover { isHovered = $0 }
+        .confirmationDialog(
+            "Delete this prompt?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                onDelete()
+            }
         }
     }
 }
@@ -616,9 +512,19 @@ private struct HistoryToolbarContent: ToolbarContent {
     @Binding
     var selectedProject: String?
     let allProjects: [String]
+    @Binding
+    var clearOlderThanDays: Int?
+    let hasEntries: Bool
 
     @Environment(AppState.self)
     private var appState
+
+    private static let clearOptions: [(label: String, days: Int)] = [
+        ("Older than 2 weeks", 14),
+        ("Older than 1 month", 30),
+        ("Older than 3 months", 90),
+        ("Older than 6 months", 180),
+    ]
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .principal) {
@@ -628,6 +534,8 @@ private struct HistoryToolbarContent: ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             ConfigFilterField(searchQuery: $filterQuery, placeholder: "Search prompts\u{2026}")
                 .frame(width: 200)
+
+            clearMenu
 
             Button {
                 withAnimation(.easeInOut(duration: 0.25)) {
@@ -640,6 +548,26 @@ private struct HistoryToolbarContent: ToolbarContent {
             }
             .help("Toggle layout")
         }
+    }
+
+    private var clearMenu: some View {
+        Menu {
+            Section("Clear History") {
+                ForEach(Self.clearOptions, id: \.days) { option in
+                    Button(option.label) {
+                        clearOlderThanDays = option.days
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "trash")
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .frame(width: 24)
+        .disabled(!hasEntries)
+        .help("Clear old prompts")
     }
 
     private var projectPicker: some View {

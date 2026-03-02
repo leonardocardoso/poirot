@@ -53,6 +53,57 @@ nonisolated struct HistoryLoader {
         return projects
     }
 
+    /// Deletes a single entry from the history file.
+    ///
+    /// The entry's `id` has the format `"timestamp-lineIndex"` where `lineIndex`
+    /// is the zero-based line number in the JSONL file at the time of loading.
+    func delete(entry: HistoryEntry) {
+        let components = entry.id.split(separator: "-")
+        guard components.count >= 2,
+              let lineIndex = Int(components.last!)
+        else { return }
+
+        guard let data = try? String(contentsOfFile: historyFilePath, encoding: .utf8) else { return }
+        var lines = data.components(separatedBy: "\n")
+
+        // Filter out trailing empty line from split
+        if lines.last?.isEmpty == true { lines.removeLast() }
+
+        guard lineIndex >= 0, lineIndex < lines.count else { return }
+        lines.remove(at: lineIndex)
+
+        let output = lines.joined(separator: "\n") + (lines.isEmpty ? "" : "\n")
+        try? output.write(toFile: historyFilePath, atomically: true, encoding: .utf8)
+    }
+
+    /// Deletes all entries older than the given number of days.
+    /// Returns the count of removed entries.
+    @discardableResult
+    func deleteOlderThan(days: Int) -> Int {
+        guard let data = try? String(contentsOfFile: historyFilePath, encoding: .utf8) else { return 0 }
+        var lines = data.components(separatedBy: "\n")
+        if lines.last?.isEmpty == true { lines.removeLast() }
+
+        let cutoff = Date().addingTimeInterval(-Double(days) * 86400)
+        let cutoffMs = cutoff.timeIntervalSince1970 * 1000.0
+        let decoder = JSONDecoder()
+        let originalCount = lines.count
+
+        lines.removeAll { line in
+            guard let lineData = line.data(using: .utf8),
+                  let raw = try? decoder.decode(RawEntry.self, from: lineData)
+            else { return false }
+            return raw.timestamp < cutoffMs
+        }
+
+        let removed = originalCount - lines.count
+        guard removed > 0 else { return 0 }
+
+        let output = lines.joined(separator: "\n") + (lines.isEmpty ? "" : "\n")
+        try? output.write(toFile: historyFilePath, atomically: true, encoding: .utf8)
+        return removed
+    }
+
     // MARK: - Private
 
     /// Raw JSONL structure matching the file format.

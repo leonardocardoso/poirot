@@ -35,4 +35,20 @@ struct ScreenshotTests_History {
             delay: 2
         )
     }
+
+    @Test
+    func testHistoryGrid() async throws {
+        let state = makeAppState(selectedNav: .history)
+        state.configLayouts[NavigationItem.history.id] = .grid
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                HistoryListView()
+            },
+            size: ScreenshotSize.fullApp,
+            named: "testHistoryGrid",
+            record: isRecording,
+            delay: 2
+        )
+    }
 }
