@@ -16,7 +16,8 @@ struct ProjectSessionsView: View {
             .compactMap { session -> (Session, Int)? in
                 let best = max(
                     HighlightedText.fuzzyMatch(session.title, query: q)?.score ?? 0,
-                    HighlightedText.fuzzyMatch(session.preview ?? "", query: q)?.score ?? 0
+                    HighlightedText.fuzzyMatch(session.preview ?? "", query: q)?.score ?? 0,
+                    HighlightedText.fuzzyMatch(session.id, query: q)?.score ?? 0
                 )
                 return best > 0 ? (session, best) : nil
             }

@@ -18,6 +18,9 @@ struct SessionDetailView: View {
     @State
     private var todos: [SessionTodo] = []
 
+    @State
+    private var facets: SessionFacets?
+
     @Environment(AppState.self)
     private var appState
 
@@ -26,6 +29,9 @@ struct SessionDetailView: View {
 
     @Environment(\.todoLoader)
     private var todoLoader
+
+    @Environment(\.facetsLoader)
+    private var facetsLoader
 
     @FocusState
     private var isSearchFocused: Bool
@@ -89,15 +95,23 @@ struct SessionDetailView: View {
                     .padding(.top, PoirotTheme.Spacing.sm)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
+            if let facets {
+                SessionFacetsCard(facets: facets)
+                    .padding(.horizontal, PoirotTheme.Spacing.md)
+                    .padding(.top, PoirotTheme.Spacing.sm)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
             messagesList
         }
         .animation(.easeInOut(duration: 0.2), value: appState.isSessionSearchActive)
         .animation(.easeInOut(duration: 0.2), value: appState.isToolFilterActive)
         .animation(.easeInOut(duration: 0.2), value: todos.isEmpty)
+        .animation(.easeInOut(duration: 0.2), value: facets != nil)
         .background(PoirotTheme.Colors.bgApp)
         .onChange(of: session.id) {
             visibleCount = Self.pageSize
             loadTodos()
+            loadFacets()
         }
         .onChange(of: appState.isSessionSearchActive) {
             if appState.isSessionSearchActive {
@@ -106,6 +120,7 @@ struct SessionDetailView: View {
         }
         .task {
             loadTodos()
+            loadFacets()
         }
     }
 
@@ -113,6 +128,12 @@ struct SessionDetailView: View {
         let sessionId = session.id
         let loader = todoLoader
         todos = loader.loadTodos(for: sessionId)
+    }
+
+    private func loadFacets() {
+        let sessionId = session.id
+        let loader = facetsLoader
+        facets = loader.loadFacets(for: sessionId)
     }
 
     // MARK: - Header

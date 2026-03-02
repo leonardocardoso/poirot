@@ -16,6 +16,10 @@ private struct HistoryLoaderKey: EnvironmentKey {
     static let defaultValue: any HistoryLoading = HistoryLoader()
 }
 
+private struct FacetsLoaderKey: EnvironmentKey {
+    static let defaultValue: any FacetsLoading = FacetsLoader()
+}
+
 extension EnvironmentValues {
     var sessionLoader: any SessionLoading {
         get { self[SessionLoaderKey.self] }
@@ -35,5 +39,10 @@ extension EnvironmentValues {
     var historyLoader: any HistoryLoading {
         get { self[HistoryLoaderKey.self] }
         set { self[HistoryLoaderKey.self] = newValue }
+    }
+
+    var facetsLoader: any FacetsLoading {
+        get { self[FacetsLoaderKey.self] }
+        set { self[FacetsLoaderKey.self] = newValue }
     }
 }
