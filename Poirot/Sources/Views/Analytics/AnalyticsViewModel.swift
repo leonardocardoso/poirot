@@ -52,6 +52,7 @@ struct CostBreakdownEntry: Identifiable {
 
 // MARK: - ViewModel
 
+@MainActor
 @Observable
 final class AnalyticsViewModel {
     var stats: StatsCache?
