@@ -32,7 +32,7 @@ struct SidebarView: View {
                 Button {
                     state.selectedNav = item
                 } label: {
-                    HStack {
+                    HStack(alignment: .firstTextBaseline) {
                         Label(item.title, systemImage: item.systemImage)
 
                         Spacer()

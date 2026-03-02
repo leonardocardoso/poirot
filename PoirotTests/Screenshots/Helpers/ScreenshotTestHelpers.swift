@@ -157,12 +157,17 @@ func makeAppState(
 func withEnvironment<V: View>(
     _ view: V,
     state: AppState? = nil,
-    provider: any ProviderDescribing = ClaudeCodeProvider()
+    provider: any ProviderDescribing = ClaudeCodeProvider(),
+    historyLoader: (any HistoryLoading)? = nil
 ) -> some View {
     let appState = state ?? makeAppState()
-    return view
+    var result = view
         .environment(appState)
         .environment(\.provider, provider)
+    if let historyLoader {
+        return AnyView(result.environment(\.historyLoader, historyLoader))
+    }
+    return AnyView(result)
 }
 
 // MARK: - Composite App View (Sidebar + Detail)
@@ -173,10 +178,11 @@ func withEnvironment<V: View>(
 func compositeAppView<Detail: View>(
     state: AppState? = nil,
     provider: any ProviderDescribing = ClaudeCodeProvider(),
+    historyLoader: (any HistoryLoading)? = nil,
     @ViewBuilder detail: () -> Detail
 ) -> some View {
     let appState = state ?? makeAppState()
-    return HStack(spacing: 0) {
+    let view = HStack(spacing: 0) {
         SidebarView()
             .frame(width: 260)
             .background(PoirotTheme.Colors.bgSidebar)
@@ -186,4 +192,9 @@ func compositeAppView<Detail: View>(
     }
     .environment(appState)
     .environment(\.provider, provider)
+
+    if let historyLoader {
+        return AnyView(view.environment(\.historyLoader, historyLoader))
+    }
+    return AnyView(view)
 }

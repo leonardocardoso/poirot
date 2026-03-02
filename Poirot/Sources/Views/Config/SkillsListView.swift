@@ -256,15 +256,41 @@ private struct SkillCard: View {
     let skill: ClaudeSkill
     var filterQuery: String = ""
     let onTap: () -> Void
+
+    @Environment(AppState.self)
+    private var appState
+
     @State
     private var isHovered = false
+
+    @State
+    private var copyTapped = false
 
     var body: some View {
         Button { onTap() } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text(HighlightedText.fuzzyAttributedString(skill.name, query: filterQuery))
-                    .font(PoirotTheme.Typography.bodyMedium)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                HStack(alignment: .top) {
+                    Text(HighlightedText.fuzzyAttributedString(skill.name, query: filterQuery))
+                        .font(PoirotTheme.Typography.bodyMedium)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
+
+                    Spacer()
+
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(skill.name, forType: .string)
+                        copyTapped = true
+                        appState.showToast("Copied \(skill.name) to clipboard")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copyTapped = false }
+                    } label: {
+                        Image(systemName: copyTapped ? "checkmark" : "doc.on.doc")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                            .contentTransition(.symbolEffect(.replace))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Copy Skill Name")
+                }
 
                 if !skill.description.isEmpty {
                     Text(HighlightedText.fuzzyAttributedString(skill.description, query: filterQuery))

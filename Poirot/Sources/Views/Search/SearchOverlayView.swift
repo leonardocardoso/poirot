@@ -6,6 +6,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     case sessions
     case debugLogs
     case todos
+    case history
     case commands
     case skills
     case plans
@@ -20,6 +21,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: "SESSIONS"
         case .debugLogs: "DEBUG LOGS"
         case .todos: "TODOS"
+        case .history: "HISTORY"
         case .commands: "COMMANDS"
         case .skills: "SKILLS"
         case .plans: "PLANS"
@@ -36,6 +38,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: .sessions
         case .debugLogs: .sessions
         case .todos: .todos
+        case .history: .history
         case .commands: .commands
         case .skills: .skills
         case .plans: .plans
@@ -82,6 +85,16 @@ struct SearchOverlayView: View {
     private var query = ""
     @State
     private var selectedIndex = 0
+    @State
+    private var debouncedQuery = ""
+    @State
+    private var debounceTask: Task<Void, Never>?
+    @State
+    private var searchResults: [SearchGroup] = []
+    @State
+    private var searchTask: Task<Void, Never>?
+    @State
+    private var isSearching = false
     @FocusState
     private var isFocused: Bool
 
@@ -102,31 +115,230 @@ struct SearchOverlayView: View {
     private var todoEntries: [(sessionId: String, todos: [SessionTodo])] = []
     @State
     private var debugLogSessionIds: Set<String> = []
+    @State
+    private var historyEntries: [HistoryEntry] = []
 
     // MARK: - Search Logic
 
-    private func matchScore(
-        _ text: String, _ q: String
-    ) -> Int {
-        HighlightedText.fuzzyMatch(text, query: q)?.score ?? 0
+    private var flatResults: [SearchResult] {
+        searchResults.flatMap(\.results)
     }
 
-    private var groupedResults: [SearchGroup] {
-        let q = query.trimmingCharacters(in: .whitespaces)
-        guard !q.isEmpty else { return [] }
+    private func flatIndex(
+        forGroup groupIdx: Int, offset: Int
+    ) -> Int {
+        var idx = 0
+        for i in 0 ..< groupIdx {
+            idx += searchResults[i].results.count
+        }
+        return idx + offset
+    }
+
+    private func triggerSearch() {
+        searchTask?.cancel()
+        let q = debouncedQuery.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else {
+            searchResults = []
+            isSearching = false
+            return
+        }
+        searchTask = Task {
+            let results = buildSearchResults(query: q)
+            guard !Task.isCancelled else { return }
+            searchResults = results
+            isSearching = false
+        }
+    }
+
+    // MARK: - Search Builder
+
+    // swiftlint:disable function_body_length
+    private func buildSearchResults(
+        query q: String
+    ) -> [SearchGroup] {
+        func score(_ text: String) -> Int {
+            HighlightedText.fuzzyMatch(text, query: q)?.score ?? 0
+        }
 
         var all: [SearchResult] = []
-        buildSessionResults(q, into: &all)
-        buildDebugLogResults(q, into: &all)
-        buildTodoResults(q, into: &all)
-        buildCommandResults(q, into: &all)
-        buildSkillResults(q, into: &all)
-        buildPlanResults(q, into: &all)
-        buildMCPServerResults(q, into: &all)
-        buildPluginResults(q, into: &all)
-        buildOutputStyleResults(q, into: &all)
-        buildModelResults(q, into: &all)
-        buildSubAgentResults(q, into: &all)
+
+        // Sessions
+        for project in appState.projects {
+            for session in project.sessions {
+                let best = max(score(session.title), score(project.name))
+                guard best > 0 else { continue }
+                all.append(SearchResult(
+                    id: "session-\(session.id)", category: .sessions,
+                    icon: "text.bubble", title: session.title,
+                    subtitle: project.name, trailing: session.timeAgo,
+                    score: best,
+                    action: .openSession(session, projectId: project.id)
+                ))
+            }
+        }
+
+        // Debug logs
+        for project in appState.projects {
+            for session in project.sessions {
+                guard debugLogSessionIds.contains(session.id) else { continue }
+                let best = max(score(session.title), score("debug log"))
+                guard best > 0 else { continue }
+                all.append(SearchResult(
+                    id: "debuglog-\(session.id)", category: .debugLogs,
+                    icon: "ladybug", title: session.title,
+                    subtitle: "Debug Log", trailing: project.name,
+                    score: best,
+                    action: .openDebugLog(sessionId: session.id, projectId: project.id)
+                ))
+            }
+        }
+
+        // TODOs
+        for entry in todoEntries {
+            for todo in entry.todos {
+                let best = max(score(todo.content), score(todo.activeForm))
+                guard best > 0 else { continue }
+                all.append(SearchResult(
+                    id: "todo-\(entry.sessionId)-\(todo.id)", category: .todos,
+                    icon: NavigationItem.todos.systemImage, title: todo.content,
+                    subtitle: entry.sessionId, trailing: todo.status.rawValue,
+                    score: best, action: .navigateTo(.todos)
+                ))
+            }
+        }
+
+        // History
+        for entry in historyEntries {
+            let best = max(score(entry.display), score(entry.projectName))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "history-\(entry.id)", category: .history,
+                icon: NavigationItem.history.systemImage, title: entry.snippet,
+                subtitle: entry.projectName, trailing: entry.timeAgo,
+                score: best, action: .navigateTo(.history)
+            ))
+        }
+
+        // Commands
+        for cmd in commands {
+            let best = max(score(cmd.name), score(cmd.description))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "cmd-\(cmd.id)", category: .commands,
+                icon: NavigationItem.commands.systemImage,
+                title: cmd.name, subtitle: cmd.description,
+                trailing: cmd.argumentHint ?? "", score: best,
+                action: .openDetail(.commands, ConfigDetailInfo(
+                    name: cmd.name, markdownContent: cmd.body,
+                    filePath: cmd.filePath, scope: cmd.scope
+                ))
+            ))
+        }
+
+        // Skills
+        for skill in skills {
+            let best = max(score(skill.name), score(skill.description))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "skill-\(skill.id)", category: .skills,
+                icon: NavigationItem.skills.systemImage,
+                title: skill.name, subtitle: skill.description,
+                trailing: skill.model ?? "", score: best,
+                action: .openDetail(.skills, ConfigDetailInfo(
+                    name: skill.name, markdownContent: skill.body,
+                    filePath: skill.filePath, scope: skill.scope
+                ))
+            ))
+        }
+
+        // Plans
+        for plan in plans {
+            let best = max(score(plan.name), score(String(plan.content.prefix(200))))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "plan-\(plan.id)", category: .plans,
+                icon: NavigationItem.plans.systemImage,
+                title: plan.name, subtitle: plan.fileURL.lastPathComponent,
+                trailing: "", score: best,
+                action: .openDetail(.plans, ConfigDetailInfo(
+                    name: plan.name, markdownContent: plan.content,
+                    filePath: plan.fileURL.path, scope: nil
+                ))
+            ))
+        }
+
+        // MCP Servers
+        for server in mcpServers {
+            let toolScore = server.tools.map { score($0) }.max() ?? 0
+            let best = max(score(server.name), max(toolScore, score(server.status.label)))
+            guard best > 0 else { continue }
+            let toolLabel = server.isWildcard ? "All tools" : "\(server.tools.count) tools"
+            all.append(SearchResult(
+                id: "mcp-\(server.id)", category: .mcpServers,
+                icon: NavigationItem.mcpServers.systemImage,
+                title: server.name,
+                subtitle: server.tools.prefix(3).joined(separator: ", "),
+                trailing: "\(server.status.label) · \(toolLabel)",
+                score: best, action: .navigateTo(.mcpServers)
+            ))
+        }
+
+        // Plugins
+        for plugin in plugins {
+            let best = max(score(plugin.name), score(plugin.author))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "plugin-\(plugin.id)", category: .plugins,
+                icon: NavigationItem.plugins.systemImage,
+                title: plugin.name, subtitle: "by \(plugin.author)",
+                trailing: "v\(plugin.version)", score: best,
+                action: .navigateTo(.plugins)
+            ))
+        }
+
+        // Output Styles
+        for style in outputStyles {
+            let best = max(score(style.name), score(style.description))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "style-\(style.id)", category: .outputStyles,
+                icon: NavigationItem.outputStyles.systemImage,
+                title: style.name, subtitle: style.description,
+                trailing: "", score: best,
+                action: .openDetail(.outputStyles, ConfigDetailInfo(
+                    name: style.name, markdownContent: style.body,
+                    filePath: style.filePath, scope: style.scope
+                ))
+            ))
+        }
+
+        // Models
+        for model in provider.supportedModels {
+            let s = score(model)
+            guard s > 0 else { continue }
+            let isDefault = model == provider.defaultModelName
+            all.append(SearchResult(
+                id: "model-\(model)", category: .models,
+                icon: NavigationItem.models.systemImage,
+                title: model,
+                subtitle: isDefault ? "Default model" : "AI Model",
+                trailing: isDefault ? "Default" : "",
+                score: s, action: .navigateTo(.models)
+            ))
+        }
+
+        // Sub-agents
+        for agent in SubAgent.builtIn {
+            let best = max(score(agent.name), score(agent.description))
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "agent-\(agent.id)", category: .subAgents,
+                icon: agent.icon, title: agent.name,
+                subtitle: agent.description,
+                trailing: "\(agent.tools.count) tools",
+                score: best, action: .navigateTo(.subAgents)
+            ))
+        }
 
         let grouped = Dictionary(grouping: all) { $0.category }
         let maxPerGroup = 5
@@ -141,333 +353,7 @@ struct SearchOverlayView: View {
         }
     }
 
-    private var flatResults: [SearchResult] {
-        groupedResults.flatMap(\.results)
-    }
-
-    private func flatIndex(
-        forGroup groupIdx: Int, offset: Int
-    ) -> Int {
-        let groups = groupedResults
-        var idx = 0
-        for i in 0 ..< groupIdx {
-            idx += groups[i].results.count
-        }
-        return idx + offset
-    }
-
-    // MARK: - Session Search
-
-    private func buildSessionResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for project in appState.projects {
-            for session in project.sessions {
-                let titleScore = matchScore(session.title, q)
-                let projScore = matchScore(project.name, q)
-                let best = max(titleScore, projScore)
-                guard best > 0 else { continue }
-                results.append(SearchResult(
-                    id: "session-\(session.id)",
-                    category: .sessions,
-                    icon: "text.bubble",
-                    title: session.title,
-                    subtitle: project.name,
-                    trailing: session.timeAgo,
-                    score: best,
-                    action: .openSession(
-                        session, projectId: project.id
-                    )
-                ))
-            }
-        }
-    }
-
-    // MARK: - Debug Log Search
-
-    private func buildDebugLogResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        // Only show debug log results for sessions that have logs
-        for project in appState.projects {
-            for session in project.sessions {
-                guard debugLogSessionIds.contains(session.id)
-                else { continue }
-                let titleScore = matchScore(session.title, q)
-                let debugScore = matchScore("debug log", q)
-                let best = max(titleScore, debugScore)
-                guard best > 0 else { continue }
-                results.append(SearchResult(
-                    id: "debuglog-\(session.id)",
-                    category: .debugLogs,
-                    icon: "ladybug",
-                    title: session.title,
-                    subtitle: "Debug Log",
-                    trailing: project.name,
-                    score: best,
-                    action: .openDebugLog(
-                        sessionId: session.id,
-                        projectId: project.id
-                    )
-                ))
-            }
-        }
-    }
-
-    // MARK: - Command Search
-
-    private func buildCommandResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for cmd in commands {
-            let best = max(
-                matchScore(cmd.name, q),
-                matchScore(cmd.description, q)
-            )
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "cmd-\(cmd.id)",
-                category: .commands,
-                icon: NavigationItem.commands.systemImage,
-                title: cmd.name,
-                subtitle: cmd.description,
-                trailing: cmd.argumentHint ?? "",
-                score: best,
-                action: .openDetail(
-                    .commands,
-                    ConfigDetailInfo(
-                        name: cmd.name,
-                        markdownContent: cmd.body,
-                        filePath: cmd.filePath,
-                        scope: cmd.scope
-                    )
-                )
-            ))
-        }
-    }
-
-    // MARK: - Skill Search
-
-    private func buildSkillResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for skill in skills {
-            let best = max(
-                matchScore(skill.name, q),
-                matchScore(skill.description, q)
-            )
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "skill-\(skill.id)",
-                category: .skills,
-                icon: NavigationItem.skills.systemImage,
-                title: skill.name,
-                subtitle: skill.description,
-                trailing: skill.model ?? "",
-                score: best,
-                action: .openDetail(
-                    .skills,
-                    ConfigDetailInfo(
-                        name: skill.name,
-                        markdownContent: skill.body,
-                        filePath: skill.filePath,
-                        scope: skill.scope
-                    )
-                )
-            ))
-        }
-    }
-
-    // MARK: - Plan Search
-
-    private func buildPlanResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for plan in plans {
-            let nameScore = matchScore(plan.name, q)
-            let contentScore = matchScore(
-                String(plan.content.prefix(200)), q
-            )
-            let best = max(nameScore, contentScore)
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "plan-\(plan.id)",
-                category: .plans,
-                icon: NavigationItem.plans.systemImage,
-                title: plan.name,
-                subtitle: plan.fileURL.lastPathComponent,
-                trailing: "",
-                score: best,
-                action: .openDetail(
-                    .plans,
-                    ConfigDetailInfo(
-                        name: plan.name,
-                        markdownContent: plan.content,
-                        filePath: plan.fileURL.path,
-                        scope: nil
-                    )
-                )
-            ))
-        }
-    }
-
-    // MARK: - TODO Search
-
-    private func buildTodoResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for entry in todoEntries {
-            for todo in entry.todos {
-                let contentScore = matchScore(todo.content, q)
-                let activeScore = matchScore(todo.activeForm, q)
-                let best = max(contentScore, activeScore)
-                guard best > 0 else { continue }
-                results.append(SearchResult(
-                    id: "todo-\(entry.sessionId)-\(todo.id)",
-                    category: .todos,
-                    icon: NavigationItem.todos.systemImage,
-                    title: todo.content,
-                    subtitle: entry.sessionId,
-                    trailing: todo.status.rawValue,
-                    score: best,
-                    action: .navigateTo(.todos)
-                ))
-            }
-        }
-    }
-
-    // MARK: - MCP Server Search
-
-    private func buildMCPServerResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for server in mcpServers {
-            let nameScore = matchScore(server.name, q)
-            let toolScore = server.tools
-                .map { matchScore($0, q) }.max() ?? 0
-            let statusScore = matchScore(server.status.label, q)
-            let best = max(nameScore, max(toolScore, statusScore))
-            guard best > 0 else { continue }
-            let toolLabel = server.isWildcard
-                ? "All tools"
-                : "\(server.tools.count) tools"
-            let trailing = "\(server.status.label) · \(toolLabel)"
-            results.append(SearchResult(
-                id: "mcp-\(server.id)",
-                category: .mcpServers,
-                icon: NavigationItem.mcpServers.systemImage,
-                title: server.name,
-                subtitle: server.tools.prefix(3)
-                    .joined(separator: ", "),
-                trailing: trailing,
-                score: best,
-                action: .navigateTo(.mcpServers)
-            ))
-        }
-    }
-
-    // MARK: - Plugin Search
-
-    private func buildPluginResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for plugin in plugins {
-            let best = max(
-                matchScore(plugin.name, q),
-                matchScore(plugin.author, q)
-            )
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "plugin-\(plugin.id)",
-                category: .plugins,
-                icon: NavigationItem.plugins.systemImage,
-                title: plugin.name,
-                subtitle: "by \(plugin.author)",
-                trailing: "v\(plugin.version)",
-                score: best,
-                action: .navigateTo(.plugins)
-            ))
-        }
-    }
-
-    // MARK: - Output Style Search
-
-    private func buildOutputStyleResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for style in outputStyles {
-            let best = max(
-                matchScore(style.name, q),
-                matchScore(style.description, q)
-            )
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "style-\(style.id)",
-                category: .outputStyles,
-                icon: NavigationItem.outputStyles.systemImage,
-                title: style.name,
-                subtitle: style.description,
-                trailing: "",
-                score: best,
-                action: .openDetail(
-                    .outputStyles,
-                    ConfigDetailInfo(
-                        name: style.name,
-                        markdownContent: style.body,
-                        filePath: style.filePath,
-                        scope: style.scope
-                    )
-                )
-            ))
-        }
-    }
-
-    // MARK: - Model Search
-
-    private func buildModelResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for model in provider.supportedModels {
-            let s = matchScore(model, q)
-            guard s > 0 else { continue }
-            let isDefault = model == provider.defaultModelName
-            results.append(SearchResult(
-                id: "model-\(model)",
-                category: .models,
-                icon: NavigationItem.models.systemImage,
-                title: model,
-                subtitle: isDefault
-                    ? "Default model" : "AI Model",
-                trailing: isDefault ? "Default" : "",
-                score: s,
-                action: .navigateTo(.models)
-            ))
-        }
-    }
-
-    // MARK: - Sub-agent Search
-
-    private func buildSubAgentResults(
-        _ q: String, into results: inout [SearchResult]
-    ) {
-        for agent in SubAgent.builtIn {
-            let best = max(
-                matchScore(agent.name, q),
-                matchScore(agent.description, q)
-            )
-            guard best > 0 else { continue }
-            results.append(SearchResult(
-                id: "agent-\(agent.id)",
-                category: .subAgents,
-                icon: agent.icon,
-                title: agent.name,
-                subtitle: agent.description,
-                trailing: "\(agent.tools.count) tools",
-                score: best,
-                action: .navigateTo(.subAgents)
-            ))
-        }
-    }
+    // swiftlint:enable function_body_length
 
     // MARK: - Empty State Data
 
@@ -550,7 +436,23 @@ struct SearchOverlayView: View {
             }
             return .handled
         }
-        .onChange(of: query) { selectedIndex = 0 }
+        .onChange(of: query) {
+            selectedIndex = 0
+            if !query.isEmpty { isSearching = true }
+            debounceTask?.cancel()
+            debounceTask = Task {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard !Task.isCancelled else { return }
+                debouncedQuery = query
+            }
+        }
+        .onChange(of: debouncedQuery) {
+            triggerSearch()
+        }
+        .onDisappear {
+            debounceTask?.cancel()
+            searchTask?.cancel()
+        }
     }
 
     // MARK: - Search Input
@@ -564,7 +466,7 @@ struct SearchOverlayView: View {
                 )
 
             TextField(
-                "Search sessions, commands, plans...",
+                "Search sessions, history, commands, plans...",
                 text: $query
             )
             .textFieldStyle(.plain)
@@ -606,6 +508,8 @@ struct SearchOverlayView: View {
                 VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
                     if query.isEmpty {
                         emptyStateContent
+                    } else if isSearching, flatResults.isEmpty {
+                        searchShimmer
                     } else if flatResults.isEmpty {
                         noResultsView
                     } else {
@@ -626,7 +530,7 @@ struct SearchOverlayView: View {
     // MARK: - Grouped Search Results
 
     private var groupedSearchResults: some View {
-        let groups = groupedResults
+        let groups = searchResults
         return ForEach(
             Array(groups.enumerated()),
             id: \.element.category
@@ -717,6 +621,38 @@ struct SearchOverlayView: View {
         .padding(PoirotTheme.Spacing.xl)
     }
 
+    // MARK: - Search Shimmer
+
+    private var searchShimmer: some View {
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+            ForEach(0 ..< 5, id: \.self) { _ in
+                HStack(spacing: PoirotTheme.Spacing.sm) {
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+                        .fill(PoirotTheme.Colors.bgElevated)
+                        .frame(width: 20, height: 14)
+
+                    VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+                            .fill(PoirotTheme.Colors.bgElevated)
+                            .frame(width: CGFloat.random(in: 120 ... 220), height: 12)
+                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+                            .fill(PoirotTheme.Colors.bgElevated)
+                            .frame(width: CGFloat.random(in: 80 ... 160), height: 10)
+                    }
+
+                    Spacer()
+
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
+                        .fill(PoirotTheme.Colors.bgElevated)
+                        .frame(width: 50, height: 10)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, PoirotTheme.Spacing.sm)
+                .shimmer(cornerRadius: PoirotTheme.Radius.sm)
+            }
+        }
+    }
+
     // MARK: - Section Header
 
     private func sectionHeader(
@@ -798,7 +734,8 @@ struct SearchOverlayView: View {
                 ClaudeConfigLoader.loadPlugins(),
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),
                 TodoLoader().loadAllTodos(),
-                Set(DebugLogLoader().allSessionIds())
+                Set(DebugLogLoader().allSessionIds()),
+                HistoryLoader().loadAll()
             )
         }.value
         commands = result.0
@@ -811,6 +748,7 @@ struct SearchOverlayView: View {
         todoEntries = allTodos.filter { !$0.value.isEmpty }
             .map { (sessionId: $0.key, todos: $0.value) }
         debugLogSessionIds = result.7
+        historyEntries = result.8
     }
 }
 

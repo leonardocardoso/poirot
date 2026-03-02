@@ -164,6 +164,20 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
   <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
 </p>
 
+### Prompt History
+Browse your entire Claude Code input history from `~/.claude/history.jsonl`. Prompts are grouped by date (Today, Yesterday, This Week, etc.), filterable by project, and searchable with full-text fuzzy matching. Copy any prompt to clipboard for reuse. Live file watching keeps the view up to date.
+
+<p align="center">
+  <img src="assets/showcase/21-history.png" alt="Prompt History" width="720" />
+</p>
+
+### Debug Log Viewer
+Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Logs are lazily loaded with paginated fetching for smooth performance on large files. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
+
+<p align="center">
+  <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
+</p>
+
 ---
 
 ## Capabilities
@@ -185,7 +199,8 @@ Diagnose MCP server issues, permission failures, and startup problems with the p
 | **Diagnostics** | Debug Log Viewer | Parse and browse `~/.claude/debug/` logs with color-coded levels, search, filtering, and paginated lazy loading |
 | | Auto-scroll to Error | Opens directly at the first error entry for quick triage |
 | | Relative Timestamps | Toggle between absolute (HH:mm:ss.SSS) and relative (+offset) time display |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
+| **History** | Prompt History Browser | Browse `~/.claude/history.jsonl` with date grouping, project filtering, full-text search, and copy-to-clipboard |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, history, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
@@ -275,6 +290,7 @@ Poirot/Sources/
 └── Views/         # SwiftUI views organized by feature
     ├── Components/    # Sidebar, StatusBar, Shimmer
     ├── Configuration/ # Config dashboard
+    ├── History/       # Prompt history browser
     ├── Home/          # Welcome / empty state
     ├── Project/       # Project sessions list
     ├── Plans/         # Plans browser
