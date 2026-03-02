@@ -171,18 +171,11 @@ Browse your entire Claude Code input history from `~/.claude/history.jsonl`. Pro
   <img src="assets/showcase/21-history.png" alt="Prompt History" width="720" />
 </p>
 
-### Debug Log Viewer
-Diagnose MCP server issues, permission failures, and startup problems with the per-session debug log viewer. Accessible from the session toolbar, it parses `~/.claude/debug/<sessionId>.txt` files with color-coded log levels (DEBUG in gray, WARN in amber, ERROR in red), full-text search, level filtering, and auto-scroll to the first error. Logs are lazily loaded with paginated fetching for smooth performance on large files. Toggle between absolute and relative timestamps, and copy the full log for sharing in bug reports. Searchable via the universal search overlay.
-
-<p align="center">
-  <img src="assets/showcase/21-debug-log.png" alt="Debug Log Viewer" width="720" />
-</p>
-
 ### AI Session Summaries
 See AI-generated session analysis at the top of each session detail. A collapsible card shows the brief summary, underlying goal, outcome badge, helpfulness rating, session type, goal categories as tags, and friction indicators — all parsed from `~/.claude/usage-data/facets/`. Facets are also searchable via the universal search overlay.
 
 <p align="center">
-  <img src="assets/showcase/21-ai-summaries.png" alt="AI Session Summaries" width="720" />
+  <img src="assets/showcase/22-ai-summaries.png" alt="AI Session Summaries" width="720" />
 </p>
 
 ---
@@ -207,13 +200,12 @@ See AI-generated session analysis at the top of each session detail. A collapsib
 | | Auto-scroll to Error | Opens directly at the first error entry for quick triage |
 | | Relative Timestamps | Toggle between absolute (HH:mm:ss.SSS) and relative (+offset) time display |
 | **History** | Prompt History Browser | Browse `~/.claude/history.jsonl` with date grouping, project filtering, full-text search, and copy-to-clipboard |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, history, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
 | **AI Summaries** | Session Facets | AI-generated analysis (goal, outcome, helpfulness) from `~/.claude/usage-data/facets/` |
 | | Outcome & Helpfulness Badges | Color-coded badges for success/partial/failure and helpfulness rating |
 | | Goal Categories | Tag chips showing categorized session goals with counts |
 | | Friction Indicators | Subtle indicators for tool failures, misunderstandings, and other friction |
 | | Live File Watching | Auto-updates when new facets appear via GCD dispatch sources |
-| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, AI summaries, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, and TODOs |
+| **Search** | Universal Search (⌘K) | Fuzzy search across sessions, AI summaries, history, commands, skills, MCP servers, plugins, output styles, models, sub-agents, plans, TODOs, and debug logs |
 | | Grouped Results | Results organized by category with counts |
 | | Quick Access | Empty state shows shortcuts, counts, and recent sessions |
 | **Configuration** | Commands | Browse and manage slash commands (global and per-project) |
