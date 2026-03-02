@@ -3,14 +3,6 @@ name: Version Bump
 on:
   workflow_dispatch:
     inputs:
-      version_type:
-        description: 'Version bump type'
-        required: true
-        default: 'new'
-        type: choice
-        options:
-          - 'new'      # Calendar-based YY.MM.BUILD from today's date
-          - 'current'  # Keep marketing version, only increment build number
       force_version:
         description: 'Force specific marketing version (e.g. 25.08.4) — leave empty for automatic'
         required: false
@@ -55,10 +47,6 @@ jobs:
             fi
             NEW_VERSION="$FORCE_VERSION"
             echo "Using forced version: $NEW_VERSION"
-          elif [ "${{ inputs.version_type }}" = "current" ]; then
-            # Keep current marketing version, only bump build number
-            NEW_VERSION="$CURRENT_VERSION"
-            echo "Keeping current version: $NEW_VERSION"
           else
             # Calendar-based: YY.MM.BUILD
             NEW_YEAR=$(date -u +%y)      # e.g. 26
@@ -111,6 +99,5 @@ jobs:
         run: |
           echo "## Version Bump Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Type:** ${{ inputs.version_type }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Marketing Version:** \`${{ steps.version.outputs.previous_version }}\` → \`${{ steps.version.outputs.new_version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Number:** \`${{ steps.version.outputs.previous_build }}\` → \`${{ steps.version.outputs.new_build }}\`" >> $GITHUB_STEP_SUMMARY
