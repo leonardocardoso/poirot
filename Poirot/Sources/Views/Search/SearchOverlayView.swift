@@ -434,8 +434,9 @@ struct SearchOverlayView: View {
         // Memory
         for memory in memoryFiles {
             let nameScore = score(memory.name)
-            let contentScore = score(String(memory.content.prefix(300)))
-            let best = max(nameScore, contentScore)
+            let best = nameScore > 0
+                ? nameScore
+                : (memory.content.localizedCaseInsensitiveContains(q) ? 1 : 0)
             guard best > 0 else { continue }
             all.append(SearchResult(
                 id: "memory-\(memory.id)",

@@ -18,7 +18,7 @@ struct MemoryListView: View {
     @State
     private var filterQuery = ""
     @State
-    private var fileWatcher: FileWatcher?
+    private var fileWatchers: [FileWatcher] = []
 
     @Environment(AppState.self)
     private var appState
@@ -28,12 +28,9 @@ struct MemoryListView: View {
         guard !q.isEmpty else { return memoryFiles }
         return memoryFiles
             .compactMap { file -> (MemoryFile, Int)? in
-                let nameScore = HighlightedText.fuzzyMatch(file.name, query: q)?.score ?? 0
-                let contentScore = HighlightedText.fuzzyMatch(
-                    String(file.content.prefix(500)), query: q
-                )?.score ?? 0
-                let best = max(nameScore, contentScore)
-                return best > 0 ? (file, best) : nil
+                if let m = HighlightedText.fuzzyMatch(file.name, query: q) { return (file, m.score) }
+                if file.content.localizedCaseInsensitiveContains(q) { return (file, 1) }
+                return nil
             }
             .sorted { $0.1 > $1.1 }
             .map(\.0)
@@ -118,6 +115,8 @@ struct MemoryListView: View {
         .task {
             reloadProjects()
             reloadMemoryFiles()
+            syncSidebarCount()
+            startWatching()
             if !isLoaded {
                 try? await Task.sleep(for: .milliseconds(400))
                 withAnimation(.easeOut(duration: 0.35)) {
@@ -130,10 +129,9 @@ struct MemoryListView: View {
                 isRevealed = true
             }
         }
-        .onAppear { startWatching() }
         .onDisappear {
-            fileWatcher?.stop()
-            fileWatcher = nil
+            for watcher in fileWatchers { watcher.stop() }
+            fileWatchers.removeAll()
         }
     }
 
@@ -293,18 +291,36 @@ struct MemoryListView: View {
         }
     }
 
+    private func syncSidebarCount() {
+        appState.sidebarCounts[NavigationItem.memory.id] = ClaudeConfigLoader.totalMemoryFileCount()
+    }
+
     private func startWatching() {
-        guard fileWatcher == nil else { return }
-        // Watch the projects directory for any memory changes
-        let projectsPath = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".claude/projects").path
-        let watcher = FileWatcher { [weak appState] in
+        guard fileWatchers.isEmpty else { return }
+        let claudeDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".claude")
+
+        let onFilesChanged: @MainActor () -> Void = { [weak appState] in
             reloadProjects()
             reloadMemoryFiles()
             appState?.sidebarCounts[NavigationItem.memory.id] = ClaudeConfigLoader.totalMemoryFileCount()
         }
-        watcher.start(path: projectsPath)
-        fileWatcher = watcher
+
+        // Watch projects dir for new project memory directories
+        let projectsWatcher = FileWatcher(onChange: onFilesChanged)
+        projectsWatcher.start(path: claudeDir.appendingPathComponent("projects").path)
+        fileWatchers.append(projectsWatcher)
+
+        // Watch each project's memory directory for file changes
+        for project in projectsWithMemory {
+            let memoryPath = claudeDir
+                .appendingPathComponent("projects")
+                .appendingPathComponent(project.dirName)
+                .appendingPathComponent("memory").path
+            let memoryWatcher = FileWatcher(onChange: onFilesChanged)
+            memoryWatcher.start(path: memoryPath)
+            fileWatchers.append(memoryWatcher)
+        }
     }
 
     private func decodeProjectName(_ encoded: String) -> String {
