@@ -146,6 +146,7 @@ jobs:
           -skip-testing PoirotTests/ScreenshotTests_Facets \
           -skip-testing PoirotTests/ScreenshotTests_FullViews \
           -skip-testing PoirotTests/ScreenshotTests_History \
+          -skip-testing PoirotTests/ScreenshotTests_Memory \
           -skip-testing PoirotTests/ScreenshotTests_Plans \
           -skip-testing PoirotTests/ScreenshotTests_SessionDetail \
           -skip-testing PoirotTests/ScreenshotTests_Sidebar \
