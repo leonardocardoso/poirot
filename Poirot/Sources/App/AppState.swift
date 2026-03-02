@@ -300,6 +300,7 @@ final class AppState {
                 if HighlightedText.fuzzyMatch(project.name, query: trimmed) != nil { return project }
                 let matchingSessions = project.sessions.filter {
                     HighlightedText.fuzzyMatch($0.title, query: trimmed) != nil
+                        || HighlightedText.fuzzyMatch($0.id, query: trimmed) != nil
                 }
                 if matchingSessions.isEmpty { return nil }
                 return Project(id: project.id, name: project.name, path: project.path, sessions: matchingSessions)

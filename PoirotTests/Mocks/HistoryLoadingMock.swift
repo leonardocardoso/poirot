@@ -11,7 +11,7 @@ nonisolated final class HistoryLoadingMock: HistoryLoading, @unchecked Sendable 
         entries.count
     }
 
-    func delete(entry: HistoryEntry) {}
+    func delete(entry: HistoryEntry) { }
 
     @discardableResult
     func deleteOlderThan(days: Int) -> Int { 0 }
