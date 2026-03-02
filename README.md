@@ -182,7 +182,7 @@ See AI-generated session analysis at the top of each session detail. A collapsib
 Browse Claude Code's auto-memory files per project. MEMORY.md is the main entrypoint loaded into every conversation, and topic files contain detailed notes organized by subject. Filter by project, view rendered markdown, and search across all memories with live file watching.
 
 <p align="center">
-  <img src="assets/showcase/21-memory.png" alt="Memory" width="720" />
+  <img src="assets/showcase/23-memory.png" alt="Memory" width="720" />
 </p>
 
 ---
