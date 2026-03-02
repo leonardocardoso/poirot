@@ -327,6 +327,9 @@ struct ContentView: View {
         case NavigationItem.todos.id:
             TodosOverviewView()
                 .transition(.opacity)
+        case NavigationItem.history.id:
+            HistoryListView()
+                .transition(.opacity)
         case NavigationItem.analytics.id:
             AnalyticsDashboardView()
         default:

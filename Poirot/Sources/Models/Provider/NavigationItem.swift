@@ -72,9 +72,15 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "chart.xyaxis.line",
         requiredCapability: nil
     )
+    static let history = NavigationItem(
+        id: "history",
+        title: String(localized: "History"),
+        systemImage: "clock.arrow.circlepath",
+        requiredCapability: nil
+    )
 
     static let allItems: [NavigationItem] = [
-        .sessions, .analytics, .todos, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles, .models,
-        .subAgents,
+        .sessions, .analytics, .todos, .history, .commands, .skills, .plans, .mcpServers, .plugins, .outputStyles,
+        .models, .subAgents,
     ]
 }

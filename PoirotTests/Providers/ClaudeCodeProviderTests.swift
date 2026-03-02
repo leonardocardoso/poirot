@@ -18,8 +18,8 @@ struct ClaudeCodeProviderTests {
     }
 
     @Test
-    func navigationItems_includesAllEleven() {
-        #expect(provider.navigationItems.count == 11)
+    func navigationItems_includesAllTwelve() {
+        #expect(provider.navigationItems.count == 12)
     }
 
     @Test

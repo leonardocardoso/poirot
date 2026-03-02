@@ -4,13 +4,23 @@ import Testing
 @Suite("NavigationItem")
 struct NavigationItemTests {
     @Test
-    func allItems_hasElevenItems() {
-        #expect(NavigationItem.allItems.count == 11)
+    func allItems_hasTwelveItems() {
+        #expect(NavigationItem.allItems.count == 12)
     }
 
     @Test
     func analytics_hasNoRequiredCapability() {
         #expect(NavigationItem.analytics.requiredCapability == nil)
+    }
+
+    @Test
+    func history_hasNoRequiredCapability() {
+        #expect(NavigationItem.history.requiredCapability == nil)
+    }
+
+    @Test
+    func history_hasCorrectSystemImage() {
+        #expect(NavigationItem.history.systemImage == "clock.arrow.circlepath")
     }
 
     @Test

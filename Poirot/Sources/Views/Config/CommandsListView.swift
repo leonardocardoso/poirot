@@ -268,8 +268,15 @@ private struct CommandCard: View {
     let command: ClaudeCommand
     var filterQuery: String = ""
     let onTap: () -> Void
+
+    @Environment(AppState.self)
+    private var appState
+
     @State
     private var isHovered = false
+
+    @State
+    private var copyTapped = false
 
     var body: some View {
         Button { onTap() } label: {
@@ -286,6 +293,21 @@ private struct CommandCard: View {
                     }
 
                     Spacer()
+
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString("/\(command.name)", forType: .string)
+                        copyTapped = true
+                        appState.showToast("Copied /\(command.name) to clipboard")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copyTapped = false }
+                    } label: {
+                        Image(systemName: copyTapped ? "checkmark" : "doc.on.doc")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                            .contentTransition(.symbolEffect(.replace))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Copy Command")
                 }
 
                 if !command.description.isEmpty {

@@ -12,6 +12,10 @@ private struct TodoLoaderKey: EnvironmentKey {
     static let defaultValue: any TodoLoading = TodoLoader()
 }
 
+private struct HistoryLoaderKey: EnvironmentKey {
+    static let defaultValue: any HistoryLoading = HistoryLoader()
+}
+
 extension EnvironmentValues {
     var sessionLoader: any SessionLoading {
         get { self[SessionLoaderKey.self] }
@@ -26,5 +30,10 @@ extension EnvironmentValues {
     var todoLoader: any TodoLoading {
         get { self[TodoLoaderKey.self] }
         set { self[TodoLoaderKey.self] = newValue }
+    }
+
+    var historyLoader: any HistoryLoading {
+        get { self[HistoryLoaderKey.self] }
+        set { self[HistoryLoaderKey.self] = newValue }
     }
 }

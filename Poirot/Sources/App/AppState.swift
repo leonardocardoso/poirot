@@ -239,9 +239,11 @@ final class AppState {
         projectPath: String? = nil
     ) -> [String: Int] {
         let todoCount = TodoLoader().loadAllTodos().values.reduce(0) { $0 + $1.count }
+        let historyCount = HistoryLoader().entryCount()
 
         return [
             "todos": todoCount,
+            "history": historyCount,
             "commands": ClaudeConfigLoader.loadCommands(projectPath: projectPath).count,
             "skills": ClaudeConfigLoader.loadSkills(projectPath: projectPath).count,
             "plans": ClaudeConfigLoader.loadPlans().count,
