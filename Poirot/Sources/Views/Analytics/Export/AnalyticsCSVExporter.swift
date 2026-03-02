@@ -77,7 +77,7 @@ enum AnalyticsCSVExporter {
 
     // MARK: - Save Panel
 
-    static func presentSavePanel(csv: String, suggestedName: String) {
+    @MainActor static func presentSavePanel(csv: String, suggestedName: String) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.commaSeparatedText]
         panel.nameFieldStringValue = suggestedName

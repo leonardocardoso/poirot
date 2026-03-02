@@ -58,10 +58,10 @@ final class FileWatcher: @unchecked Sendable {
     private func handleChange() {
         debounceTask?.cancel()
 
-        debounceTask = Task {
+        debounceTask = Task { @MainActor [onChange] in
             try? await Task.sleep(for: debounceInterval)
             guard !Task.isCancelled else { return }
-            lastChangeDate = Date()
+            self.lastChangeDate = Date()
             onChange()
         }
     }
