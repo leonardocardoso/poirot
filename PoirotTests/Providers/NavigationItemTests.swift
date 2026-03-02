@@ -4,8 +4,8 @@ import Testing
 @Suite("NavigationItem")
 struct NavigationItemTests {
     @Test
-    func allItems_hasTwelveItems() {
-        #expect(NavigationItem.allItems.count == 12)
+    func allItems_hasThirteenItems() {
+        #expect(NavigationItem.allItems.count == 13)
     }
 
     @Test
