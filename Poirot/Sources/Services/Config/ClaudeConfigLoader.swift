@@ -509,6 +509,62 @@ enum ClaudeConfigLoader {
         return settings.model
     }
 
+    // MARK: - Hooks
+
+    nonisolated static func loadHooks(projectPath: String? = nil) -> [HookEntry] {
+        var results = loadHooksFrom(url: SettingsWriter.settingsFileURL(), scope: .global)
+        if let projectPath {
+            let projectURL = URL(fileURLWithPath: projectPath)
+                .appendingPathComponent(".claude")
+                .appendingPathComponent("settings.json")
+            results += loadHooksFrom(url: projectURL, scope: .project)
+        }
+        return results
+    }
+
+    nonisolated private static func loadHooksFrom(url: URL, scope: ConfigScope) -> [HookEntry] {
+        guard let data = try? Data(contentsOf: url),
+              let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let hooks = dict["hooks"] as? [String: Any]
+        else { return [] }
+
+        var results: [HookEntry] = []
+        for (eventKey, value) in hooks {
+            guard let event = HookEvent(rawValue: eventKey),
+                  let matcherGroups = value as? [[String: Any]]
+            else { continue }
+
+            for (groupIndex, group) in matcherGroups.enumerated() {
+                let matcher = group["matcher"] as? String
+                let handlersArray = group["hooks"] as? [[String: Any]] ?? []
+                let handlers = handlersArray.compactMap { parseHandler($0) }
+                guard !handlers.isEmpty else { continue }
+
+                results.append(HookEntry(
+                    id: "\(scope.rawValue)-\(eventKey)-\(groupIndex)",
+                    event: event,
+                    matcherGroupIndex: groupIndex,
+                    matcherGroup: HookMatcherGroup(matcher: matcher, handlers: handlers),
+                    scope: scope
+                ))
+            }
+        }
+        return results.sorted { $0.event.rawValue < $1.event.rawValue }
+    }
+
+    nonisolated private static func parseHandler(_ dict: [String: Any]) -> HookHandler? {
+        guard let typeStr = dict["type"] as? String,
+              let type = HookHandlerType(rawValue: typeStr)
+        else { return nil }
+        return HookHandler(
+            type: type,
+            command: dict["command"] as? String,
+            url: dict["url"] as? String,
+            timeout: dict["timeout"] as? Int,
+            statusMessage: dict["statusMessage"] as? String
+        )
+    }
+
     // MARK: - Template Creation
 
     nonisolated static func createCommandTemplate() -> String? {
