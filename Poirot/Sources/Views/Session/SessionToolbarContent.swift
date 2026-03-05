@@ -15,6 +15,7 @@ struct SessionToolbar: ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             SessionToolbarFilterField()
             SessionToolbarActions(session: session)
+            SessionToolbarExport(session: session)
             SessionToolbarDebugLog(session: session)
             SessionToolbarExpandCollapse()
             SessionToolbarFilter()
@@ -140,6 +141,27 @@ struct SessionToolbarActions: View {
         revealTapped = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             revealTapped = false
+        }
+    }
+}
+
+// MARK: - Export
+
+struct SessionToolbarExport: View {
+    let session: Session
+
+    @State
+    private var showExportPopover = false
+
+    var body: some View {
+        Button {
+            showExportPopover.toggle()
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+        }
+        .help("Export Session")
+        .popover(isPresented: $showExportPopover, arrowEdge: .bottom) {
+            ExportOptionsView(session: session)
         }
     }
 }
