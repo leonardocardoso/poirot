@@ -26,9 +26,11 @@ struct SidebarView: View {
 
     private var navigationItems: some View {
         VStack(spacing: PoirotTheme.Spacing.xxs) {
-            ForEach(provider.navigationItems) { item in
+            ForEach(Array(provider.navigationItems.enumerated()), id: \.element.id) { index, item in
                 @Bindable
                 var state = appState
+                let isKeyboardSelected = appState.focusedArea == .sidebar
+                    && appState.sidebarKeyboardIndex == index
                 Button {
                     state.selectedNav = item
                 } label: {
@@ -51,7 +53,10 @@ struct SidebarView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(NavItemButtonStyle(isActive: appState.selectedNav == item))
+                .buttonStyle(NavItemButtonStyle(
+                    isActive: appState.selectedNav == item,
+                    isKeyboardSelected: isKeyboardSelected
+                ))
             }
         }
         .padding(PoirotTheme.Spacing.md)
@@ -611,6 +616,7 @@ private struct PopoverMenuItem: View {
 
 private struct NavItemButtonStyle: ButtonStyle {
     let isActive: Bool
+    var isKeyboardSelected: Bool = false
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -621,6 +627,13 @@ private struct NavItemButtonStyle: ButtonStyle {
             .background(
                 RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
                     .fill(isActive ? PoirotTheme.Colors.accentDim : .clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                    .strokeBorder(
+                        PoirotTheme.Colors.accent.opacity(isKeyboardSelected ? 0.5 : 0),
+                        lineWidth: 1
+                    )
             )
     }
 }

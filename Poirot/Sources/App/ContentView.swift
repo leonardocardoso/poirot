@@ -25,6 +25,13 @@ struct ContentView: View {
     @AppStorage("colorTheme")
     private var colorThemeRaw = ColorTheme.default.rawValue
 
+    @State
+    private var detailScrollProxy: ScrollViewProxy?
+
+    private var sidebarNavItems: [NavigationItem] {
+        provider.navigationItems
+    }
+
     var body: some View {
         splitView
             .sheet(isPresented: Binding(
@@ -72,15 +79,71 @@ struct ContentView: View {
                     AccentColorStorage.current = color
                 }
             }
+            .keyboardNavigation(
+                sidebarItemCount: sidebarNavItems.count,
+                onSidebarActivate: { activateSidebarItem() },
+                onDetailScroll: { handleDetailScroll($0) }
+            )
+            .sheet(isPresented: Binding(
+                get: { appState.isShortcutHelpPresented },
+                set: { appState.isShortcutHelpPresented = $0 }
+            )) {
+                ShortcutHelpView()
+            }
+    }
+
+    private func activateSidebarItem() {
+        let items = sidebarNavItems
+        let index = appState.sidebarKeyboardIndex
+        guard index >= 0, index < items.count else { return }
+        appState.selectedNav = items[index]
+        appState.focusedArea = .detail
+    }
+
+    private func handleDetailScroll(_ action: KeyboardNavigationModifier.DetailScrollAction) {
+        guard let proxy = detailScrollProxy else { return }
+        switch action {
+        case .top:
+            withAnimation { proxy.scrollTo("session-top", anchor: .top) }
+        case .bottom:
+            withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
+        case .up, .down, .halfPageUp, .halfPageDown:
+            // Scroll events are handled via NSEvent in SessionDetailView for granular control
+            let delta: CGFloat = {
+                switch action {
+                case .up: return -60
+                case .down: return 60
+                case .halfPageUp: return -300
+                case .halfPageDown: return 300
+                case .top, .bottom: return 0
+                }
+            }()
+            scrollDetailBy(delta)
+        }
+    }
+
+    private func scrollDetailBy(_ delta: CGFloat) {
+        guard let scrollView = NSApp.keyWindow?.contentView?
+            .findDescendant(ofType: NSScrollView.self, identifier: "detail-scroll")
+        else { return }
+        let current = scrollView.contentView.bounds.origin
+        let maxY = scrollView.documentView!.frame.height - scrollView.contentView.bounds.height
+        let newY = max(0, min(current.y + delta, maxY))
+        scrollView.contentView.setBoundsOrigin(NSPoint(x: current.x, y: newY))
+        scrollView.reflectScrolledClipView(scrollView.contentView)
     }
 
     private var splitView: some View {
         NavigationSplitView(columnVisibility: $sidebarVisibility) {
             SidebarView()
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 300)
+                .focusIndicator(for: .sidebar)
+                .onTapGesture { appState.focusedArea = .sidebar }
         } detail: {
             detailView
                 .animation(.easeOut(duration: 0.35), value: appState.isLoadingSession)
+                .focusIndicator(for: .detail)
+                .onTapGesture { appState.focusedArea = .detail }
         }
         .navigationSplitViewStyle(.prominentDetail)
         .toolbar {
@@ -436,6 +499,24 @@ private extension View {
                 .keyboardShortcut(shortcut.key, modifiers: .command)
                 .hidden()
         }
+    }
+}
+
+// MARK: - NSView Scroll Helper
+
+private extension NSView {
+    func findDescendant<T: NSView>(ofType type: T.Type, identifier: String? = nil) -> T? {
+        for child in subviews {
+            if let match = child as? T {
+                if identifier == nil || match.identifier?.rawValue == identifier {
+                    return match
+                }
+            }
+            if let found = child.findDescendant(ofType: type, identifier: identifier) {
+                return found
+            }
+        }
+        return nil
     }
 }
 

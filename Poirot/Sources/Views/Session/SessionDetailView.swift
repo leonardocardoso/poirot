@@ -329,6 +329,10 @@ struct SessionDetailView: View {
                     if messages.isEmpty {
                         emptyState
                     } else {
+                        Color.clear
+                            .frame(height: 1)
+                            .id("session-top")
+
                         let bubbleWidth = (geo.size.width - PoirotTheme.Spacing.xxxl * 2) * 0.75
                         let visible = Array(messages.prefix(visibleCount).enumerated())
                         let hasMore = visibleCount < messages.count
