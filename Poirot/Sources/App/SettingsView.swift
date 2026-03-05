@@ -33,6 +33,8 @@ private struct GeneralSettingsView: View {
     private var preferredTerminal = PreferredTerminal.terminal.rawValue
     @AppStorage("openTerminalOnBash")
     private var openTerminalOnBash = false
+    @AppStorage("vimKeysEnabled")
+    private var vimKeysEnabled = false
     @AppStorage("claudeCodePath")
     private var claudeCodePath = "/usr/local/bin/claude"
 
@@ -78,6 +80,13 @@ private struct GeneralSettingsView: View {
                 Text("Open Terminal Automatically:")
             } control: {
                 Toggle("Open terminal when copying bash commands", isOn: $openTerminalOnBash)
+                    .labelsHidden()
+            }
+
+            settingsRow {
+                Text("Vim-Style Navigation:")
+            } control: {
+                Toggle("Enable j/k, gg/G, Tab focus cycling", isOn: $vimKeysEnabled)
                     .labelsHidden()
             }
 

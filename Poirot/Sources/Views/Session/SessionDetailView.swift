@@ -33,9 +33,6 @@ struct SessionDetailView: View {
     @Environment(\.facetsLoader)
     private var facetsLoader
 
-    @FocusState
-    private var isSearchFocused: Bool
-
     private var filteredMessages: [Message] {
         var messages = session.messages
 
@@ -83,9 +80,6 @@ struct SessionDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             sessionHeader
-            if appState.isSessionSearchActive {
-                sessionSearchBar
-            }
             if appState.isToolFilterActive {
                 toolFilterBar
             }
@@ -103,7 +97,6 @@ struct SessionDetailView: View {
             }
             messagesList
         }
-        .animation(.easeInOut(duration: 0.2), value: appState.isSessionSearchActive)
         .animation(.easeInOut(duration: 0.2), value: appState.isToolFilterActive)
         .animation(.easeInOut(duration: 0.2), value: todos.isEmpty)
         .animation(.easeInOut(duration: 0.2), value: facets != nil)
@@ -112,11 +105,6 @@ struct SessionDetailView: View {
             visibleCount = Self.pageSize
             loadTodos()
             loadFacets()
-        }
-        .onChange(of: appState.isSessionSearchActive) {
-            if appState.isSessionSearchActive {
-                isSearchFocused = true
-            }
         }
         .task {
             loadTodos()
@@ -195,61 +183,6 @@ struct SessionDetailView: View {
         .padding(.vertical, PoirotTheme.Spacing.xl)
         .overlay(alignment: .bottom) {
             Divider().opacity(0.3)
-        }
-    }
-
-    // MARK: - Search Bar
-
-    private var sessionSearchBar: some View {
-        @Bindable
-        var state = appState
-
-        return HStack(spacing: PoirotTheme.Spacing.sm) {
-            Image(systemName: "magnifyingglass")
-                .font(PoirotTheme.Typography.small)
-                .foregroundStyle(PoirotTheme.Colors.textTertiary)
-
-            TextField("Find in session...", text: $state.sessionSearchQuery)
-                .textFieldStyle(.plain)
-                .font(PoirotTheme.Typography.caption)
-                .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                .focused($isSearchFocused)
-
-            if !appState.sessionSearchQuery.isEmpty {
-                let matched = filteredMessages.count
-                let total = session.messages.count
-                Text("\(matched)/\(total)")
-                    .font(PoirotTheme.Typography.tiny)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .contentTransition(.numericText())
-            }
-
-            Button {
-                appState.isSessionSearchActive = false
-                appState.sessionSearchQuery = ""
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.lg)
-        .padding(.vertical, PoirotTheme.Spacing.sm)
-        .background {
-            GlassBackground(in: .rect(cornerRadius: PoirotTheme.Radius.sm))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                .stroke(PoirotTheme.Colors.border.opacity(0.3), lineWidth: 0.5)
-        }
-        .padding(.horizontal, PoirotTheme.Spacing.md)
-        .padding(.top, PoirotTheme.Spacing.xs)
-        .transition(.move(edge: .top).combined(with: .opacity))
-        .onKeyPress(.escape) {
-            appState.isSessionSearchActive = false
-            appState.sessionSearchQuery = ""
-            return .handled
         }
     }
 

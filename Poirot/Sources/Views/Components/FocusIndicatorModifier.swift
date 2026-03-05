@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FocusIndicatorModifier: ViewModifier {
     let area: FocusArea
+    var enabled: Bool = true
 
     @Environment(AppState.self)
     private var appState
@@ -9,7 +10,7 @@ struct FocusIndicatorModifier: ViewModifier {
     private var reduceMotion
 
     private var isFocused: Bool {
-        appState.focusedArea == area
+        enabled && appState.focusedArea == area
     }
 
     func body(content: Content) -> some View {
@@ -30,7 +31,7 @@ struct FocusIndicatorModifier: ViewModifier {
 }
 
 extension View {
-    func focusIndicator(for area: FocusArea) -> some View {
-        modifier(FocusIndicatorModifier(area: area))
+    func focusIndicator(for area: FocusArea, enabled: Bool = true) -> some View {
+        modifier(FocusIndicatorModifier(area: area, enabled: enabled))
     }
 }

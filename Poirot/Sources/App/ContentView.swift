@@ -24,6 +24,8 @@ struct ContentView: View {
     private var accentColorRaw = AccentColor.golden.rawValue
     @AppStorage("colorTheme")
     private var colorThemeRaw = ColorTheme.default.rawValue
+    @AppStorage("vimKeysEnabled")
+    private var vimKeysEnabled = false
 
     @State
     private var detailScrollProxy: ScrollViewProxy?
@@ -80,6 +82,7 @@ struct ContentView: View {
                 }
             }
             .keyboardNavigation(
+                enabled: vimKeysEnabled,
                 sidebarItemCount: sidebarNavItems.count,
                 onSidebarActivate: { activateSidebarItem() },
                 onDetailScroll: { handleDetailScroll($0) }
@@ -137,13 +140,13 @@ struct ContentView: View {
         NavigationSplitView(columnVisibility: $sidebarVisibility) {
             SidebarView()
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 300)
-                .focusIndicator(for: .sidebar)
-                .onTapGesture { appState.focusedArea = .sidebar }
+                .focusIndicator(for: .sidebar, enabled: vimKeysEnabled)
+                .onTapGesture { if vimKeysEnabled { appState.focusedArea = .sidebar } }
         } detail: {
             detailView
                 .animation(.easeOut(duration: 0.35), value: appState.isLoadingSession)
-                .focusIndicator(for: .detail)
-                .onTapGesture { appState.focusedArea = .detail }
+                .focusIndicator(for: .detail, enabled: vimKeysEnabled)
+                .onTapGesture { if vimKeysEnabled { appState.focusedArea = .detail } }
         }
         .navigationSplitViewStyle(.prominentDetail)
         .toolbar {

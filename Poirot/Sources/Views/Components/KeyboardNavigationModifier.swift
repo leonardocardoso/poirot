@@ -11,6 +11,7 @@ struct KeyboardNavigationModifier: ViewModifier {
     @State
     private var bufferResetTask: Task<Void, Never>?
 
+    var enabled: Bool
     var sidebarItemCount: Int
     var onSidebarActivate: () -> Void
     var onDetailScroll: ((DetailScrollAction) -> Void)?
@@ -22,7 +23,8 @@ struct KeyboardNavigationModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onKeyPress(phases: .down) { press in
-                guard !appState.isSearchPresented,
+                guard enabled,
+                      !appState.isSearchPresented,
                       !appState.isShortcutHelpPresented
                 else { return .ignored }
 
@@ -234,11 +236,13 @@ struct KeyboardNavigationModifier: ViewModifier {
 
 extension View {
     func keyboardNavigation(
+        enabled: Bool = true,
         sidebarItemCount: Int,
         onSidebarActivate: @escaping () -> Void,
         onDetailScroll: ((KeyboardNavigationModifier.DetailScrollAction) -> Void)? = nil
     ) -> some View {
         modifier(KeyboardNavigationModifier(
+            enabled: enabled,
             sidebarItemCount: sidebarItemCount,
             onSidebarActivate: onSidebarActivate,
             onDetailScroll: onDetailScroll
