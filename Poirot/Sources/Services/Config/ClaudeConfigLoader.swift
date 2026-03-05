@@ -565,6 +565,140 @@ enum ClaudeConfigLoader {
         )
     }
 
+    // MARK: - Custom Agents
+
+    nonisolated static var agentsDir: URL {
+        claudeDir.appendingPathComponent("agents")
+    }
+
+    nonisolated static func loadCustomAgents() -> [SubAgent] {
+        let dir = agentsDir
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        ) else { return [] }
+
+        return files
+            .filter { $0.pathExtension == "md" }
+            .compactMap { url -> SubAgent? in
+                guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+                let parsed = FrontmatterParser.parse(content)
+                let filename = url.deletingPathExtension().lastPathComponent
+                let name = parsed.metadata["name"] ?? filename
+                let tools = parsed.metadata["tools"]?
+                    .components(separatedBy: ",")
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty } ?? []
+                let color = parsed.metadata["color"].flatMap { AgentColor(rawValue: $0) }
+                return SubAgent(
+                    id: "custom-\(filename)",
+                    name: name,
+                    icon: "person.crop.circle.badge.plus",
+                    description: parsed.metadata["description"] ?? "",
+                    tools: tools,
+                    model: parsed.metadata["model"],
+                    color: color,
+                    prompt: parsed.body.isEmpty ? nil : parsed.body,
+                    filePath: url.path,
+                    scope: .global
+                )
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    nonisolated static func saveAgent(_ agent: SubAgent) -> String? {
+        let dir = agentsDir
+        ensureDirectory(dir)
+
+        let filename: String
+        if let existing = agent.filePath {
+            filename = URL(fileURLWithPath: existing).deletingPathExtension().lastPathComponent
+        } else {
+            filename = agent.name
+                .lowercased()
+                .replacingOccurrences(of: " ", with: "-")
+                .filter { $0.isLetter || $0.isNumber || $0 == "-" }
+        }
+
+        let url: URL
+        if let existing = agent.filePath {
+            url = URL(fileURLWithPath: existing)
+        } else {
+            url = uniqueFile(in: dir, baseName: filename, ext: "md")
+        }
+
+        var frontmatter = "---\n"
+        frontmatter += "name: \(agent.name)\n"
+        frontmatter += "description: \(agent.description)\n"
+        if !agent.tools.isEmpty {
+            frontmatter += "tools: \(agent.tools.joined(separator: ", "))\n"
+        }
+        if let model = agent.model, !model.isEmpty {
+            frontmatter += "model: \(model)\n"
+        }
+        if let color = agent.color {
+            frontmatter += "color: \(color.rawValue)\n"
+        }
+        frontmatter += "---\n"
+
+        let content = frontmatter + "\n" + (agent.prompt ?? "")
+        guard (try? content.write(to: url, atomically: true, encoding: .utf8)) != nil else { return nil }
+        return url.path
+    }
+
+    nonisolated static func createAgentTemplate() -> String? {
+        let dir = agentsDir
+        ensureDirectory(dir)
+        let url = uniqueFile(in: dir, baseName: "new-agent", ext: "md")
+        let template = """
+        ---
+        name: New Agent
+        description: Describe what this agent does
+        tools: Glob, Grep, Read, Bash
+        model: sonnet
+        color: orange
+        ---
+
+        Your agent instructions go here.
+        """
+        guard (try? template.write(to: url, atomically: true, encoding: .utf8)) != nil else { return nil }
+        return url.path
+    }
+
+    nonisolated static func exportAgentAsJSON(_ agent: SubAgent) -> Data? {
+        let dict: [String: Any] = [
+            "name": agent.name,
+            "description": agent.description,
+            "tools": agent.tools,
+            "model": agent.model ?? "",
+            "color": agent.color?.rawValue ?? "",
+            "prompt": agent.prompt ?? "",
+        ]
+        return try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        )
+    }
+
+    nonisolated static func importAgentFromJSON(_ data: Data) -> String? {
+        guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let name = dict["name"] as? String
+        else { return nil }
+
+        let tools = (dict["tools"] as? [String]) ?? []
+        let agent = SubAgent(
+            id: UUID().uuidString,
+            name: name,
+            icon: "person.crop.circle.badge.plus",
+            description: dict["description"] as? String ?? "",
+            tools: tools,
+            model: dict["model"] as? String,
+            color: (dict["color"] as? String).flatMap { AgentColor(rawValue: $0) },
+            prompt: dict["prompt"] as? String,
+            scope: .global
+        )
+        return saveAgent(agent)
+    }
+
     // MARK: - Template Creation
 
     nonisolated static func createCommandTemplate() -> String? {

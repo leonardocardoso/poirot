@@ -74,8 +74,8 @@ struct ClaudeCodeProvider: ProviderDescribing {
             icon: "person.2.fill",
             iconColor: PoirotTheme.Colors.orange,
             title: String(localized: "Sub-agents"),
-            count: String(localized: "4 types"),
-            description: String(localized: "Built-in specialized agents for explore, plan, and code tasks"),
+            count: String(localized: "4+ types"),
+            description: String(localized: "Built-in and custom agents for explore, plan, and code tasks"),
             requiredCapability: .subAgents
         ),
         ConfigurationItem(
