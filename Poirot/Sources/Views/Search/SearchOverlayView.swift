@@ -15,6 +15,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     case mcpServers
     case plugins
     case outputStyles
+    case hooks
     case models
     case subAgents
 
@@ -29,6 +30,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .skills: "SKILLS"
         case .plans: "PLANS"
         case .memory: "MEMORY"
+        case .hooks: "HOOKS"
         case .mcpServers: "MCP SERVERS"
         case .plugins: "PLUGINS"
         case .outputStyles: "OUTPUT STYLES"
@@ -48,6 +50,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .skills: .skills
         case .plans: .plans
         case .memory: .memory
+        case .hooks: .hooks
         case .mcpServers: .mcpServers
         case .plugins: .plugins
         case .outputStyles: .outputStyles
@@ -117,6 +120,8 @@ struct SearchOverlayView: View {
     private var plugins: [ClaudePlugin] = []
     @State
     private var outputStyles: [OutputStyle] = []
+    @State
+    private var hookEntries: [HookEntry] = []
     @State
     private var memoryFiles: [MemoryFile] = []
     @State
@@ -375,6 +380,25 @@ struct SearchOverlayView: View {
                 trailing: isDefault ? "Default" : "",
                 score: s,
                 action: .navigateTo(.models)
+            ))
+        }
+
+        // Hooks
+        for hook in hookEntries {
+            let cmdScore = score(hook.firstHandler?.displayCommand ?? "")
+            let matcherScore = score(hook.matcher ?? "")
+            let eventScore = score(hook.event.label)
+            let best = max(cmdScore, matcherScore, eventScore)
+            guard best > 0 else { continue }
+            all.append(SearchResult(
+                id: "hook-\(hook.id)",
+                category: .hooks,
+                icon: hook.event.icon,
+                title: hook.firstHandler?.displayCommand ?? hook.event.label,
+                subtitle: hook.event.label + (hook.matcher.map { " · \($0)" } ?? ""),
+                trailing: hook.firstHandler?.type.label ?? "",
+                score: best,
+                action: .navigateTo(.hooks)
             ))
         }
 
@@ -873,6 +897,9 @@ struct SearchOverlayView: View {
         debugLogSessionIds = result.7
         historyEntries = result.8
         memoryFiles = result.9
+        hookEntries = await Task.detached {
+            ClaudeConfigLoader.loadHooks(projectPath: projectPath)
+        }.value
         allFacets = await Task.detached {
             FacetsLoader().loadAllFacets()
         }.value
