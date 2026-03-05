@@ -88,6 +88,15 @@ struct ClaudeCodeProvider: ProviderDescribing {
             requiredCapability: .memory
         ),
         ConfigurationItem(
+            id: "hooks",
+            icon: "arrow.triangle.branch",
+            iconColor: PoirotTheme.Colors.orange,
+            title: String(localized: "Hooks"),
+            count: String(localized: "Event-driven"),
+            description: String(localized: "Event-driven shell commands and HTTP endpoints"),
+            requiredCapability: .hooks
+        ),
+        ConfigurationItem(
             id: "plugins",
             icon: "puzzlepiece.fill",
             iconColor: PoirotTheme.Colors.teal,

@@ -250,6 +250,7 @@ final class AppState {
             "memory": ClaudeConfigLoader.totalMemoryFileCount(),
             "mcpServers": ClaudeConfigLoader.loadMCPServers(projectPath: projectPath).count,
             "models": supportedModelsCount,
+            "hooks": ClaudeConfigLoader.loadHooks(projectPath: projectPath).count,
             "subAgents": 4, // SubAgent.builtIn is a fixed set
             "plugins": ClaudeConfigLoader.loadPlugins().count,
             "outputStyles": ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath).count,

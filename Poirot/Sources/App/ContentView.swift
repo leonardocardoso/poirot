@@ -380,6 +380,8 @@ struct ContentView: View {
             SubAgentsListView(item: item)
         case NavigationItem.memory.id:
             MemoryListView(item: item)
+        case NavigationItem.hooks.id:
+            HooksListView(item: item)
         case NavigationItem.plugins.id:
             PluginsListView(item: item)
         case NavigationItem.outputStyles.id:
