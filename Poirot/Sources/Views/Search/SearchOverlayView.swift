@@ -402,8 +402,9 @@ struct SearchOverlayView: View {
             ))
         }
 
-        // Sub-agents
-        for agent in SubAgent.builtIn {
+        // Sub-agents (built-in + custom)
+        let allAgents = SubAgent.builtIn + ClaudeConfigLoader.loadCustomAgents()
+        for agent in allAgents {
             let best = max(score(agent.name), score(agent.description))
             guard best > 0 else { continue }
             all.append(SearchResult(
