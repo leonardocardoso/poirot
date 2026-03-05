@@ -51,4 +51,24 @@ struct SubAgentTests {
         let bash = SubAgent.builtIn.first { $0.id == "bash" }!
         #expect(bash.tools == ["Bash"])
     }
+
+    // MARK: - Built-in Scope
+
+    @Test
+    func builtIn_allAreBuiltInScope() {
+        for agent in SubAgent.builtIn {
+            #expect(agent.isBuiltIn)
+            #expect(agent.scope == .builtIn)
+            #expect(agent.filePath == nil)
+        }
+    }
+
+    // MARK: - Known Tools
+
+    @Test
+    func knownTools_isNonEmpty() {
+        #expect(!SubAgent.knownTools.isEmpty)
+        #expect(SubAgent.knownTools.contains("Bash"))
+        #expect(SubAgent.knownTools.contains("Read"))
+    }
 }
