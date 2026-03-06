@@ -15,7 +15,11 @@ struct SubAgentFormView: View {
     @State
     private var selectedTools: Set<String>
     @State
+    private var selectedMemory: AgentMemory
+    @State
     private var prompt: String
+    @State
+    private var showIndividualTools = false
 
     @Environment(\.dismiss)
     private var dismiss
@@ -31,6 +35,7 @@ struct SubAgentFormView: View {
         _model = State(initialValue: existingAgent?.model ?? "sonnet")
         _selectedColor = State(initialValue: existingAgent?.color ?? .orange)
         _selectedTools = State(initialValue: Set(existingAgent?.tools ?? ["Glob", "Grep", "Read", "Bash"]))
+        _selectedMemory = State(initialValue: existingAgent?.memory ?? .user)
         _prompt = State(initialValue: existingAgent?.prompt ?? "")
     }
 
@@ -44,19 +49,11 @@ struct SubAgentFormView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
-                Text(isEditing ? "Edit Agent" : "New Agent")
-                    .font(PoirotTheme.Typography.headingSmall)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(PoirotTheme.Typography.body)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(PoirotTheme.Spacing.lg)
+            Text(isEditing ? "Edit Agent" : "New Agent")
+                .font(PoirotTheme.Typography.headingSmall)
+                .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(PoirotTheme.Spacing.lg)
 
             Divider()
 
@@ -64,10 +61,12 @@ struct SubAgentFormView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xl) {
                     nameSection
+                    filePathSection
                     descriptionSection
                     modelSection
                     colorSection
                     toolsSection
+                    memorySection
                     promptSection
                 }
                 .padding(PoirotTheme.Spacing.lg)
@@ -86,8 +85,17 @@ struct SubAgentFormView: View {
             }
             .padding(PoirotTheme.Spacing.lg)
         }
-        .frame(width: 520, height: 620)
+        .frame(width: 520, height: 700)
         .background(PoirotTheme.Colors.bgApp)
+    }
+
+    private var derivedFilename: String {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return "" }
+        return trimmed
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "-")
+            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
     }
 
     // MARK: - Sections
@@ -99,6 +107,17 @@ struct SubAgentFormView: View {
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
             TextField("Agent name", text: $name)
                 .textFieldStyle(.roundedBorder)
+        }
+    }
+
+    private var filePathSection: some View {
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
+            Text("File")
+                .font(PoirotTheme.Typography.captionMedium)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+            Text(derivedFilename.isEmpty ? "\u{2014}" : "~/.claude/agents/\(derivedFilename).md")
+                .font(PoirotTheme.Typography.codeSmall)
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
         }
     }
 
@@ -162,33 +181,95 @@ struct SubAgentFormView: View {
                     .font(PoirotTheme.Typography.captionMedium)
                     .foregroundStyle(PoirotTheme.Colors.textSecondary)
                 Spacer()
-                Text("\(selectedTools.count) selected")
+                Text("\(selectedTools.count) of \(SubAgent.knownTools.count)")
                     .font(PoirotTheme.Typography.micro)
                     .foregroundStyle(PoirotTheme.Colors.textTertiary)
             }
 
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                ],
-                spacing: PoirotTheme.Spacing.xs
-            ) {
-                ForEach(SubAgent.knownTools, id: \.self) { tool in
-                    Toggle(isOn: Binding(
-                        get: { selectedTools.contains(tool) },
-                        set: { isOn in
-                            if isOn { selectedTools.insert(tool) }
-                            else { selectedTools.remove(tool) }
+            Toggle(isOn: allToolsBinding) {
+                Text("All tools")
+                    .font(PoirotTheme.Typography.bodyMedium)
+            }
+            .toggleStyle(.checkbox)
+
+            ForEach(SubAgent.toolCategories) { category in
+                Toggle(isOn: categoryBinding(for: category)) {
+                    Text(category.name)
+                        .font(PoirotTheme.Typography.body)
+                }
+                .toggleStyle(.checkbox)
+                .padding(.leading, PoirotTheme.Spacing.md)
+            }
+
+            DisclosureGroup(isExpanded: $showIndividualTools) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), alignment: .leading),
+                        GridItem(.flexible(), alignment: .leading),
+                        GridItem(.flexible(), alignment: .leading),
+                    ],
+                    spacing: PoirotTheme.Spacing.xs
+                ) {
+                    ForEach(SubAgent.knownTools, id: \.self) { tool in
+                        Toggle(isOn: Binding(
+                            get: { selectedTools.contains(tool) },
+                            set: { isOn in
+                                if isOn { selectedTools.insert(tool) }
+                                else { selectedTools.remove(tool) }
+                            }
+                        )) {
+                            Text(tool)
+                                .font(PoirotTheme.Typography.codeSmall)
                         }
-                    )) {
-                        Text(tool)
-                            .font(PoirotTheme.Typography.codeSmall)
+                        .toggleStyle(.checkbox)
                     }
-                    .toggleStyle(.checkbox)
+                }
+                .padding(.top, PoirotTheme.Spacing.xs)
+            } label: {
+                Text("Show individual tools")
+                    .font(PoirotTheme.Typography.caption)
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            }
+        }
+    }
+
+    private var allToolsBinding: Binding<Bool> {
+        Binding(
+            get: { selectedTools.count == SubAgent.knownTools.count },
+            set: { isOn in
+                if isOn {
+                    selectedTools = Set(SubAgent.knownTools)
+                } else {
+                    selectedTools.removeAll()
                 }
             }
+        )
+    }
+
+    private func categoryBinding(for category: ToolCategory) -> Binding<Bool> {
+        Binding(
+            get: { category.tools.allSatisfy { selectedTools.contains($0) } },
+            set: { isOn in
+                if isOn {
+                    category.tools.forEach { selectedTools.insert($0) }
+                } else {
+                    category.tools.forEach { selectedTools.remove($0) }
+                }
+            }
+        )
+    }
+
+    private var memorySection: some View {
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xs) {
+            Text("Memory")
+                .font(PoirotTheme.Typography.captionMedium)
+                .foregroundStyle(PoirotTheme.Colors.textSecondary)
+            Picker("Memory", selection: $selectedMemory) {
+                ForEach(AgentMemory.allCases, id: \.self) { memory in
+                    Text(memory.label).tag(memory)
+                }
+            }
+            .labelsHidden()
         }
     }
 
@@ -226,6 +307,7 @@ struct SubAgentFormView: View {
             color: selectedColor,
             prompt: prompt.isEmpty ? nil : prompt,
             filePath: existingAgent?.filePath,
+            memory: selectedMemory,
             scope: .global
         )
         onSave(agent)

@@ -589,6 +589,7 @@ enum ClaudeConfigLoader {
                     .map { $0.trimmingCharacters(in: .whitespaces) }
                     .filter { !$0.isEmpty } ?? []
                 let color = parsed.metadata["color"].flatMap { AgentColor(rawValue: $0) }
+                let memory = parsed.metadata["memory"].flatMap { AgentMemory(rawValue: $0) }
                 return SubAgent(
                     id: "custom-\(filename)",
                     name: name,
@@ -599,6 +600,7 @@ enum ClaudeConfigLoader {
                     color: color,
                     prompt: parsed.body.isEmpty ? nil : parsed.body,
                     filePath: url.path,
+                    memory: memory,
                     scope: .global
                 )
             }
@@ -609,21 +611,22 @@ enum ClaudeConfigLoader {
         let dir = agentsDir
         ensureDirectory(dir)
 
-        let filename: String
-        if let existing = agent.filePath {
-            filename = URL(fileURLWithPath: existing).deletingPathExtension().lastPathComponent
-        } else {
-            filename = agent.name
-                .lowercased()
-                .replacingOccurrences(of: " ", with: "-")
-                .filter { $0.isLetter || $0.isNumber || $0 == "-" }
-        }
+        let desiredFilename = agent.name
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "-")
+            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
 
         let url: URL
         if let existing = agent.filePath {
-            url = URL(fileURLWithPath: existing)
+            let existingURL = URL(fileURLWithPath: existing)
+            let existingFilename = existingURL.deletingPathExtension().lastPathComponent
+            if existingFilename == desiredFilename {
+                url = existingURL
+            } else {
+                url = uniqueFile(in: dir, baseName: desiredFilename, ext: "md")
+            }
         } else {
-            url = uniqueFile(in: dir, baseName: filename, ext: "md")
+            url = uniqueFile(in: dir, baseName: desiredFilename, ext: "md")
         }
 
         var frontmatter = "---\n"
@@ -638,10 +641,19 @@ enum ClaudeConfigLoader {
         if let color = agent.color {
             frontmatter += "color: \(color.rawValue)\n"
         }
+        if let memory = agent.memory {
+            frontmatter += "memory: \(memory.rawValue)\n"
+        }
         frontmatter += "---\n"
 
         let content = frontmatter + "\n" + (agent.prompt ?? "")
         guard (try? content.write(to: url, atomically: true, encoding: .utf8)) != nil else { return nil }
+
+        // Delete old file if renamed
+        if let existing = agent.filePath, url.path != existing {
+            try? FileManager.default.removeItem(atPath: existing)
+        }
+
         return url.path
     }
 
@@ -672,6 +684,7 @@ enum ClaudeConfigLoader {
             "model": agent.model ?? "",
             "color": agent.color?.rawValue ?? "",
             "prompt": agent.prompt ?? "",
+            "memory": agent.memory?.rawValue ?? "",
         ]
         return try? JSONSerialization.data(
             withJSONObject: dict,
@@ -694,6 +707,7 @@ enum ClaudeConfigLoader {
             model: dict["model"] as? String,
             color: (dict["color"] as? String).flatMap { AgentColor(rawValue: $0) },
             prompt: dict["prompt"] as? String,
+            memory: (dict["memory"] as? String).flatMap { AgentMemory(rawValue: $0) },
             scope: .global
         )
         return saveAgent(agent)

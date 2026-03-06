@@ -22,6 +22,28 @@ enum AgentColor: String, CaseIterable, Sendable {
     }
 }
 
+// MARK: - Agent Memory
+
+enum AgentMemory: String, CaseIterable, Sendable {
+    case user
+    case none
+
+    var label: String {
+        switch self {
+        case .user: "Enable (~/.claude/agent-memory/)"
+        case .none: "None (no persistent memory)"
+        }
+    }
+}
+
+// MARK: - Tool Category
+
+struct ToolCategory: Identifiable, Sendable {
+    let id: String
+    let name: String
+    let tools: [String]
+}
+
 // MARK: - Sub-Agent
 
 struct SubAgent: Identifiable, Sendable {
@@ -34,6 +56,7 @@ struct SubAgent: Identifiable, Sendable {
     var color: AgentColor?
     var prompt: String?
     var filePath: String?
+    var memory: AgentMemory?
     let scope: AgentScope
 
     var isBuiltIn: Bool { scope == .builtIn }
@@ -41,6 +64,13 @@ struct SubAgent: Identifiable, Sendable {
     nonisolated static let knownTools: [String] = [
         "Agent", "AskUserQuestion", "Bash", "Edit", "Glob", "Grep",
         "NotebookEdit", "Read", "TodoWrite", "WebFetch", "WebSearch", "Write",
+    ]
+
+    nonisolated static let toolCategories: [ToolCategory] = [
+        ToolCategory(id: "readonly", name: "Read-only tools", tools: ["Glob", "Grep", "Read", "WebFetch", "WebSearch"]),
+        ToolCategory(id: "edit", name: "Edit tools", tools: ["Edit", "Write", "NotebookEdit"]),
+        ToolCategory(id: "execution", name: "Execution tools", tools: ["Bash", "Agent"]),
+        ToolCategory(id: "other", name: "Other tools", tools: ["AskUserQuestion", "TodoWrite"]),
     ]
 
     nonisolated static let builtIn: [SubAgent] = [

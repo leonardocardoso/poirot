@@ -15,8 +15,6 @@ struct SubAgentsListView: View {
     @State
     private var editingAgent: SubAgent?
     @State
-    private var agentToDelete: SubAgent?
-    @State
     private var fileWatcher = FileWatcher { }
 
     @Environment(AppState.self)
@@ -119,24 +117,6 @@ struct SubAgentsListView: View {
                 saveAndReload(updated)
             }
         }
-        .confirmationDialog(
-            "Delete agent?",
-            isPresented: Binding(
-                get: { agentToDelete != nil },
-                set: { if !$0 { agentToDelete = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                if let agent = agentToDelete, let path = agent.filePath {
-                    _ = ClaudeConfigLoader.deleteConfigFile(at: path)
-                    reloadCustomAgents()
-                    appState.showToast("Deleted \(agent.name)")
-                }
-            }
-        } message: {
-            Text("This will permanently delete the agent file. This action cannot be undone.")
-        }
     }
 
     // MARK: - Content
@@ -201,7 +181,7 @@ struct SubAgentsListView: View {
                                 onEdit: { editingAgent = agent },
                                 onDuplicate: { duplicateAgent(agent) },
                                 onExport: { exportAgentAsJSON(agent) },
-                                onDelete: { agentToDelete = agent }
+                                onDelete: { deleteAgent(agent) }
                             )
                             .shimmerReveal(
                                 isRevealed: isRevealed,
@@ -227,7 +207,7 @@ struct SubAgentsListView: View {
                         onEdit: { editingAgent = agent },
                         onDuplicate: { duplicateAgent(agent) },
                         onExport: { exportAgentAsJSON(agent) },
-                        onDelete: { agentToDelete = agent }
+                        onDelete: { deleteAgent(agent) }
                     )
                     .shimmerReveal(
                         isRevealed: isRevealed,
@@ -254,6 +234,7 @@ struct SubAgentsListView: View {
 
     private func reloadCustomAgents() {
         customAgents = ClaudeConfigLoader.loadCustomAgents()
+        appState.sidebarCounts[NavigationItem.subAgents.id] = allAgents.count
     }
 
     private func saveAndReload(_ agent: SubAgent) {
@@ -263,6 +244,13 @@ struct SubAgentsListView: View {
             appState.showToast("\(verb) \(agent.name)", icon: "checkmark.circle.fill")
             _ = path
         }
+    }
+
+    private func deleteAgent(_ agent: SubAgent) {
+        guard let path = agent.filePath else { return }
+        _ = ClaudeConfigLoader.deleteConfigFile(at: path)
+        reloadCustomAgents()
+        appState.showToast("Deleted \(agent.name)", icon: "trash", style: .info)
     }
 
     private func duplicateAgent(_ agent: SubAgent) {
@@ -275,6 +263,7 @@ struct SubAgentsListView: View {
             model: agent.model,
             color: agent.color,
             prompt: agent.prompt,
+            memory: agent.memory,
             scope: .global
         )
         saveAndReload(duplicate)
@@ -325,6 +314,8 @@ private struct SubAgentCard: View {
 
     @State
     private var isHovered = false
+    @State
+    private var showDeleteConfirmation = false
 
     private var iconColor: Color {
         guard let color = agent.color else { return PoirotTheme.Colors.orange }
@@ -354,10 +345,60 @@ private struct SubAgentCard: View {
                     .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
+                if let model = agent.model, !model.isEmpty {
+                    Text(model)
+                        .font(PoirotTheme.Typography.micro)
+                        .foregroundStyle(PoirotTheme.Colors.orange)
+                        .padding(.horizontal, PoirotTheme.Spacing.sm)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                                .fill(PoirotTheme.Colors.orange.opacity(0.15))
+                        )
+                }
+
                 Spacer()
 
                 if !agent.isBuiltIn {
-                    scopeBadge
+                    Button { onDuplicate?() } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Duplicate")
+
+                    Button { onExport?() } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Export as JSON")
+
+                    Button { showDeleteConfirmation = true } label: {
+                        Image(systemName: "trash")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Delete agent")
+                } else {
+                    Button { onDuplicate?() } label: {
+                        Image(systemName: "doc.on.doc")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Duplicate")
+
+                    Button { onExport?() } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Export as JSON")
                 }
             }
 
@@ -367,7 +408,7 @@ private struct SubAgentCard: View {
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
-            HStack(spacing: PoirotTheme.Spacing.xs) {
+            FlowLayout(spacing: PoirotTheme.Spacing.xs) {
                 ForEach(agent.tools, id: \.self) { tool in
                     Text(tool)
                         .font(PoirotTheme.Typography.codeSmall)
@@ -379,32 +420,25 @@ private struct SubAgentCard: View {
                                 .fill(PoirotTheme.Colors.bgElevated)
                         )
                 }
-
-                if let model = agent.model {
-                    Spacer()
-                    Text(model)
-                        .font(PoirotTheme.Typography.micro)
-                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(PoirotTheme.Spacing.lg)
         .cardChrome(isHovered: isHovered)
         .onHover { isHovered = $0 }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if !agent.isBuiltIn { onEdit?() }
+        }
         .contextMenu { contextMenuItems }
-    }
-
-    private var scopeBadge: some View {
-        Text("Custom")
-            .font(PoirotTheme.Typography.microSemibold)
-            .foregroundStyle(PoirotTheme.Colors.accent)
-            .padding(.horizontal, PoirotTheme.Spacing.sm)
-            .padding(.vertical, 2)
-            .background(
-                RoundedRectangle(cornerRadius: PoirotTheme.Radius.xs)
-                    .fill(PoirotTheme.Colors.accent.opacity(0.12))
-            )
+        .confirmationDialog(
+            "Delete \(agent.name)?",
+            isPresented: $showDeleteConfirmation
+        ) {
+            Button("Delete", role: .destructive) { onDelete?() }
+        } message: {
+            Text("This will permanently delete the agent file.")
+        }
     }
 
     @ViewBuilder
@@ -418,7 +452,7 @@ private struct SubAgentCard: View {
 
         if !agent.isBuiltIn {
             Divider()
-            Button("Delete\u{2026}", role: .destructive) { onDelete?() }
+            Button("Delete\u{2026}", role: .destructive) { showDeleteConfirmation = true }
         }
     }
 }
