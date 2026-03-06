@@ -143,6 +143,13 @@ Browse and preview output formatting styles. See how each style shapes Claude's 
   <img src="assets/showcase/18-output-styles.png" alt="Output Styles" width="720" />
 </p>
 
+### Hooks
+View and manage hooks that automate tasks during Claude Code events. See all configured hooks grouped by event type (PreToolUse, PostToolUse, Notification, etc.), with matcher patterns, handler types, and scope badges.
+
+<p align="center">
+  <img src="assets/showcase/24-hooks.png" alt="Hooks" width="720" />
+</p>
+
 ### Session TODOs
 See all Claude Code per-session todo lists at a glance. Cards show task status (pending, in progress, completed), and you can jump straight to the associated session or delete orphaned entries.
 
@@ -222,6 +229,7 @@ Browse Claude Code's auto-memory files per project. MEMORY.md is the main entryp
 | | Sub-agents | Browse custom sub-agent definitions |
 | | Plugins | Browse installed plugins |
 | | Output Styles | Browse and manage output style configurations |
+| | Hooks | View and manage event hooks grouped by type with matcher patterns and handler details |
 | | TODOs | Browse per-session todo lists with status tracking and session navigation |
 | | Plans | Browse `~/.claude/plans/` markdown files with rendered/raw toggle, copy, delete, and file watching |
 | | Memory | Browse per-project auto-memory files with rendered markdown, project filtering, and file watching |
