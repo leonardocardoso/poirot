@@ -11,8 +11,6 @@ struct ShortcutHelpView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xl) {
                     globalSection
-                    sidebarSection
-                    detailSection
                     navigationSection
                 }
                 .padding(PoirotTheme.Spacing.xxl)
@@ -56,34 +54,8 @@ struct ShortcutHelpView: View {
     private var globalSection: some View {
         shortcutSection("Global", icon: "globe") {
             shortcutRow("Universal Search", keys: "\u{2318}K")
-            shortcutRow("Find in Session", keys: "\u{2318}F")
             shortcutRow("Toggle Tool Filter", keys: "\u{2318}T")
-            shortcutRow("Quick Search", keys: "/")
-            shortcutRow("Shortcut Help", keys: "?")
-            shortcutRow("Cycle Focus Forward", keys: "Tab")
-            shortcutRow("Cycle Focus Back", keys: "\u{21E7}Tab")
             shortcutRow("Dismiss / Go Back", keys: "Esc")
-        }
-    }
-
-    private var sidebarSection: some View {
-        shortcutSection("Sidebar", icon: "sidebar.left") {
-            shortcutRow("Move Down", keys: "j / \u{2193}")
-            shortcutRow("Move Up", keys: "k / \u{2191}")
-            shortcutRow("Open Item", keys: "Return / o")
-            shortcutRow("Jump to First", keys: "g g")
-            shortcutRow("Jump to Last", keys: "G")
-        }
-    }
-
-    private var detailSection: some View {
-        shortcutSection("Detail View", icon: "doc.text") {
-            shortcutRow("Scroll Down", keys: "j / \u{2193}")
-            shortcutRow("Scroll Up", keys: "k / \u{2191}")
-            shortcutRow("Half Page Down", keys: "d")
-            shortcutRow("Half Page Up", keys: "u")
-            shortcutRow("Scroll to Top", keys: "g g")
-            shortcutRow("Scroll to Bottom", keys: "G")
         }
     }
 

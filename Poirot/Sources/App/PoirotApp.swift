@@ -29,9 +29,6 @@ struct PoirotApp: App {
     private var appState = AppState()
     @Environment(\.openWindow)
     private var openWindow
-    @AppStorage("vimKeysEnabled")
-    private var vimKeysEnabled = false
-
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -53,10 +50,6 @@ struct PoirotApp: App {
                     .keyboardShortcut("-", modifiers: .command)
                 Button("Reset Font Size") { appState.resetFontScale() }
                     .keyboardShortcut("0", modifiers: .command)
-            }
-            CommandGroup(before: .toolbar) {
-                Toggle("Vim-Style Navigation", isOn: $vimKeysEnabled)
-                Divider()
             }
             CommandGroup(replacing: .help) {
                 Button("Poirot Help") {

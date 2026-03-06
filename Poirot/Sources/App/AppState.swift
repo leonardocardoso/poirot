@@ -185,8 +185,7 @@ final class AppState {
     var toastQueue: [Toast] = []
     var isSearchPresented: Bool = false
     var isShortcutHelpPresented: Bool = false
-    var focusedArea: FocusArea = .sidebar
-    var sidebarKeyboardIndex: Int = 0
+    var sidebarKeyboardIndex: Int = -1
     var sessionSearchQuery: String = ""
     var isSessionSearchActive: Bool = false
     var isToolFilterActive: Bool = false

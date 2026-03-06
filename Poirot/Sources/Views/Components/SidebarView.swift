@@ -9,9 +9,6 @@ struct SidebarView: View {
     private var accentColorRaw = AccentColor.golden.rawValue
     @AppStorage("colorTheme")
     private var colorThemeRaw = ColorTheme.default.rawValue
-    @AppStorage("vimKeysEnabled")
-    private var vimKeysEnabled = false
-
     var body: some View {
         VStack(spacing: 0) {
             navigationItems
@@ -31,9 +28,7 @@ struct SidebarView: View {
             ForEach(Array(provider.navigationItems.enumerated()), id: \.element.id) { index, item in
                 @Bindable
                 var state = appState
-                let isKeyboardSelected = vimKeysEnabled
-                    && appState.focusedArea == .sidebar
-                    && appState.sidebarKeyboardIndex == index
+                let isKeyboardSelected = appState.sidebarKeyboardIndex == index
                 Button {
                     state.selectedNav = item
                 } label: {
