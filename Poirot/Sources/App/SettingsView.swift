@@ -81,8 +81,6 @@ private struct GeneralSettingsView: View {
                     .labelsHidden()
             }
 
-            settingsDivider
-
             settingsRow {
                 Text("\(provider.cliLabel):")
             } control: {
