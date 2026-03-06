@@ -54,6 +54,12 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         systemImage: "person.2.fill",
         requiredCapability: .subAgents
     )
+    static let hooks = NavigationItem(
+        id: "hooks",
+        title: String(localized: "Hooks"),
+        systemImage: "arrow.triangle.branch",
+        requiredCapability: .hooks
+    )
     static let plugins = NavigationItem(
         id: "plugins",
         title: String(localized: "Plugins"),
@@ -94,6 +100,7 @@ struct NavigationItem: Identifiable, Hashable, Sendable {
         .skills,
         .plans,
         .memory,
+        .hooks,
         .mcpServers,
         .plugins,
         .outputStyles,
