@@ -231,7 +231,7 @@ Browse Claude Code's auto-memory files per project. MEMORY.md is the main entryp
 | | Terminal Selection | Pick your terminal: Terminal, iTerm2, Warp, Ghostty, Kitty, Alacritty |
 | | Quick Command Re-run | Click any Bash command to copy or open in your terminal |
 | **Navigation** | Font Scaling | ⌘+ / ⌘- / ⌘0 to zoom the entire UI |
-| | Keyboard Shortcuts | Full keyboard navigation with discoverable shortcut hints |
+| | Keyboard-First | Vim-style j/k/gg/G, Tab panel cycling, `/` search, `?` shortcut help sheet |
 | | Help Book (⌘?) | Keyboard reference, feature overview, and getting started guide |
 | **App** | Onboarding Flow | First-run welcome with CLI detection, session discovery, and feature tour |
 | | Homebrew Distribution | `brew install --cask poirot` with automated release workflow |

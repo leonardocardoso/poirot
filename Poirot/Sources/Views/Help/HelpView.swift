@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct HelpView: View {
+    @State
+    private var showShortcuts = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxl) {
@@ -13,6 +16,9 @@ struct HelpView: View {
         }
         .frame(width: 540, height: 620)
         .background(PoirotTheme.Colors.bgApp)
+        .sheet(isPresented: $showShortcuts) {
+            ShortcutHelpView()
+        }
     }
 
     // MARK: - Header
@@ -40,14 +46,27 @@ struct HelpView: View {
 
     private var keyboardShortcutsSection: some View {
         VStack(alignment: .leading, spacing: PoirotTheme.Spacing.md) {
-            sectionHeader("Keyboard Shortcuts", icon: "keyboard")
+            HStack {
+                sectionHeader("Keyboard Shortcuts", icon: "keyboard")
+                Spacer()
+                Button {
+                    showShortcuts = true
+                } label: {
+                    Label("Show All", systemImage: "rectangle.on.rectangle")
+                        .font(PoirotTheme.Typography.caption)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(PoirotTheme.Colors.accent)
+            }
 
             VStack(spacing: PoirotTheme.Spacing.xs) {
                 shortcutRow("Universal Search", keys: "\u{2318}K")
-                shortcutRow("Find in Session", keys: "\u{2318}F")
                 shortcutRow("Navigate Back", keys: "\u{2318}[")
                 shortcutRow("Navigate Forward", keys: "\u{2318}]")
                 shortcutRow("Toggle Tool Filter", keys: "\u{2318}T")
+                Divider().opacity(0.2)
+                shortcutRow("Move Up/Down", keys: "\u{2191} / \u{2193}")
+                shortcutRow("Open / Activate", keys: "Return")
                 Divider().opacity(0.2)
                 shortcutRow("Increase Font Size", keys: "\u{2318}+")
                 shortcutRow("Decrease Font Size", keys: "\u{2318}\u{2212}")
