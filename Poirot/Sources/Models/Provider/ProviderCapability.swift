@@ -8,4 +8,5 @@ enum ProviderCapability: String, CaseIterable, Sendable {
     case models
     case outputStyles
     case memory
+    case hooks
 }

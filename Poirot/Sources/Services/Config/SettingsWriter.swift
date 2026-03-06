@@ -132,6 +132,164 @@ enum SettingsWriter {
         try? updated.write(to: url, options: .atomic)
     }
 
+    // MARK: - Hook Save
+
+    nonisolated static func saveHook(
+        event: HookEvent,
+        matcherGroup: HookMatcherGroup,
+        existingIndex: Int?,
+        scope: ConfigScope,
+        projectPath: String? = nil
+    ) {
+        var dict = loadSettingsDictFor(scope: scope, projectPath: projectPath)
+        var hooks = dict["hooks"] as? [String: Any] ?? [:]
+        var groups = hooks[event.rawValue] as? [[String: Any]] ?? []
+
+        let serialized = serializeMatcherGroup(matcherGroup)
+
+        if let idx = existingIndex, idx < groups.count {
+            groups[idx] = serialized
+        } else {
+            groups.append(serialized)
+        }
+
+        hooks[event.rawValue] = groups
+        dict["hooks"] = hooks
+        writeSettingsDictFor(dict, scope: scope, projectPath: projectPath)
+    }
+
+    // MARK: - Hook Delete
+
+    nonisolated static func deleteHook(
+        event: HookEvent,
+        matcherIndex: Int,
+        scope: ConfigScope,
+        projectPath: String? = nil
+    ) {
+        var dict = loadSettingsDictFor(scope: scope, projectPath: projectPath)
+        guard var hooks = dict["hooks"] as? [String: Any],
+              var groups = hooks[event.rawValue] as? [[String: Any]],
+              matcherIndex < groups.count
+        else { return }
+
+        groups.remove(at: matcherIndex)
+        if groups.isEmpty {
+            hooks.removeValue(forKey: event.rawValue)
+        } else {
+            hooks[event.rawValue] = groups
+        }
+        if hooks.isEmpty {
+            dict.removeValue(forKey: "hooks")
+        } else {
+            dict["hooks"] = hooks
+        }
+        writeSettingsDictFor(dict, scope: scope, projectPath: projectPath)
+    }
+
+    // MARK: - Hook Export/Import
+
+    nonisolated static func exportHooksAsJSON(_ entries: [HookEntry]) -> Data? {
+        var hooks: [String: Any] = [:]
+        for entry in entries {
+            var groups = hooks[entry.event.rawValue] as? [[String: Any]] ?? []
+            groups.append(serializeMatcherGroup(entry.matcherGroup))
+            hooks[entry.event.rawValue] = groups
+        }
+        let wrapper: [String: Any] = ["hooks": hooks]
+        return try? JSONSerialization.data(
+            withJSONObject: wrapper,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        )
+    }
+
+    nonisolated static func importHooksFromJSON(
+        _ data: Data,
+        scope: ConfigScope,
+        projectPath: String? = nil
+    ) -> Int {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let hooks = json["hooks"] as? [String: [[String: Any]]]
+        else { return 0 }
+
+        var dict = loadSettingsDictFor(scope: scope, projectPath: projectPath)
+        var existing = dict["hooks"] as? [String: Any] ?? [:]
+        var count = 0
+
+        for (eventKey, groups) in hooks {
+            var eventGroups = existing[eventKey] as? [[String: Any]] ?? []
+            eventGroups.append(contentsOf: groups)
+            existing[eventKey] = eventGroups
+            count += groups.count
+        }
+
+        dict["hooks"] = existing
+        writeSettingsDictFor(dict, scope: scope, projectPath: projectPath)
+        return count
+    }
+
+    // MARK: - Hook Helpers
+
+    nonisolated private static func serializeMatcherGroup(_ group: HookMatcherGroup) -> [String: Any] {
+        var result: [String: Any] = [:]
+        if let matcher = group.matcher, !matcher.isEmpty {
+            result["matcher"] = matcher
+        }
+        result["hooks"] = group.handlers.map { handler -> [String: Any] in
+            var h: [String: Any] = ["type": handler.type.rawValue]
+            switch handler.type {
+            case .command:
+                if let cmd = handler.command { h["command"] = cmd }
+            case .http:
+                if let url = handler.url { h["url"] = url }
+            }
+            if let timeout = handler.timeout { h["timeout"] = timeout }
+            if let msg = handler.statusMessage { h["statusMessage"] = msg }
+            return h
+        }
+        return result
+    }
+
+    nonisolated private static func settingsURL(
+        scope: ConfigScope,
+        projectPath: String?
+    ) -> URL {
+        switch scope {
+        case .global:
+            return settingsFileURL()
+        case .project:
+            guard let projectPath else { return settingsFileURL() }
+            return URL(fileURLWithPath: projectPath)
+                .appendingPathComponent(".claude")
+                .appendingPathComponent("settings.json")
+        }
+    }
+
+    nonisolated private static func loadSettingsDictFor(
+        scope: ConfigScope,
+        projectPath: String?
+    ) -> [String: Any] {
+        let url = settingsURL(scope: scope, projectPath: projectPath)
+        guard let data = try? Data(contentsOf: url),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return [:] }
+        return json
+    }
+
+    nonisolated private static func writeSettingsDictFor(
+        _ dict: [String: Any],
+        scope: ConfigScope,
+        projectPath: String?
+    ) {
+        let url = settingsURL(scope: scope, projectPath: projectPath)
+        let dir = url.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        guard let data = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+
     // MARK: - Internal
 
     nonisolated private static func loadSettingsDict() -> [String: Any] {

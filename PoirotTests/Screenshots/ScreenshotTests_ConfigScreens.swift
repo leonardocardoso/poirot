@@ -103,6 +103,20 @@ struct ScreenshotTests_ConfigScreens {
     }
 
     @Test
+    func testHooksList() async throws {
+        try await snapshotView(
+            withEnvironment(
+                HooksListView(item: configItem(id: "hooks")),
+                provider: provider
+            ),
+            size: ScreenshotSize.mainContent,
+            named: "testHooksList",
+            record: isRecording,
+            delay: 2
+        )
+    }
+
+    @Test
     func testOutputStylesList() async throws {
         try await snapshotView(
             withEnvironment(
