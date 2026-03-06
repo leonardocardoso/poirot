@@ -24,6 +24,9 @@ struct ContentView: View {
     private var accentColorRaw = AccentColor.golden.rawValue
     @AppStorage("colorTheme")
     private var colorThemeRaw = ColorTheme.default.rawValue
+    private var sidebarNavItems: [NavigationItem] {
+        provider.navigationItems
+    }
 
     var body: some View {
         splitView
@@ -36,14 +39,6 @@ struct ContentView: View {
             }
             .keyboardShortcut(for: .search) {
                 appState.isSearchPresented.toggle()
-            }
-            .keyboardShortcut(for: .find) {
-                if appState.selectedSession != nil {
-                    appState.isSessionSearchActive.toggle()
-                    if !appState.isSessionSearchActive {
-                        appState.sessionSearchQuery = ""
-                    }
-                }
             }
             .keyboardShortcut(for: "[") {
                 appState.navigateBack()
@@ -72,6 +67,23 @@ struct ContentView: View {
                     AccentColorStorage.current = color
                 }
             }
+            .keyboardNavigation(
+                sidebarItemCount: sidebarNavItems.count,
+                onSidebarActivate: { activateSidebarItem() }
+            )
+            .sheet(isPresented: Binding(
+                get: { appState.isShortcutHelpPresented },
+                set: { appState.isShortcutHelpPresented = $0 }
+            )) {
+                ShortcutHelpView()
+            }
+    }
+
+    private func activateSidebarItem() {
+        let items = sidebarNavItems
+        let index = appState.sidebarKeyboardIndex
+        guard index >= 0, index < items.count else { return }
+        appState.selectedNav = items[index]
     }
 
     private var splitView: some View {
@@ -443,12 +455,10 @@ private extension View {
 
 private enum SearchShortcut {
     case search
-    case find
 
     var key: KeyEquivalent {
         switch self {
         case .search: "k"
-        case .find: "f"
         }
     }
 }
