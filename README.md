@@ -230,6 +230,9 @@ Browse Claude Code's auto-memory files per project. MEMORY.md is the main entryp
 | **Integrations** | IDE/Editor | One-click open files in VS Code, Cursor, Xcode, or Zed |
 | | Terminal Selection | Pick your terminal: Terminal, iTerm2, Warp, Ghostty, Kitty, Alacritty |
 | | Quick Command Re-run | Click any Bash command to copy or open in your terminal |
+| **Export** | Session Export | Export sessions as Markdown or PDF with configurable options |
+| | Copy Markdown | One-click copy of session content as Markdown to clipboard |
+| | Share Sheet | Native macOS share sheet integration for exported files |
 | **Navigation** | Font Scaling | ⌘+ / ⌘- / ⌘0 to zoom the entire UI |
 | | Keyboard-First | Vim-style j/k/gg/G, Tab panel cycling, `/` search, `?` shortcut help sheet |
 | | Help Book (⌘?) | Keyboard reference, feature overview, and getting started guide |
