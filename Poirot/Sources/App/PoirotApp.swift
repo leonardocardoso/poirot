@@ -29,7 +29,6 @@ struct PoirotApp: App {
     private var appState = AppState()
     @Environment(\.openWindow)
     private var openWindow
-
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -57,6 +56,10 @@ struct PoirotApp: App {
                     openWindow(id: "help")
                 }
                 .keyboardShortcut("?", modifiers: .command)
+
+                Button("Keyboard Shortcuts") {
+                    appState.isShortcutHelpPresented = true
+                }
             }
         }
 
