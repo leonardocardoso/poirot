@@ -1,7 +1,6 @@
 import AppKit
 import Foundation
 import UniformTypeIdentifiers
-import WebKit
 
 // MARK: - Export Options
 
@@ -142,95 +141,6 @@ enum SessionExporter {
         return lines.joined(separator: "\n")
     }
 
-    // MARK: - HTML (for PDF rendering)
-
-    nonisolated static func toHTML(_ session: Session, options: ExportOptions = ExportOptions()) -> String {
-        let markdown = toMarkdown(session, options: options)
-        return wrapInHTML(markdown, title: session.title)
-    }
-
-    nonisolated private static func wrapInHTML(_ markdown: String, title: String) -> String {
-        let escaped = markdown
-            .replacingOccurrences(of: "&", with: "&amp;")
-            .replacingOccurrences(of: "<", with: "&lt;")
-            .replacingOccurrences(of: ">", with: "&gt;")
-
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <meta charset="utf-8">
-        <title>\(title)</title>
-        <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            color: #1a1a1a;
-            line-height: 1.6;
-            background: #ffffff;
-        }
-        h1 { font-size: 24px; border-bottom: 2px solid #e8a642; padding-bottom: 8px; }
-        h2 { font-size: 18px; margin-top: 32px; color: #333; }
-        h3 { font-size: 14px; color: #666; }
-        hr { border: none; border-top: 1px solid #e0e0e0; margin: 24px 0; }
-        pre {
-            background: #f5f5f5;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px;
-            overflow-x: auto;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        code {
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 13px;
-        }
-        pre code { background: none; padding: 0; }
-        em { color: #888; }
-        strong { color: #333; }
-        details { margin: 8px 0; }
-        summary { cursor: pointer; color: #888; font-style: italic; }
-        </style>
-        </head>
-        <body>
-        <pre style="white-space: pre-wrap; background: none; border: none; padding: 0; font-family: inherit;">\(escaped)</pre>
-        </body>
-        </html>
-        """
-    }
-
-    // MARK: - PDF
-
-    static func toPDF(_ session: Session, options: ExportOptions = ExportOptions()) async -> Data? {
-        let html = toHTML(session, options: options)
-        return await renderHTMLToPDF(html)
-    }
-
-    @MainActor
-    private static func renderHTMLToPDF(_ html: String) async -> Data? {
-        let webView = WKWebView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
-        webView.loadHTMLString(html, baseURL: nil)
-
-        // Wait for page to finish loading
-        for _ in 0 ..< 100 {
-            try? await Task.sleep(for: .milliseconds(50))
-            if !webView.isLoading { break }
-        }
-
-        // Small delay for rendering
-        try? await Task.sleep(for: .milliseconds(200))
-
-        let config = WKPDFConfiguration()
-        config.rect = NSRect(x: 0, y: 0, width: 612, height: 792) // US Letter
-
-        return try? await webView.pdf(configuration: config)
-    }
-
     // MARK: - Save Panel
 
     @MainActor
@@ -242,45 +152,6 @@ enum SessionExporter {
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         try? content.write(to: url, atomically: true, encoding: .utf8)
-    }
-
-    @MainActor
-    static func presentPDFSavePanel(data: Data, sessionTitle: String) {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [UTType.pdf]
-        panel.nameFieldStringValue = sanitizeFilename(sessionTitle) + ".pdf"
-        panel.canCreateDirectories = true
-
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        try? data.write(to: url, options: .atomic)
-    }
-
-    // MARK: - Share
-
-    @MainActor
-    static func share(
-        content: String,
-        sessionTitle: String,
-        format: ExportFormat,
-        from view: NSView
-    ) async {
-        let tempDir = FileManager.default.temporaryDirectory
-        let filename = sanitizeFilename(sessionTitle)
-
-        let fileURL: URL
-        switch format {
-        case .markdown:
-            fileURL = tempDir.appendingPathComponent("\(filename).md")
-            try? content.write(to: fileURL, atomically: true, encoding: .utf8)
-        case .pdf:
-            fileURL = tempDir.appendingPathComponent("\(filename).pdf")
-            // Content is already markdown; we need to convert
-            guard let data = content.data(using: .utf8) else { return }
-            try? data.write(to: fileURL, options: .atomic)
-        }
-
-        let picker = NSSharingServicePicker(items: [fileURL])
-        picker.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
     }
 
     // MARK: - Helpers
@@ -315,25 +186,3 @@ enum SessionExporter {
     }
 }
 
-// MARK: - Export Format
-
-enum ExportFormat: String, CaseIterable, Identifiable {
-    case markdown = "Markdown"
-    case pdf = "PDF"
-
-    var id: String { rawValue }
-
-    var fileExtension: String {
-        switch self {
-        case .markdown: "md"
-        case .pdf: "pdf"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .markdown: "doc.text"
-        case .pdf: "doc.richtext"
-        }
-    }
-}

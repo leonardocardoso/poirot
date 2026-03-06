@@ -4,13 +4,7 @@ struct ExportOptionsView: View {
     let session: Session
 
     @State
-    private var format: ExportFormat = .markdown
-
-    @State
     private var options = ExportOptions()
-
-    @State
-    private var isExporting = false
 
     @Environment(AppState.self)
     private var appState
@@ -29,22 +23,6 @@ struct ExportOptionsView: View {
                 Text("Export Session")
                     .font(PoirotTheme.Typography.headingSmall)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
-            }
-
-            // Format picker
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
-                Text("Format")
-                    .font(PoirotTheme.Typography.captionMedium)
-                    .foregroundStyle(PoirotTheme.Colors.textSecondary)
-
-                Picker("Format", selection: $format) {
-                    ForEach(ExportFormat.allCases) { fmt in
-                        Label(fmt.rawValue, systemImage: fmt.icon)
-                            .tag(fmt)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
             }
 
             // Options
@@ -66,7 +44,7 @@ struct ExportOptionsView: View {
 
             // Actions
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Button("Copy Markdown") {
+                Button("Copy") {
                     copyMarkdown()
                 }
                 .buttonStyle(.bordered)
@@ -74,10 +52,9 @@ struct ExportOptionsView: View {
                 Spacer()
 
                 Button("Export\u{2026}") {
-                    Task { await exportSession() }
+                    exportMarkdown()
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(isExporting)
             }
         }
         .padding(PoirotTheme.Spacing.lg)
@@ -94,29 +71,12 @@ struct ExportOptionsView: View {
         dismiss()
     }
 
-    private func exportSession() async {
-        isExporting = true
-        defer { isExporting = false }
-
-        switch format {
-        case .markdown:
-            let content = SessionExporter.toMarkdown(session, options: options)
-            SessionExporter.presentMarkdownSavePanel(
-                content: content,
-                sessionTitle: session.title
-            )
-
-        case .pdf:
-            guard let data = await SessionExporter.toPDF(session, options: options) else {
-                appState.showToast("Failed to generate PDF")
-                return
-            }
-            SessionExporter.presentPDFSavePanel(
-                data: data,
-                sessionTitle: session.title
-            )
-        }
-
+    private func exportMarkdown() {
+        let content = SessionExporter.toMarkdown(session, options: options)
+        SessionExporter.presentMarkdownSavePanel(
+            content: content,
+            sessionTitle: session.title
+        )
         dismiss()
     }
 }
