@@ -104,9 +104,11 @@ struct ScreenshotTests_ConfigScreens {
 
     @Test
     func testHooksList() async throws {
+        let state = makeAppState(configProjectPath: "/Users/leonardocardoso/Dev/git/business/lumno")
         try await snapshotView(
             withEnvironment(
                 HooksListView(item: configItem(id: "hooks")),
+                state: state,
                 provider: provider
             ),
             size: ScreenshotSize.mainContent,
