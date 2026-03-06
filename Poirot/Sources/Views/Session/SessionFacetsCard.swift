@@ -252,7 +252,7 @@ struct SessionFacetsCard: View {
 // MARK: - Flow Layout
 
 /// A simple horizontal wrapping layout for tag chips.
-private struct FlowLayout: Layout {
+struct FlowLayout: Layout {
     let spacing: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {

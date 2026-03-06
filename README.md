@@ -70,7 +70,7 @@ Named after **Hercule Poirot**, Agatha Christie's legendary detective. Because e
 - **Skills** — Explore reusable skill modules with parsed frontmatter
 - **MCP Servers** — Live connection status indicators with color-coded SF Symbols
 - **Models** — Browse available models and their capabilities
-- **Sub-agents** — Inspect built-in sub-agent configurations
+- **Sub-agents** — Create, edit, and manage custom sub-agents with tools, model, memory, and system prompt
 - **Plugins** — View installed plugins and their metadata
 - **Output Styles** — Preview output formatting styles
 - **Hooks** — Event hooks grouped by type with matcher patterns and handler details
@@ -117,7 +117,7 @@ Named after **Hercule Poirot**, Agatha Christie's legendary detective. Because e
 | | Skills | Browse and manage reusable skill modules |
 | | MCP Servers | Browse configured Model Context Protocol servers with live connection status |
 | | Models | Browse available models and capabilities |
-| | Sub-agents | Browse custom sub-agent definitions |
+| | Sub-agents | Create, edit, duplicate, and delete custom sub-agents with categorized tool selection and memory configuration |
 | | Plugins | Browse installed plugins |
 | | Output Styles | Browse and manage output style configurations |
 | | Hooks | View and manage event hooks grouped by type with matcher patterns and handler details |
@@ -132,9 +132,15 @@ Named after **Hercule Poirot**, Agatha Christie's legendary detective. Because e
 | **Export** | Session Export | Export sessions as Markdown or PDF with configurable options |
 | | Copy Markdown | One-click copy of session content as Markdown to clipboard |
 | | Share Sheet | Native macOS share sheet integration for exported files |
-| **Navigation** | Font Scaling | &#x2318;+ / &#x2318;- / &#x2318;0 to zoom the entire UI |
-| | Keyboard-First | Vim-style j/k/gg/G, Tab panel cycling, `/` search, `?` shortcut help sheet |
-| | Help Book (&#x2318;?) | Keyboard reference, feature overview, and getting started guide |
+| **Sub-agents** | Custom Agent Creation | Full form with name, description, system prompt, model, color, categorized tools, and persistent memory |
+| | Auto File Naming | File path auto-derived from agent name (lowercase, dashes); file renamed on edit |
+| | Tool Categories | Select tools by category (Read-only, Edit, Execution, Other) or individually |
+| | Agent Memory | Configure persistent memory per agent (global or none) |
+| | Import/Export | Share agents as JSON files between users |
+| | Duplicate | Clone built-in or custom agents as starting points |
+| **Navigation** | Font Scaling | ⌘+ / ⌘- / ⌘0 to zoom the entire UI |
+| | Keyboard Shortcuts | Full keyboard navigation with discoverable shortcut hints |
+| | Help Book (⌘?) | Keyboard reference, feature overview, and getting started guide |
 | **App** | Onboarding Flow | First-run welcome with CLI detection, session discovery, and feature tour |
 | | Homebrew Distribution | `brew install --cask poirot` with automated release workflow |
 | **Design** | Dark Theme | Warm golden accent (`#E8A642`) on near-black backgrounds |
