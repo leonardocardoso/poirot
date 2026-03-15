@@ -8,8 +8,13 @@ enum ScreenshotData {
 
     // 2026-02-20 14:30:00 UTC — a fixed reference point so snapshots are stable
     private static let baseDate = Date(timeIntervalSince1970: 1_771_598_200)
-    private static func hoursAgo(_ h: Int) -> Date { baseDate.addingTimeInterval(-Double(h) * 3600) }
-    private static func minutesAgo(_ m: Int) -> Date { baseDate.addingTimeInterval(-Double(m) * 60) }
+    private static func hoursAgo(_ h: Int) -> Date {
+        baseDate.addingTimeInterval(-Double(h) * 3600)
+    }
+
+    private static func minutesAgo(_ m: Int) -> Date {
+        baseDate.addingTimeInterval(-Double(m) * 60)
+    }
 
     // MARK: - Projects
 
@@ -1427,7 +1432,7 @@ enum ScreenshotData {
         isError: false
     )
 
-    // Long content tool for truncation testing
+    /// Long content tool for truncation testing
     static let longContentTool = ToolUse(
         id: "standalone-long",
         name: "Bash",
@@ -1546,7 +1551,8 @@ enum ScreenshotData {
             3. Add copy button on PlanCard
             4. Add Plans to Universal Search
             """,
-            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/plans-browser-enhancement.md")
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/plans-browser-enhancement.md"),
+            scope: .global
         ),
         Plan(
             id: "authentication-redesign",
@@ -1562,7 +1568,8 @@ enum ScreenshotData {
             - Refresh tokens: 7 day TTL with rotation
             - Token storage: Keychain on iOS, HttpOnly cookies on web
             """,
-            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/authentication-redesign.md")
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/authentication-redesign.md"),
+            scope: .global
         ),
         Plan(
             id: "performance-optimization",
@@ -1575,7 +1582,8 @@ enum ScreenshotData {
             - Improve scroll performance in session list
             - Lazy load transcript blocks
             """,
-            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/performance-optimization.md")
+            fileURL: URL(fileURLWithPath: "/Users/leo/.claude/plans/performance-optimization.md"),
+            scope: .project
         ),
     ]
 

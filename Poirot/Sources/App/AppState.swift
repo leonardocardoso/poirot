@@ -126,8 +126,13 @@ final class AppState {
     private(set) var navigationHistoryIndex: Int = -1
     private var isNavigatingHistory = false
 
-    var canNavigateBack: Bool { navigationHistoryIndex > 0 }
-    var canNavigateForward: Bool { navigationHistoryIndex < navigationHistory.count - 1 }
+    var canNavigateBack: Bool {
+        navigationHistoryIndex > 0
+    }
+
+    var canNavigateForward: Bool {
+        navigationHistoryIndex < navigationHistory.count - 1
+    }
 
     func navigateBack() {
         guard canNavigateBack else { return }
@@ -248,7 +253,7 @@ final class AppState {
             "history": historyCount,
             "commands": ClaudeConfigLoader.loadCommands(projectPath: projectPath).count,
             "skills": ClaudeConfigLoader.loadSkills(projectPath: projectPath).count,
-            "plans": ClaudeConfigLoader.loadPlans().count,
+            "plans": ClaudeConfigLoader.loadPlans(projectPath: projectPath).count,
             "memory": ClaudeConfigLoader.totalMemoryFileCount(),
             "mcpServers": ClaudeConfigLoader.loadMCPServers(projectPath: projectPath).count,
             "models": supportedModelsCount,

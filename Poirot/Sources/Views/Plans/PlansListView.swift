@@ -13,8 +13,12 @@ struct PlansListView: View {
     private var selectedPlan: Plan?
     @State
     private var filterQuery = ""
+    /// Watches `~/.claude/plans/` for changes to global plan files.
     @State
     private var fileWatcher: FileWatcher?
+    /// Watches `<projectPath>/.claude/plans/` for changes to project-scoped plan files.
+    @State
+    private var projectFileWatcher: FileWatcher?
 
     @Environment(AppState.self)
     private var appState
@@ -96,7 +100,12 @@ struct PlansListView: View {
         }
         .background(PoirotTheme.Colors.bgApp)
         .toolbar {
-            ConfigLayoutToolbar(screenID: item.id, filterQuery: $filterQuery, placeholder: "Find in Plans\u{2026}")
+            ConfigLayoutToolbar(
+                screenID: item.id,
+                filterQuery: $filterQuery,
+                placeholder: "Find in Plans\u{2026}",
+                showProjectPicker: true
+            )
         }
         .task {
             reloadPlans()
@@ -112,6 +121,10 @@ struct PlansListView: View {
                 isRevealed = true
             }
         }
+        .onChange(of: appState.configProjectPath) {
+            reloadPlans()
+            setupProjectFileWatcher()
+        }
         .onAppear {
             guard fileWatcher == nil else { return }
             let plansPath = FileManager.default.homeDirectoryForCurrentUser
@@ -122,10 +135,13 @@ struct PlansListView: View {
             }
             watcher.start(path: plansPath)
             fileWatcher = watcher
+            setupProjectFileWatcher()
         }
         .onDisappear {
             fileWatcher?.stop()
             fileWatcher = nil
+            projectFileWatcher?.stop()
+            projectFileWatcher = nil
         }
     }
 
@@ -201,7 +217,7 @@ struct PlansListView: View {
             name: plan.name,
             markdownContent: plan.content,
             filePath: plan.fileURL.path,
-            scope: nil
+            scope: plan.scope
         )
         appState.activeConfigDetail = detail
         appState.pushConfigDetail(navItemID: NavigationItem.plans.id, detail: detail)
@@ -222,7 +238,29 @@ struct PlansListView: View {
     }
 
     private func reloadPlans() {
-        plans = ClaudeConfigLoader.loadPlans()
+        plans = ClaudeConfigLoader.loadPlans(projectPath: appState.effectiveConfigProjectPath)
+    }
+
+    /// Sets up (or tears down) a file watcher on the selected project's `.claude/plans/` directory.
+    /// Called when the project selection changes so plan updates are reflected in real time.
+    private func setupProjectFileWatcher() {
+        projectFileWatcher?.stop()
+        projectFileWatcher = nil
+
+        guard let projectPath = appState.effectiveConfigProjectPath else { return }
+        let projectPlansPath = URL(fileURLWithPath: projectPath)
+            .appendingPathComponent(".claude/plans").path
+
+        var isDir: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: projectPlansPath, isDirectory: &isDir),
+              isDir.boolValue else { return }
+
+        let watcher = FileWatcher { [weak appState] in
+            reloadPlans()
+            appState?.sidebarCounts[NavigationItem.plans.id] = plans.count
+        }
+        watcher.start(path: projectPlansPath)
+        projectFileWatcher = watcher
     }
 }
 
@@ -294,15 +332,19 @@ private struct PlanCard: View {
                         .multilineTextAlignment(.leading)
                 }
 
-                Text(plan.fileURL.lastPathComponent)
-                    .font(PoirotTheme.Typography.code)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .padding(.horizontal, PoirotTheme.Spacing.sm)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
-                            .fill(PoirotTheme.Colors.bgElevated)
-                    )
+                HStack(spacing: PoirotTheme.Spacing.sm) {
+                    ConfigScopeBadge(scope: plan.scope)
+
+                    Text(plan.fileURL.lastPathComponent)
+                        .font(PoirotTheme.Typography.code)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .padding(.horizontal, PoirotTheme.Spacing.sm)
+                        .padding(.vertical, 3)
+                        .background(
+                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                                .fill(PoirotTheme.Colors.bgElevated)
+                        )
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(PoirotTheme.Spacing.lg)
