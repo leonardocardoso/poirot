@@ -48,8 +48,23 @@ enum ClaudeConfigLoader {
 
     // MARK: - Plans
 
-    nonisolated static func loadPlans() -> [Plan] {
-        let dir = claudeDir.appendingPathComponent("plans")
+    /// Loads plan files from `~/.claude/plans/` and optionally from `<projectPath>/.claude/plans/`.
+    /// When a project path is provided, both global and project-scoped plans are returned.
+    nonisolated static func loadPlans(projectPath: String? = nil) -> [Plan] {
+        var results = loadPlansFrom(dir: claudeDir.appendingPathComponent("plans"), scope: .global)
+
+        if let projectPath {
+            let projectDir = URL(fileURLWithPath: projectPath)
+                .appendingPathComponent(".claude")
+                .appendingPathComponent("plans")
+            results += loadPlansFrom(dir: projectDir, scope: .project)
+        }
+
+        return results.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    /// Reads markdown plan files from a single directory, tagging each with the given scope.
+    nonisolated private static func loadPlansFrom(dir: URL, scope: ConfigScope) -> [Plan] {
         guard let files = try? FileManager.default.contentsOfDirectory(
             at: dir, includingPropertiesForKeys: nil
         ) else { return [] }
@@ -60,13 +75,13 @@ enum ClaudeConfigLoader {
                 guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
                 let slug = url.deletingPathExtension().lastPathComponent
                 return Plan(
-                    id: slug,
+                    id: "\(scope.rawValue)-\(slug)",
                     name: Plan.humanize(slug: slug),
                     content: content,
-                    fileURL: url
+                    fileURL: url,
+                    scope: scope
                 )
             }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     // MARK: - Skills
@@ -478,7 +493,7 @@ enum ClaudeConfigLoader {
                 at: memoryDir, includingPropertiesForKeys: nil
             ) else { return nil }
 
-            let mdCount = files.filter { $0.pathExtension == "md" }.count
+            let mdCount = files.count(where: { $0.pathExtension == "md" })
             guard mdCount > 0 else { return nil }
             return (dirURL.lastPathComponent, mdCount)
         }
@@ -812,10 +827,10 @@ enum ClaudeConfigLoader {
 
 // MARK: - Installed Plugins JSON Model
 
-nonisolated private struct InstalledPlugins: Codable, Sendable {
+nonisolated private struct InstalledPlugins: Codable {
     let plugins: [String: [PluginInfo]]
 
-    nonisolated struct PluginInfo: Codable, Sendable {
+    nonisolated struct PluginInfo: Codable {
         let version: String
         let installedAt: String
     }

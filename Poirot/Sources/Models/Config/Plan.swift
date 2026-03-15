@@ -1,10 +1,12 @@
 import Foundation
 
-struct Plan: Identifiable, Hashable, Sendable {
+struct Plan: Identifiable, Hashable {
     let id: String
     let name: String
     let content: String
     let fileURL: URL
+    /// Whether this plan comes from global (`~/.claude/plans/`) or project (`<project>/.claude/plans/`).
+    let scope: ConfigScope
 
     /// Derives a human-readable name from a slug filename.
     /// e.g. "abstract-wobbling-mccarthy" → "Abstract Wobbling Mccarthy"

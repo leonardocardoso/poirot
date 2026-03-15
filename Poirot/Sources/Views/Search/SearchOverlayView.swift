@@ -107,7 +107,7 @@ struct SearchOverlayView: View {
     @FocusState
     private var isFocused: Bool
 
-    // Cached config items
+    /// Cached config items
     @State
     private var commands: [ClaudeCommand] = []
     @State
@@ -435,11 +435,10 @@ struct SearchOverlayView: View {
                         .map { (project, $0) }
                 }.first
 
-            let action: SearchAction
-            if let (project, session) = sessionMatch {
-                action = .openSession(session, projectId: project.id)
+            let action: SearchAction = if let (project, session) = sessionMatch {
+                .openSession(session, projectId: project.id)
             } else {
-                action = .navigateTo(.sessions)
+                .navigateTo(.sessions)
             }
 
             all.append(SearchResult(
@@ -874,7 +873,7 @@ struct SearchOverlayView: View {
             return (
                 ClaudeConfigLoader.loadCommands(projectPath: projectPath),
                 ClaudeConfigLoader.loadSkills(projectPath: projectPath),
-                ClaudeConfigLoader.loadPlans(),
+                ClaudeConfigLoader.loadPlans(projectPath: projectPath),
                 MCPServerStatusChecker.resolveStatuses(for: rawServers),
                 ClaudeConfigLoader.loadPlugins(),
                 ClaudeConfigLoader.loadOutputStyles(projectPath: projectPath),

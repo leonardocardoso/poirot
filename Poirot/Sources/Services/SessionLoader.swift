@@ -86,14 +86,15 @@ nonisolated struct SessionLoader: SessionLoading {
         let dirName = directoryURL.lastPathComponent
         let index = readSessionsIndex(at: directoryURL)
 
-        let projectName: String
-        if let originalPath = index?.originalPath {
-            projectName = (originalPath as NSString).lastPathComponent
+        // Resolve the full filesystem path for this project.
+        // Prefer the original path from sessions-index.json; fall back to filesystem probing.
+        let projectPath: String = if let originalPath = index?.originalPath {
+            originalPath
         } else {
-            projectName = decodeProjectPath(dirName)
+            resolveFullPath(dirName)
         }
 
-        let projectPath = index?.originalPath ?? ("/" + dirName.replacingOccurrences(of: "-", with: "/"))
+        let projectName = (projectPath as NSString).lastPathComponent
 
         // Index fast path: use index to identify sessions, parseSummary for metadata
         if let entries = index?.entries, !entries.isEmpty {
@@ -202,7 +203,10 @@ nonisolated struct SessionLoader: SessionLoading {
         return Self.uuidRegex?.firstMatch(in: name, range: range) != nil
     }
 
-    private func decodeProjectPath(_ encoded: String) -> String {
+    /// Reconstructs the full filesystem path from an encoded directory name (e.g.
+    /// `-Users-benbenouar-Desktop-project-ibmi` → `/Users/benbenouar/Desktop/project-ibmi`).
+    /// Uses greedy filesystem probing to correctly handle path components that contain hyphens.
+    private func resolveFullPath(_ encoded: String) -> String {
         let fm = FileManager.default
 
         // Tokens from the encoded name (skip leading empty from the leading dash)
@@ -240,7 +244,7 @@ nonisolated struct SessionLoader: SessionLoading {
             }
         }
 
-        return (resolvedPath as NSString).lastPathComponent
+        return resolvedPath
     }
 }
 
