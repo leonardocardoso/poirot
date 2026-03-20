@@ -50,7 +50,8 @@ struct PoirotApp: App {
                         appState.showToast(
                             "Checking for updates…",
                             icon: "arrow.triangle.2.circlepath",
-                            style: .info
+                            style: .info,
+                            animateIcon: true
                         )
                         if let release = await UpdateChecker.checkForUpdate() {
                             appState.showToast(
