@@ -1223,21 +1223,24 @@ enum ScreenshotData {
         message: try! AttributedString(markdown: "Session exported to **~/Desktop/session.md**"),
         icon: "checkmark.circle.fill",
         style: .success,
-        url: nil
+        url: nil,
+        animateIcon: false
     )
 
     static let errorToast = Toast(
         message: try! AttributedString(markdown: "Failed to parse session transcript"),
         icon: "xmark.circle.fill",
         style: .error,
-        url: nil
+        url: nil,
+        animateIcon: false
     )
 
     static let infoToast = Toast(
         message: try! AttributedString(markdown: "New version **1.2.0** available\nTap to download from GitHub"),
         icon: "arrow.down.circle.fill",
         style: .info,
-        url: URL(string: "https://github.com/LeonardoCardoso/poirot/releases")
+        url: URL(string: "https://github.com/LeonardoCardoso/poirot/releases"),
+        animateIcon: false
     )
     // swiftlint:enable force_try
 

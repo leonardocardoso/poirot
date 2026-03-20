@@ -7,6 +7,7 @@ struct Toast: Identifiable, Equatable {
     let icon: String?
     let style: ToastStyle
     let url: URL?
+    let animateIcon: Bool
 
     enum ToastStyle {
         case success, error, info
@@ -377,7 +378,8 @@ final class AppState {
         _ message: String,
         icon: String? = nil,
         style: Toast.ToastStyle = .success,
-        url: URL? = nil
+        url: URL? = nil,
+        animateIcon: Bool = false
     ) {
         let lines = message.components(separatedBy: "\n")
         var result = (try? AttributedString(markdown: lines[0])) ?? AttributedString(lines[0])
@@ -386,7 +388,7 @@ final class AppState {
             let parsed = (try? AttributedString(markdown: line)) ?? AttributedString(line)
             result.append(parsed)
         }
-        let toast = Toast(message: result, icon: icon, style: style, url: url)
+        let toast = Toast(message: result, icon: icon, style: style, url: url, animateIcon: animateIcon)
         withAnimation(.easeInOut(duration: 0.25)) {
             toastQueue.append(toast)
         }

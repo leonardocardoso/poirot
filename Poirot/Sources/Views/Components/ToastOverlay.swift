@@ -36,7 +36,8 @@ struct ToastOverlay: View {
             Image(systemName: toast.icon ?? toast.style.defaultIcon)
                 .font(PoirotTheme.Typography.body)
                 .foregroundStyle(toast.style.color)
-                .symbolEffect(.bounce, value: toast.id)
+                .symbolEffect(.rotate, isActive: toast.animateIcon)
+                .symbolEffect(.bounce, value: toast.animateIcon ? "" : toast.id.uuidString)
 
             Text(toast.message)
                 .font(PoirotTheme.Typography.caption)
