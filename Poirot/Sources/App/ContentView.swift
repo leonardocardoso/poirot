@@ -333,7 +333,10 @@ struct ContentView: View {
         switch appState.selectedNav.id {
         case NavigationItem.sessions.id:
             if let session = appState.selectedSession {
-                if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
+                if appState.isShowingFileHistory {
+                    FileHistoryView(session: session)
+                        .transition(.opacity)
+                } else if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
                     SessionSkeletonView()
                         .transition(.opacity)
                 } else {

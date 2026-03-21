@@ -22,55 +22,57 @@ nonisolated enum LineDiff {
     }
 
     static func diff(oldLines: [String], newLines: [String]) -> [DiffLine] {
-        let m = oldLines.count
-        let n = newLines.count
+        let changes = newLines.difference(from: oldLines)
 
-        // LCS table
-        var dp = [[Int]](repeating: [Int](repeating: 0, count: n + 1), count: m + 1)
-        for i in 1 ... max(m, 1) where i <= m {
-            for j in 1 ... max(n, 1) where j <= n {
-                if oldLines[i - 1] == newLines[j - 1] {
-                    dp[i][j] = dp[i - 1][j - 1] + 1
-                } else {
-                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
-                }
+        // Build lookup of removals and insertions by offset
+        var removals: [Int: String] = [:]
+        var insertions: [Int: String] = [:]
+        for change in changes {
+            switch change {
+            case let .remove(offset, element, _):
+                removals[offset] = element
+            case let .insert(offset, element, _):
+                insertions[offset] = element
             }
         }
 
-        // Backtrack to produce diff
         var result: [DiffLine] = []
-        var lineId = 0
-        var i = m
-        var j = n
+        var oldIdx = 0
+        var newIdx = 0
 
-        func append(kind: DiffLine.Kind, text: String, oldNum: Int?, newNum: Int?) {
-            result.append(DiffLine(id: lineId, kind: kind, text: text, oldLineNumber: oldNum, newLineNumber: newNum))
-            lineId += 1
-        }
-
-        while i > 0 || j > 0 {
-            if i > 0, j > 0, oldLines[i - 1] == newLines[j - 1] {
-                append(kind: .context, text: oldLines[i - 1], oldNum: i, newNum: j)
-                i -= 1
-                j -= 1
-            } else if j > 0, i == 0 || dp[i][j - 1] >= dp[i - 1][j] {
-                append(kind: .added, text: newLines[j - 1], oldNum: nil, newNum: j)
-                j -= 1
+        while oldIdx < oldLines.count || newIdx < newLines.count {
+            if let text = removals[oldIdx] {
+                result.append(DiffLine(
+                    id: result.count,
+                    kind: .removed,
+                    text: text,
+                    oldLineNumber: oldIdx + 1,
+                    newLineNumber: nil
+                ))
+                oldIdx += 1
+            } else if let text = insertions[newIdx] {
+                result.append(DiffLine(
+                    id: result.count,
+                    kind: .added,
+                    text: text,
+                    oldLineNumber: nil,
+                    newLineNumber: newIdx + 1
+                ))
+                newIdx += 1
             } else {
-                append(kind: .removed, text: oldLines[i - 1], oldNum: i, newNum: nil)
-                i -= 1
+                result.append(DiffLine(
+                    id: result.count,
+                    kind: .context,
+                    text: newLines[newIdx],
+                    oldLineNumber: oldIdx + 1,
+                    newLineNumber: newIdx + 1
+                ))
+                oldIdx += 1
+                newIdx += 1
             }
         }
 
-        return result.reversed().enumerated().map { index, line in
-            DiffLine(
-                id: index,
-                kind: line.kind,
-                text: line.text,
-                oldLineNumber: line.oldLineNumber,
-                newLineNumber: line.newLineNumber
-            )
-        }
+        return result
     }
 
     static func unifiedText(from lines: [DiffLine]) -> String {

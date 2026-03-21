@@ -24,8 +24,8 @@ struct FileHistoryView: View {
     @Environment(\.fileHistoryLoader)
     private var fileHistoryLoader
 
-    @Environment(\.dismiss)
-    private var dismiss
+    @Environment(AppState.self)
+    private var appState
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,10 +44,9 @@ struct FileHistoryView: View {
                 }
             }
         }
-        .frame(minWidth: 700, minHeight: 500)
         .background(PoirotTheme.Colors.bgApp)
         .task {
-            loadHistory()
+            await loadHistory()
         }
     }
 
@@ -79,7 +78,7 @@ struct FileHistoryView: View {
             Spacer()
 
             Button {
-                dismiss()
+                appState.isShowingFileHistory = false
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(PoirotTheme.Typography.large)
@@ -184,7 +183,7 @@ struct FileHistoryView: View {
                         || (selectedVersionIndex == nil && index == entry.versions.count - 1)
                     Button {
                         selectedVersionIndex = index
-                        loadVersionContent(entry: entry, versionIndex: index)
+                        Task { await loadVersionContent(entry: entry, versionIndex: index) }
                     } label: {
                         HStack(spacing: PoirotTheme.Spacing.xs) {
                             Image(systemName: isSelected ? "circle.fill" : "circle")
@@ -243,7 +242,7 @@ struct FileHistoryView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .task(id: currentKey) {
-                            loadVersionContent(entry: entry, versionIndex: effectiveIndex)
+                            await loadVersionContent(entry: entry, versionIndex: effectiveIndex)
                         }
                 } else {
                     ScrollView {
@@ -261,7 +260,7 @@ struct FileHistoryView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .task(id: currentKey) {
-                            loadVersionContent(entry: entry, versionIndex: effectiveIndex)
+                            await loadVersionContent(entry: entry, versionIndex: effectiveIndex)
                         }
                 } else {
                     ScrollView {
@@ -325,22 +324,25 @@ struct FileHistoryView: View {
 
     // MARK: - Data Loading
 
-    private func loadHistory() {
+    private func loadHistory() async {
         let loader = fileHistoryLoader
         let sessionId = session.id
         let projectPath = session.projectPath
-        entries = loader.loadFileHistory(for: sessionId, projectPath: projectPath)
+        let loaded = await Task.detached {
+            loader.loadFileHistory(for: sessionId, projectPath: projectPath)
+        }.value
+        entries = loaded
         isLoading = false
         iconBounce += 1
 
         // Auto-select first file
         if let first = entries.first {
             selectedFile = first
-            loadVersionContent(entry: first, versionIndex: first.versions.count - 1)
+            await loadVersionContent(entry: first, versionIndex: first.versions.count - 1)
         }
     }
 
-    private func loadVersionContent(entry: FileHistoryEntry, versionIndex: Int) {
+    private func loadVersionContent(entry: FileHistoryEntry, versionIndex: Int) async {
         let loader = fileHistoryLoader
         let sessionId = session.id
 
@@ -348,9 +350,10 @@ struct FileHistoryView: View {
         let version = entry.versions[versionIndex]
         let key = "\(sessionId)/\(version.backupFileName)"
         if fileContents[key] == nil {
-            fileContents[key] = loader.loadFileContent(
-                for: sessionId, backupFileName: version.backupFileName
-            ) ?? ""
+            let content = await Task.detached {
+                loader.loadFileContent(for: sessionId, backupFileName: version.backupFileName)
+            }.value
+            fileContents[key] = content ?? ""
         }
 
         // Also load previous version for diff
@@ -358,9 +361,10 @@ struct FileHistoryView: View {
             let prev = entry.versions[versionIndex - 1]
             let prevKey = "\(sessionId)/\(prev.backupFileName)"
             if fileContents[prevKey] == nil {
-                fileContents[prevKey] = loader.loadFileContent(
-                    for: sessionId, backupFileName: prev.backupFileName
-                ) ?? ""
+                let content = await Task.detached {
+                    loader.loadFileContent(for: sessionId, backupFileName: prev.backupFileName)
+                }.value
+                fileContents[prevKey] = content ?? ""
             }
         }
     }
@@ -388,7 +392,7 @@ struct FileHistoryView: View {
         return components.dropLast().joined(separator: "/")
     }
 
-    nonisolated(unsafe) private static let timeFormatter: DateFormatter = {
+    private static let timeFormatter: DateFormatter = {
         let fmt = DateFormatter()
         fmt.dateFormat = "HH:mm:ss"
         return fmt

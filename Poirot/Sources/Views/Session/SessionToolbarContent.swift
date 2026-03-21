@@ -249,8 +249,8 @@ struct SessionToolbarDelete: View {
 struct SessionToolbarFileHistory: View {
     let session: Session
 
-    @State
-    private var showFileHistory = false
+    @Environment(AppState.self)
+    private var appState
 
     @State
     private var fileCount = 0
@@ -263,7 +263,7 @@ struct SessionToolbarFileHistory: View {
 
     var body: some View {
         Button {
-            showFileHistory.toggle()
+            appState.isShowingFileHistory.toggle()
             iconBounce += 1
         } label: {
             Label {
@@ -278,15 +278,14 @@ struct SessionToolbarFileHistory: View {
         }
         .help("File History (\(fileCount) files)")
         .disabled(fileCount == 0)
-        .sheet(isPresented: $showFileHistory) {
-            FileHistoryView(session: session)
-        }
         .task(id: session.id) {
             let loader = fileHistoryLoader
-            let entries = loader.loadFileHistory(
-                for: session.id, projectPath: session.projectPath
-            )
-            fileCount = entries.count
+            let count = await Task.detached {
+                loader.loadFileHistory(
+                    for: session.id, projectPath: session.projectPath
+                ).count
+            }.value
+            fileCount = count
         }
     }
 }
