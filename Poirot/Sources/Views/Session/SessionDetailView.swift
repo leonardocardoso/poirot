@@ -496,6 +496,7 @@ private struct UserBubble: View {
             )
             .bubbleActions(
                 text: copyableText(parsed: parsed),
+                message: message,
                 isFormatted: $isFormatted,
                 showActions: !parsed.userText.isEmpty
             )
@@ -782,6 +783,7 @@ private struct AssistantBubble: View {
                         }
                         AssistantTextBubble(
                             text: text,
+                            message: message,
                             isFirst: index == 0,
                             turnNumber: turnNumber,
                             timestamp: message.timestamp,
@@ -843,6 +845,7 @@ private struct AssistantBubble: View {
 
 private struct AssistantTextBubble: View {
     let text: String
+    let message: Message
     let isFirst: Bool
     let turnNumber: Int
     let timestamp: Date
@@ -903,7 +906,7 @@ private struct AssistantTextBubble: View {
                         .stroke(PoirotTheme.Colors.border)
                 )
         )
-        .bubbleActions(text: text, isFormatted: $isFormatted)
+        .bubbleActions(text: text, message: message, isFormatted: $isFormatted)
     }
 }
 
@@ -911,11 +914,14 @@ private struct AssistantTextBubble: View {
 
 private struct BubbleActionButtons: View {
     let text: String
+    var message: Message?
     @Binding
     var isFormatted: Bool
 
     @State
     private var copied = false
+    @State
+    private var markdownCopied = false
 
     var body: some View {
         HStack(spacing: PoirotTheme.Spacing.xs) {
@@ -928,7 +934,25 @@ private struct BubbleActionButtons: View {
                 isFormatted.toggle()
             }
 
-            // Copy
+            // Copy as Markdown
+            if let message {
+                BubbleIconButton(
+                    icon: markdownCopied ? "checkmark" : "doc.text",
+                    isActive: markdownCopied,
+                    activeColor: PoirotTheme.Colors.green,
+                    help: "Copy as Markdown"
+                ) {
+                    let md = SessionExporter.messageToMarkdown(message)
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(md, forType: .string)
+                    markdownCopied = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        markdownCopied = false
+                    }
+                }
+            }
+
+            // Copy raw text
             BubbleIconButton(
                 icon: copied ? "checkmark" : "doc.on.doc",
                 isActive: copied,
@@ -949,6 +973,7 @@ private struct BubbleIconButton: View {
     let icon: String
     let isActive: Bool
     let activeColor: Color
+    var help: String? = nil
     let action: () -> Void
 
     @State
@@ -971,6 +996,7 @@ private struct BubbleIconButton: View {
                 )
         }
         .buttonStyle(.plain)
+        .help(help ?? "")
         .onHover { isHovered = $0 }
         .scaleEffect(isHovered ? 1.1 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isActive)
@@ -978,13 +1004,19 @@ private struct BubbleIconButton: View {
 }
 
 private extension View {
-    func bubbleActions(text: String, isFormatted: Binding<Bool>, showActions: Bool = true) -> some View {
-        BubbleActionsWrapper(text: text, showActions: showActions, isFormatted: isFormatted) { self }
+    func bubbleActions(
+        text: String,
+        message: Message? = nil,
+        isFormatted: Binding<Bool>,
+        showActions: Bool = true
+    ) -> some View {
+        BubbleActionsWrapper(text: text, message: message, showActions: showActions, isFormatted: isFormatted) { self }
     }
 }
 
 private struct BubbleActionsWrapper<Content: View>: View {
     let text: String
+    var message: Message?
     let showActions: Bool
     @Binding
     var isFormatted: Bool
@@ -1006,7 +1038,7 @@ private struct BubbleActionsWrapper<Content: View>: View {
             content
                 .onHover { isContentHovered = $0 }
                 .overlay(alignment: .topTrailing) {
-                    BubbleActionButtons(text: text, isFormatted: $isFormatted)
+                    BubbleActionButtons(text: text, message: message, isFormatted: $isFormatted)
                         .opacity(buttonOpacity)
                         .onHover { isButtonsHovered = $0 }
                         .animation(.easeInOut(duration: 0.15), value: buttonOpacity)
