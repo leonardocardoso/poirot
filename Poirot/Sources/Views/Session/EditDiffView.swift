@@ -188,8 +188,14 @@ struct EditDiffView: View {
               let png = bitmap.representation(using: .png, properties: [:])
         else { return }
 
+        // Copy to clipboard
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setData(png, forType: .png)
+
+        // Also offer save dialog
+        let filename = filePath.flatMap { URL(fileURLWithPath: $0).deletingPathExtension().lastPathComponent } ?? "diff"
+        SessionExporter.presentImageSavePanel(data: png, filename: filename)
+
         imageCopied = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             imageCopied = false

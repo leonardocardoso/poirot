@@ -304,6 +304,17 @@ enum SessionExporter {
         try? content.write(to: url, atomically: true, encoding: .utf8)
     }
 
+    @MainActor
+    static func presentImageSavePanel(data: Data, filename: String) {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.png]
+        panel.nameFieldStringValue = filename + ".png"
+        panel.canCreateDirectories = true
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        try? data.write(to: url)
+    }
+
     // MARK: - Helpers
 
     nonisolated private static func formattedDate(_ date: Date) -> String {
