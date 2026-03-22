@@ -28,6 +28,8 @@ struct ToolBlockView: View {
     @State
     private var commandCopied = false
     @State
+    private var markdownCopied = false
+    @State
     private var showRawContent = true
     @State
     private var isContentHovered = false
@@ -147,6 +149,7 @@ struct ToolBlockView: View {
                                 if !tool.isBash {
                                     markdownToggleButton
                                 }
+                                markdownCopyButton
                                 wrapToggleButton
                                 copyButton(content: content)
                             }
@@ -272,6 +275,39 @@ struct ToolBlockView: View {
         }
         .buttonStyle(.plain)
         .help(wrapLines ? "Disable line wrapping" : "Enable line wrapping")
+    }
+
+    private var markdownCopyButton: some View {
+        Button {
+            let md = SessionExporter.toolBlockToMarkdown(tool: tool, result: result)
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(md, forType: .string)
+            markdownCopied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                markdownCopied = false
+            }
+        } label: {
+            Image(systemName: markdownCopied ? "checkmark" : "doc.text")
+                .font(PoirotTheme.Typography.tiny)
+                .foregroundStyle(markdownCopied ? PoirotTheme.Colors.green : PoirotTheme.Colors.textTertiary)
+                .contentTransition(.symbolEffect(.replace))
+                .frame(width: 26, height: 26)
+                .background(
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                        .fill(PoirotTheme.Colors.bgElevated)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                                .stroke(
+                                    markdownCopied
+                                        ? PoirotTheme.Colors.green.opacity(0.3)
+                                        : PoirotTheme.Colors.border
+                                )
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .help("Copy as Markdown")
+        .animation(.easeInOut(duration: 0.2), value: markdownCopied)
     }
 
     private func copyButton(content: String) -> some View {
