@@ -185,4 +185,3 @@ enum SessionExporter {
         return String(cleaned.prefix(80))
     }
 }
-

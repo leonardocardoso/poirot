@@ -91,6 +91,7 @@ final class AppState {
 
     var selectedSession: Session? {
         didSet {
+            isShowingFileHistory = false
             guard !isNavigatingHistory else { return }
             // Push to history when user navigates to a new session
             if let session = selectedSession {
@@ -189,6 +190,7 @@ final class AppState {
     var sidebarKeyboardIndex: Int = -1
     var sessionSearchQuery: String = ""
     var isSessionSearchActive: Bool = false
+    var isShowingFileHistory: Bool = false
     var isToolFilterActive: Bool = false
     var activeToolFilters: Set<String> = []
     var projects: [Project] = []

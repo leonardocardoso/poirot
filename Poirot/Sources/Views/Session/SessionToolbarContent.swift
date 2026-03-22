@@ -15,6 +15,7 @@ struct SessionToolbar: ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             SessionToolbarFilterField()
             SessionToolbarActions(session: session)
+            SessionToolbarFileHistory(session: session)
             SessionToolbarExport(session: session)
             SessionToolbarDebugLog(session: session)
             SessionToolbarExpandCollapse()
@@ -242,6 +243,54 @@ struct SessionToolbarDelete: View {
         }
     }
 }
+
+// MARK: - File History
+
+struct SessionToolbarFileHistory: View {
+    let session: Session
+
+    @Environment(AppState.self)
+    private var appState
+
+    @State
+    private var fileCount = 0
+
+    @State
+    private var iconBounce = 0
+
+    @Environment(\.fileHistoryLoader)
+    private var fileHistoryLoader
+
+    var body: some View {
+        Button {
+            appState.isShowingFileHistory.toggle()
+            iconBounce += 1
+        } label: {
+            Label {
+                if fileCount > 0 {
+                    Text("\(fileCount)")
+                }
+            } icon: {
+                Image(systemName: "clock.arrow.2.circlepath")
+                    .symbolRenderingMode(.hierarchical)
+                    .symbolEffect(.bounce, value: iconBounce)
+            }
+        }
+        .help("File History (\(fileCount) files)")
+        .disabled(fileCount == 0)
+        .task(id: session.id) {
+            let loader = fileHistoryLoader
+            let count = await Task.detached {
+                loader.loadFileHistory(
+                    for: session.id, projectPath: session.projectPath
+                ).count
+            }.value
+            fileCount = count
+        }
+    }
+}
+
+// MARK: - Debug Log
 
 struct SessionToolbarDebugLog: View {
     let session: Session
