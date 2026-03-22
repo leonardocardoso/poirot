@@ -179,35 +179,33 @@ enum SessionExporter {
         var currentHunk: [DiffLine] = []
         var lastChangeIndex = -1
 
-        for (index, line) in diffLines.enumerated() {
-            if line.kind != .context {
-                // Add context lines before this change
-                let contextStart = max(lastChangeIndex + 1, index - contextSize)
-                if currentHunk.isEmpty {
-                    for i in contextStart ..< index {
-                        currentHunk.append(diffLines[i])
-                    }
-                } else if contextStart > lastChangeIndex + 1 {
-                    // Gap too large — start new hunk
-                    // Add trailing context to previous hunk
-                    let trailEnd = min(lastChangeIndex + contextSize + 1, index)
-                    for i in (lastChangeIndex + 1) ..< trailEnd {
-                        currentHunk.append(diffLines[i])
-                    }
-                    hunks.append(currentHunk)
-                    currentHunk = []
-                    for i in contextStart ..< index {
-                        currentHunk.append(diffLines[i])
-                    }
-                } else {
-                    // Fill gap with context lines
-                    for i in (lastChangeIndex + 1) ..< index {
-                        currentHunk.append(diffLines[i])
-                    }
+        for (index, line) in diffLines.enumerated() where line.kind != .context {
+            // Add context lines before this change
+            let contextStart = max(lastChangeIndex + 1, index - contextSize)
+            if currentHunk.isEmpty {
+                for i in contextStart ..< index {
+                    currentHunk.append(diffLines[i])
                 }
-                currentHunk.append(line)
-                lastChangeIndex = index
+            } else if contextStart > lastChangeIndex + 1 {
+                // Gap too large — start new hunk
+                // Add trailing context to previous hunk
+                let trailEnd = min(lastChangeIndex + contextSize + 1, index)
+                for i in (lastChangeIndex + 1) ..< trailEnd {
+                    currentHunk.append(diffLines[i])
+                }
+                hunks.append(currentHunk)
+                currentHunk = []
+                for i in contextStart ..< index {
+                    currentHunk.append(diffLines[i])
+                }
+            } else {
+                // Fill gap with context lines
+                for i in (lastChangeIndex + 1) ..< index {
+                    currentHunk.append(diffLines[i])
+                }
             }
+            currentHunk.append(line)
+            lastChangeIndex = index
         }
 
         // Add trailing context
