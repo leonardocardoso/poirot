@@ -49,7 +49,6 @@ struct SidebarView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
                 }
                 .buttonStyle(NavItemButtonStyle(
                     isActive: appState.selectedNav == item,
