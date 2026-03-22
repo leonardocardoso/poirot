@@ -300,12 +300,13 @@ struct SessionLoaderTests {
     // MARK: - Index Fast Path
 
     @Test
-    func discoverProjects_indexPath_skipsSidechainEntries() throws {
+    func discoverProjects_indexPath_includesSidechainEntries() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
         let mainId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
         let sidechainId = "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+        let agentId = "e7b2889f"
         let indexJSON = """
         {
             "version": 1,
@@ -321,6 +322,7 @@ struct SessionLoaderTests {
                     "sessionId": "\(sidechainId)",
                     "created": "2026-01-28T11:00:00.000Z",
                     "isSidechain": true,
+                    "agentId": "\(agentId)",
                     "projectPath": "/test/project"
                 }
             ]
@@ -345,8 +347,19 @@ struct SessionLoaderTests {
 
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
-        #expect(projects[0].sessions.count == 1)
-        #expect(projects[0].sessions[0].id == mainId)
+        #expect(projects[0].sessions.count == 2)
+
+        // Sidechain session should have agentId and isSidechain set
+        let sidechain = projects[0].sessions.first { $0.id == sidechainId }
+        #expect(sidechain != nil)
+        #expect(sidechain?.isSidechain == true)
+        #expect(sidechain?.agentId == agentId)
+
+        // Main session should not be sidechain
+        let main = projects[0].sessions.first { $0.id == mainId }
+        #expect(main != nil)
+        #expect(main?.isSidechain == false)
+        #expect(main?.agentId == nil)
     }
 
     @Test

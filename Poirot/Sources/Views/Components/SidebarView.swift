@@ -143,6 +143,7 @@ struct SidebarView: View {
 
                 Spacer()
 
+                agentSessionsToggle
                 refreshButton
                 sortMenu
             }
@@ -207,6 +208,27 @@ struct SidebarView: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
+    }
+
+    // MARK: - Agent Sessions Toggle
+
+    private var agentSessionsToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                appState.showAgentSessions.toggle()
+            }
+        } label: {
+            Image(systemName: appState.showAgentSessions ? "person.2.wave.2" : "person.2")
+                .font(PoirotTheme.Typography.microMedium)
+                .foregroundStyle(
+                    appState.showAgentSessions
+                        ? PoirotTheme.Colors.accent
+                        : PoirotTheme.Colors.textTertiary
+                )
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+        .help(appState.showAgentSessions ? "Hide agent sessions" : "Show agent sessions")
     }
 
     // MARK: - Skeleton
@@ -451,11 +473,22 @@ private struct SessionRow: View {
             state.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: 2) {
-                HStack {
+                HStack(spacing: PoirotTheme.Spacing.xs) {
+                    if session.isSidechain {
+                        Image(systemName: "cpu")
+                            .font(.system(size: 9))
+                            .foregroundStyle(PoirotTheme.Colors.purple)
+                    }
+
                     MarqueeText(
                         text: session.title,
                         font: PoirotTheme.Typography.caption,
                         highlightQuery: highlightQuery
+                    )
+                    .foregroundStyle(
+                        session.isSidechain
+                            ? PoirotTheme.Colors.textTertiary
+                            : PoirotTheme.Colors.textSecondary
                     )
 
                     Spacer()
@@ -470,7 +503,16 @@ private struct SessionRow: View {
                     }
                 }
 
-                if let firstPrompt = session.firstPrompt, !firstPrompt.isEmpty {
+                if session.isSidechain, let agentId = session.agentId {
+                    Text(agentId)
+                        .font(.system(size: 9))
+                        .foregroundStyle(PoirotTheme.Colors.purple)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15))
+                        )
+                } else if let firstPrompt = session.firstPrompt, !firstPrompt.isEmpty {
                     Text(firstPrompt)
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)

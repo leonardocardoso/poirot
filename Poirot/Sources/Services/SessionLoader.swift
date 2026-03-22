@@ -99,7 +99,6 @@ nonisolated struct SessionLoader: SessionLoading {
         if let entries = index?.entries, !entries.isEmpty {
             var sessions: [Session] = []
             let sortedEntries = entries
-                .filter { !$0.isSidechain }
                 .sorted {
                     (Self.dateFormatter.date(from: $0.created) ?? .distantPast)
                         > (Self.dateFormatter.date(from: $1.created) ?? .distantPast)
@@ -115,7 +114,9 @@ nonisolated struct SessionLoader: SessionLoading {
                     projectPath: projectPath,
                     sessionId: entry.sessionId,
                     indexStartedAt: indexStartedAt,
-                    firstPrompt: entry.firstPrompt
+                    firstPrompt: entry.firstPrompt,
+                    agentId: entry.agentId,
+                    isSidechain: entry.isSidechain
                 ) {
                     sessions.append(session)
                 }
@@ -181,12 +182,14 @@ nonisolated struct SessionLoader: SessionLoading {
                 let isSidechain = entry["isSidechain"] as? Bool ?? false
                 let projectPath = entry["projectPath"] as? String
                 let firstPrompt = entry["firstPrompt"] as? String
+                let agentId = entry["agentId"] as? String
                 return SessionsIndex.Entry(
                     sessionId: sessionId,
                     created: created,
                     isSidechain: isSidechain,
                     projectPath: projectPath,
-                    firstPrompt: firstPrompt
+                    firstPrompt: firstPrompt,
+                    agentId: agentId
                 )
             }
         }()
@@ -254,5 +257,6 @@ nonisolated private struct SessionsIndex {
         let isSidechain: Bool
         let projectPath: String?
         let firstPrompt: String?
+        let agentId: String?
     }
 }

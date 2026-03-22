@@ -180,6 +180,7 @@ struct SearchOverlayView: View {
         // Sessions
         for project in appState.projects {
             for session in project.sessions {
+                if session.isSidechain, !appState.showAgentSessions { continue }
                 let best = max(score(session.title), score(project.name), score(session.id))
                 guard best > 0 else { continue }
                 all.append(SearchResult(
