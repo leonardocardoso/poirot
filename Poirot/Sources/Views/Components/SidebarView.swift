@@ -321,6 +321,7 @@ private struct ProjectRow: View {
                         }
                         .fixedSize()
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -593,6 +594,7 @@ private struct NavItemButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
                     .fill(isActive ? PoirotTheme.Colors.accentDim : .clear)
             )
+            .contentShape(Rectangle())
     }
 }
 
