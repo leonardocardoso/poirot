@@ -20,6 +20,10 @@ private struct FacetsLoaderKey: EnvironmentKey {
     static let defaultValue: any FacetsLoading = FacetsLoader()
 }
 
+private struct FileHistoryLoaderKey: EnvironmentKey {
+    static let defaultValue: any FileHistoryLoading = FileHistoryLoader()
+}
+
 extension EnvironmentValues {
     var sessionLoader: any SessionLoading {
         get { self[SessionLoaderKey.self] }
@@ -44,5 +48,10 @@ extension EnvironmentValues {
     var facetsLoader: any FacetsLoading {
         get { self[FacetsLoaderKey.self] }
         set { self[FacetsLoaderKey.self] = newValue }
+    }
+
+    var fileHistoryLoader: any FileHistoryLoading {
+        get { self[FileHistoryLoaderKey.self] }
+        set { self[FileHistoryLoaderKey.self] = newValue }
     }
 }

@@ -300,11 +300,12 @@ struct MemoryListView: View {
         let claudeDir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".claude")
 
-        let onFilesChanged: @MainActor () -> Void = { [weak appState] in
-            reloadProjects()
-            reloadMemoryFiles()
-            appState?.sidebarCounts[NavigationItem.memory.id] = ClaudeConfigLoader.totalMemoryFileCount()
-        }
+        let onFilesChanged: @MainActor ()
+            -> Void = { [weak appState] in
+                reloadProjects()
+                reloadMemoryFiles()
+                appState?.sidebarCounts[NavigationItem.memory.id] = ClaudeConfigLoader.totalMemoryFileCount()
+            }
 
         // Watch projects dir for new project memory directories
         let projectsWatcher = FileWatcher(onChange: onFilesChanged)
