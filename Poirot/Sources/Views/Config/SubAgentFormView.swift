@@ -214,8 +214,7 @@ struct SubAgentFormView: View {
                         Toggle(isOn: Binding(
                             get: { selectedTools.contains(tool) },
                             set: { isOn in
-                                if isOn { selectedTools.insert(tool) }
-                                else { selectedTools.remove(tool) }
+                                if isOn { selectedTools.insert(tool) } else { selectedTools.remove(tool) }
                             }
                         )) {
                             Text(tool)
