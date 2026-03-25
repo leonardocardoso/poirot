@@ -42,6 +42,33 @@ struct PoirotApp: App {
                 Button("About Poirot") {
                     openWindow(id: "about")
                 }
+
+                Divider()
+
+                Button("Check for Updates…") {
+                    Task {
+                        appState.showToast(
+                            "Checking for updates…",
+                            icon: "arrow.triangle.2.circlepath",
+                            style: .info,
+                            animateIcon: true
+                        )
+                        if let release = await UpdateChecker.checkForUpdate() {
+                            appState.showToast(
+                                "New version available: **\(release.tagName)**\nTap to download from GitHub",
+                                icon: "arrow.down.circle.fill",
+                                style: .info,
+                                url: URL(string: release.htmlURL)
+                            )
+                        } else {
+                            appState.showToast(
+                                "You're up to date! Running **v\(Bundle.main.appVersion)**",
+                                icon: "checkmark.circle.fill",
+                                style: .success
+                            )
+                        }
+                    }
+                }
             }
             CommandGroup(after: .textFormatting) {
                 Button("Increase Font Size") { appState.increaseFontScale() }

@@ -136,16 +136,6 @@ struct ContentView: View {
                 }
             }
         }
-        .task {
-            if let release = await UpdateChecker.checkForUpdate() {
-                appState.showToast(
-                    "New version available: **\(release.tagName)**\nTap to download from GitHub",
-                    icon: "arrow.down.circle.fill",
-                    style: .info,
-                    url: URL(string: release.htmlURL)
-                )
-            }
-        }
         .onDisappear {
             fileWatcher?.stop()
             fileWatcher = nil
@@ -345,7 +335,10 @@ struct ContentView: View {
         switch appState.selectedNav.id {
         case NavigationItem.sessions.id:
             if let session = appState.selectedSession {
-                if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
+                if appState.isShowingFileHistory {
+                    FileHistoryView(session: session)
+                        .transition(.opacity)
+                } else if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
                     SessionSkeletonView()
                         .transition(.opacity)
                 } else {

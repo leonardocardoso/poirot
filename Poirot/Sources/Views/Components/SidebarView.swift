@@ -734,6 +734,7 @@ private struct NavItemButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
                     .fill(isActive ? PoirotTheme.Colors.accentDim : .clear)
             )
+            .contentShape(Rectangle())
             .overlay(
                 RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
                     .strokeBorder(
