@@ -27,10 +27,12 @@ struct PoirotApp: App {
     private var appDelegate
     @State
     private var appState = AppState()
+    @AppStorage("showMenuBarIcon")
+    private var showMenuBarIcon = true
     @Environment(\.openWindow)
     private var openWindow
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             ContentView()
                 .environment(appState)
         }
@@ -78,6 +80,20 @@ struct PoirotApp: App {
         Settings {
             SettingsView()
                 .environment(appState)
+        }
+
+        MenuBarExtra("Poirot", systemImage: menuBarIcon, isInserted: $showMenuBarIcon) {
+            MenuBarView()
+                .environment(appState)
+        }
+        .menuBarExtraStyle(.window)
+    }
+
+    private var menuBarIcon: String {
+        switch appState.menuBarStatus {
+        case .running: "sparkle"
+        case .idle: "sparkle"
+        case .notInstalled: "exclamationmark.circle"
         }
     }
 }

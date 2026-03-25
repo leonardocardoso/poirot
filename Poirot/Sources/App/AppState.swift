@@ -126,8 +126,13 @@ final class AppState {
     private(set) var navigationHistoryIndex: Int = -1
     private var isNavigatingHistory = false
 
-    var canNavigateBack: Bool { navigationHistoryIndex > 0 }
-    var canNavigateForward: Bool { navigationHistoryIndex < navigationHistory.count - 1 }
+    var canNavigateBack: Bool {
+        navigationHistoryIndex > 0
+    }
+
+    var canNavigateForward: Bool {
+        navigationHistoryIndex < navigationHistory.count - 1
+    }
 
     func navigateBack() {
         guard canNavigateBack else { return }
@@ -284,6 +289,7 @@ final class AppState {
 
     var projectSortOption: ProjectSortOption = .recentActivity
     var sidebarSearchQuery: String = ""
+    var menuBarStatus: ClaudeCodeStatus = .idle
     var allBlocksExpanded = false
     var refreshID: UUID = .init()
     private(set) var sessionCache: [String: Session] = [:]
