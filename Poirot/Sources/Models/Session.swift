@@ -12,6 +12,8 @@ nonisolated struct Session: Identifiable, Hashable {
     let cachedPreview: String?
     let cachedTurnCount: Int?
     let firstPrompt: String?
+    let agentId: String?
+    let isSidechain: Bool
 
     init(
         id: String,
@@ -24,7 +26,9 @@ nonisolated struct Session: Identifiable, Hashable {
         cachedTitle: String? = nil,
         cachedPreview: String? = nil,
         cachedTurnCount: Int? = nil,
-        firstPrompt: String? = nil
+        firstPrompt: String? = nil,
+        agentId: String? = nil,
+        isSidechain: Bool = false
     ) {
         self.id = id
         self.projectPath = projectPath
@@ -37,6 +41,8 @@ nonisolated struct Session: Identifiable, Hashable {
         self.cachedPreview = cachedPreview
         self.cachedTurnCount = cachedTurnCount
         self.firstPrompt = firstPrompt
+        self.agentId = agentId
+        self.isSidechain = isSidechain
     }
 
     var projectName: String {

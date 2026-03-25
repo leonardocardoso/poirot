@@ -11,7 +11,8 @@ nonisolated struct TranscriptParser {
         fileURL: URL,
         projectPath: String,
         sessionId: String,
-        indexStartedAt: Date?
+        indexStartedAt: Date?,
+        isSidechain: Bool = false
     ) -> Session? {
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
         guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return nil }
@@ -30,7 +31,7 @@ nonisolated struct TranscriptParser {
                   type == "user" || type == "assistant"
             else { return false }
 
-            if record["isSidechain"] as? Bool == true { return false }
+            if !isSidechain, record["isSidechain"] as? Bool == true { return false }
 
             if type == "assistant" {
                 let message = record["message"] as? [String: Any]
@@ -232,7 +233,9 @@ nonisolated struct TranscriptParser {
         projectPath: String,
         sessionId: String,
         indexStartedAt: Date?,
-        firstPrompt: String? = nil
+        firstPrompt: String? = nil,
+        agentId: String? = nil,
+        isSidechain: Bool = false
     ) -> Session? {
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
         guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return nil }
@@ -257,7 +260,7 @@ nonisolated struct TranscriptParser {
                   type == "user" || type == "assistant"
             else { continue }
 
-            if record["isSidechain"] as? Bool == true { continue }
+            if !isSidechain, record["isSidechain"] as? Bool == true { continue }
 
             let message = record["message"] as? [String: Any] ?? [:]
 
@@ -321,7 +324,9 @@ nonisolated struct TranscriptParser {
             cachedTitle: firstUserText,
             cachedPreview: firstAssistantText,
             cachedTurnCount: userCount,
-            firstPrompt: firstPrompt
+            firstPrompt: firstPrompt,
+            agentId: agentId,
+            isSidechain: isSidechain
         )
     }
 

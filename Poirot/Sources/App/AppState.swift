@@ -285,6 +285,12 @@ final class AppState {
         configLayouts[screenID] = current == .grid ? .list : .grid
     }
 
+    var showAgentSessions: Bool = UserDefaults.standard.bool(forKey: "showAgentSessions") {
+        didSet {
+            UserDefaults.standard.set(showAgentSessions, forKey: "showAgentSessions")
+        }
+    }
+
     var projectSortOption: ProjectSortOption = .recentActivity
     var sidebarSearchQuery: String = ""
     var allBlocksExpanded = false
@@ -297,7 +303,17 @@ final class AppState {
     }
 
     var filteredSortedProjects: [Project] {
-        let nonEmpty = projects.filter { !$0.sessions.isEmpty }
+        let visible: [Project] = if showAgentSessions {
+            projects
+        } else {
+            projects.compactMap { project in
+                let filtered = project.sessions.filter { !$0.isSidechain }
+                guard !filtered.isEmpty else { return nil }
+                if filtered.count == project.sessions.count { return project }
+                return Project(id: project.id, name: project.name, path: project.path, sessions: filtered)
+            }
+        }
+        let nonEmpty = visible.filter { !$0.sessions.isEmpty }
         let searched: [Project]
         let trimmed = sidebarSearchQuery.trimmingCharacters(in: .whitespaces)
         if trimmed.isEmpty {

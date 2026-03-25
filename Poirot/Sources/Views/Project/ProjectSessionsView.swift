@@ -274,6 +274,20 @@ private struct SessionBadgeRow: View {
 
     var body: some View {
         HStack(spacing: PoirotTheme.Spacing.sm) {
+            if session.isSidechain {
+                Label(
+                    session.agentId ?? "Agent",
+                    systemImage: "cpu"
+                )
+                .font(PoirotTheme.Typography.tiny)
+                .foregroundStyle(PoirotTheme.Colors.purple)
+                .padding(.horizontal, PoirotTheme.Spacing.sm)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15))
+                )
+            }
+
             if let model = session.model {
                 badge(formatModel(model), fg: PoirotTheme.Colors.accent, bg: PoirotTheme.Colors.accentDim)
             }

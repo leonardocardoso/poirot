@@ -197,12 +197,14 @@ struct ContentView: View {
                 }
             }
 
+            let isSidechain = appState.selectedSession?.isSidechain ?? false
             let full = await Task.detached {
                 TranscriptParser().parse(
                     fileURL: url,
                     projectPath: projectPath,
                     sessionId: sessionId,
-                    indexStartedAt: startedAt
+                    indexStartedAt: startedAt,
+                    isSidechain: isSidechain
                 )
             }.value
 
