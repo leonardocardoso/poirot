@@ -175,7 +175,7 @@ struct SessionLoaderTests {
     }
 
     @Test
-    func discoverProjects_skipsAgentFiles() throws {
+    func discoverProjects_fallbackPath_loadsAgentFiles() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -186,13 +186,23 @@ struct SessionLoaderTests {
         let validFile = projectDir.appendingPathComponent("\(validId).jsonl")
         try simpleJSONL().write(to: validFile, atomically: true, encoding: .utf8)
 
-        let agentFile = projectDir.appendingPathComponent("agent-a1b2c3d4-e5f6-7890-abcd-ef1234567890.jsonl")
+        let agentId = "e7b2889f"
+        let agentFile = projectDir.appendingPathComponent("agent-\(agentId).jsonl")
         try simpleJSONL().write(to: agentFile, atomically: true, encoding: .utf8)
 
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
-        #expect(projects[0].sessions.count == 1)
-        #expect(projects[0].sessions[0].id == validId)
+        #expect(projects[0].sessions.count == 2)
+
+        let mainSession = projects[0].sessions.first { $0.id == validId }
+        #expect(mainSession != nil)
+        #expect(mainSession?.isSidechain == false)
+        #expect(mainSession?.agentId == nil)
+
+        let agentSession = projects[0].sessions.first { $0.id == "agent-\(agentId)" }
+        #expect(agentSession != nil)
+        #expect(agentSession?.isSidechain == true)
+        #expect(agentSession?.agentId == agentId)
     }
 
     @Test
@@ -363,7 +373,7 @@ struct SessionLoaderTests {
     }
 
     @Test
-    func discoverProjects_indexPath_limitsTo20Sessions() throws {
+    func discoverProjects_indexPath_loadsAllSessions() throws {
         let tmpDir = try makeTempProjectDir()
         defer { try? FileManager.default.removeItem(at: tmpDir) }
 
@@ -391,7 +401,7 @@ struct SessionLoaderTests {
 
         let loader = SessionLoader(claudeProjectsPath: tmpDir.path)
         let projects = try loader.discoverProjects()
-        #expect(projects[0].sessions.count == 20)
+        #expect(projects[0].sessions.count == 25)
     }
 
     @Test

@@ -71,6 +71,8 @@ nonisolated struct SessionLoader: SessionLoading {
         pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     )
 
+    private static let agentPrefix = "agent-"
+
     nonisolated(unsafe) private static let dateFormatter: ISO8601DateFormatter = {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -79,7 +81,7 @@ nonisolated struct SessionLoader: SessionLoading {
 
     private let parser = TranscriptParser()
 
-    private static let maxSessionsPerProject = 20
+    private static let maxSessionsPerProject = Int.max
 
     private func buildProject(at directoryURL: URL) -> Project? {
         let fm = FileManager.default
@@ -134,29 +136,49 @@ nonisolated struct SessionLoader: SessionLoading {
             return Project(id: dirName, name: projectName, path: projectPath, sessions: [])
         }
 
-        let jsonlFiles = items
-            .filter {
-                $0.pathExtension == "jsonl"
-                    && isUUIDFilename($0.deletingPathExtension().lastPathComponent)
-            }
-            .sorted { lhs, rhs in
-                let keys: Set<URLResourceKey> = [.contentModificationDateKey]
-                let lhsDate = (try? lhs.resourceValues(forKeys: keys))
-                    .flatMap(\.contentModificationDate) ?? .distantPast
-                let rhsDate = (try? rhs.resourceValues(forKeys: keys))
-                    .flatMap(\.contentModificationDate) ?? .distantPast
-                return lhsDate > rhsDate
-            }
+        let allJsonl = items.filter { $0.pathExtension == "jsonl" }
+
+        let sortByDate: (URL, URL) -> Bool = { lhs, rhs in
+            let keys: Set<URLResourceKey> = [.contentModificationDateKey]
+            let lhsDate = (try? lhs.resourceValues(forKeys: keys))
+                .flatMap(\.contentModificationDate) ?? .distantPast
+            let rhsDate = (try? rhs.resourceValues(forKeys: keys))
+                .flatMap(\.contentModificationDate) ?? .distantPast
+            return lhsDate > rhsDate
+        }
+
+        let mainFiles = allJsonl
+            .filter { isUUIDFilename($0.deletingPathExtension().lastPathComponent) }
+            .sorted(by: sortByDate)
+            .prefix(Self.maxSessionsPerProject)
+
+        let agentFiles = allJsonl
+            .filter { $0.deletingPathExtension().lastPathComponent.hasPrefix(Self.agentPrefix) }
+            .sorted(by: sortByDate)
             .prefix(Self.maxSessionsPerProject)
 
         var sessions: [Session] = []
-        for item in jsonlFiles {
+        for item in mainFiles {
             let stem = item.deletingPathExtension().lastPathComponent
             if let session = parser.parseSummary(
                 fileURL: item,
                 projectPath: projectPath,
                 sessionId: stem,
                 indexStartedAt: nil
+            ) {
+                sessions.append(session)
+            }
+        }
+        for item in agentFiles {
+            let stem = item.deletingPathExtension().lastPathComponent
+            let agentId = String(stem.dropFirst(Self.agentPrefix.count))
+            if let session = parser.parseSummary(
+                fileURL: item,
+                projectPath: projectPath,
+                sessionId: stem,
+                indexStartedAt: nil,
+                agentId: agentId,
+                isSidechain: true
             ) {
                 sessions.append(session)
             }
@@ -203,6 +225,12 @@ nonisolated struct SessionLoader: SessionLoading {
     private func isUUIDFilename(_ name: String) -> Bool {
         let range = NSRange(name.startIndex..., in: name)
         return Self.uuidRegex?.firstMatch(in: name, range: range) != nil
+    }
+
+    private func isSessionFilename(_ name: String) -> Bool {
+        if isUUIDFilename(name) { return true }
+        if name.hasPrefix(Self.agentPrefix) { return true }
+        return false
     }
 
     private func decodeProjectPath(_ encoded: String) -> String {

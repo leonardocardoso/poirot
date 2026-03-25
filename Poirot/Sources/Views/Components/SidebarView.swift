@@ -9,6 +9,10 @@ struct SidebarView: View {
     private var accentColorRaw = AccentColor.golden.rawValue
     @AppStorage("colorTheme")
     private var colorThemeRaw = ColorTheme.default.rawValue
+    @AppStorage("configNavCollapsed")
+    private var configNavCollapsed = false
+    @State
+    private var isCollapseBarHovered = false
     var body: some View {
         VStack(spacing: 0) {
             navigationItems
@@ -23,40 +27,39 @@ struct SidebarView: View {
 
     // MARK: - Navigation
 
+    private var mainNavItems: [NavigationItem] {
+        provider.navigationItems.filter { $0.section == .main }
+    }
+
+    private var configNavItems: [NavigationItem] {
+        provider.navigationItems.filter { $0.section == .config }
+    }
+
     private var navigationItems: some View {
-        VStack(spacing: PoirotTheme.Spacing.xxs) {
-            ForEach(Array(provider.navigationItems.enumerated()), id: \.element.id) { index, item in
-                @Bindable
-                var state = appState
-                let isKeyboardSelected = appState.sidebarKeyboardIndex == index
-                Button {
-                    state.selectedNav = item
-                } label: {
-                    HStack(alignment: .firstTextBaseline) {
-                        Label(item.title, systemImage: item.systemImage)
+        Group {
+            VStack(spacing: PoirotTheme.Spacing.xxs) {
+                ForEach(Array(mainNavItems.enumerated()), id: \.element.id) { index, item in
+                    navItemButton(for: item, index: index)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
 
-                        Spacer()
-
-                        if let count = appState.sidebarCounts[item.id] {
-                            Text("\(count)")
-                                .font(PoirotTheme.Typography.tiny)
-                                .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 1)
-                                .background(
-                                    Capsule().fill(PoirotTheme.Colors.bgCard)
-                                )
+                if !configNavItems.isEmpty {
+                    if !configNavCollapsed {
+                        let mainCount = mainNavItems.count
+                        ForEach(Array(configNavItems.enumerated()), id: \.element.id) { index, item in
+                            navItemButton(for: item, index: mainCount + index)
+                                .transition(.move(edge: .top).combined(with: .opacity))
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
+
+                    configCollapseToggle
+                        .padding(.top, PoirotTheme.Spacing.xs)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                .buttonStyle(NavItemButtonStyle(
-                    isActive: appState.selectedNav == item,
-                    isKeyboardSelected: isKeyboardSelected
-                ))
             }
+            .animation(.smooth, value: configNavCollapsed)
         }
+        .animation(.smooth, value: configNavCollapsed)
         .padding(PoirotTheme.Spacing.md)
         .task {
             await recomputeSidebarCounts()
@@ -64,6 +67,69 @@ struct SidebarView: View {
         .onChange(of: appState.configProjectPath) {
             Task { await recomputeSidebarCounts() }
         }
+    }
+
+    private func navItemButton(for item: NavigationItem, index: Int) -> some View {
+        @Bindable
+        var state = appState
+        let isKeyboardSelected = appState.sidebarKeyboardIndex == index
+        return Button {
+            state.selectedNav = item
+        } label: {
+            HStack(alignment: .firstTextBaseline) {
+                Label(item.title, systemImage: item.systemImage)
+
+                Spacer()
+
+                if let count = appState.sidebarCounts[item.id] {
+                    Text("\(count)")
+                        .font(PoirotTheme.Typography.tiny)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule().fill(PoirotTheme.Colors.bgCard)
+                        )
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(NavItemButtonStyle(
+            isActive: appState.selectedNav == item,
+            isKeyboardSelected: isKeyboardSelected
+        ))
+    }
+
+    private var configCollapseToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                configNavCollapsed.toggle()
+            }
+        } label: {
+            Image(systemName: configNavCollapsed ? "chevron.compact.down" : "chevron.compact.up")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(
+                    isCollapseBarHovered
+                        ? PoirotTheme.Colors.accent
+                        : PoirotTheme.Colors.textTertiary
+                )
+                .contentTransition(.symbolEffect(.replace))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                        .fill(
+                            isCollapseBarHovered
+                                ? PoirotTheme.Colors.accentDim
+                                : PoirotTheme.Colors.bgCard
+                        )
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isCollapseBarHovered = $0 }
+        .help(configNavCollapsed ? "Show more" : "Show less")
     }
 
     private func recomputeSidebarCounts() async {
