@@ -133,6 +133,15 @@ View and manage hooks that automate tasks during Claude Code events. See all con
 
 ---
 
+## File History
+Browse versioned file snapshots captured during Claude Code sessions. See all modified files with version timelines, and inspect diffs between each version to understand exactly what changed and when.
+
+<p align="center">
+  <img src="assets/showcase/25-file-history.png" alt="File History" width="720" />
+</p>
+
+---
+
 ## Session TODOs
 See all Claude Code per-session todo lists at a glance. Cards show task status (pending, in progress, completed), and you can jump straight to the associated session or delete orphaned entries.
 

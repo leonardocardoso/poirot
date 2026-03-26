@@ -7,6 +7,7 @@ struct Toast: Identifiable, Equatable {
     let icon: String?
     let style: ToastStyle
     let url: URL?
+    let animateIcon: Bool
 
     enum ToastStyle {
         case success, error, info
@@ -90,6 +91,7 @@ final class AppState {
 
     var selectedSession: Session? {
         didSet {
+            isShowingFileHistory = false
             guard !isNavigatingHistory else { return }
             // Push to history when user navigates to a new session
             if let session = selectedSession {
@@ -193,6 +195,7 @@ final class AppState {
     var sidebarKeyboardIndex: Int = -1
     var sessionSearchQuery: String = ""
     var isSessionSearchActive: Bool = false
+    var isShowingFileHistory: Bool = false
     var isToolFilterActive: Bool = false
     var activeToolFilters: Set<String> = []
     var projects: [Project] = []
@@ -287,6 +290,12 @@ final class AppState {
         configLayouts[screenID] = current == .grid ? .list : .grid
     }
 
+    var showAgentSessions: Bool = UserDefaults.standard.bool(forKey: "showAgentSessions") {
+        didSet {
+            UserDefaults.standard.set(showAgentSessions, forKey: "showAgentSessions")
+        }
+    }
+
     var projectSortOption: ProjectSortOption = .recentActivity
     var sidebarSearchQuery: String = ""
     var allBlocksExpanded = false
@@ -299,7 +308,17 @@ final class AppState {
     }
 
     var filteredSortedProjects: [Project] {
-        let nonEmpty = projects.filter { !$0.sessions.isEmpty }
+        let visible: [Project] = if showAgentSessions {
+            projects
+        } else {
+            projects.compactMap { project in
+                let filtered = project.sessions.filter { !$0.isSidechain }
+                guard !filtered.isEmpty else { return nil }
+                if filtered.count == project.sessions.count { return project }
+                return Project(id: project.id, name: project.name, path: project.path, sessions: filtered)
+            }
+        }
+        let nonEmpty = visible.filter { !$0.sessions.isEmpty }
         let searched: [Project]
         let trimmed = sidebarSearchQuery.trimmingCharacters(in: .whitespaces)
         if trimmed.isEmpty {
@@ -382,7 +401,8 @@ final class AppState {
         _ message: String,
         icon: String? = nil,
         style: Toast.ToastStyle = .success,
-        url: URL? = nil
+        url: URL? = nil,
+        animateIcon: Bool = false
     ) {
         let lines = message.components(separatedBy: "\n")
         var result = (try? AttributedString(markdown: lines[0])) ?? AttributedString(lines[0])
@@ -391,7 +411,7 @@ final class AppState {
             let parsed = (try? AttributedString(markdown: line)) ?? AttributedString(line)
             result.append(parsed)
         }
-        let toast = Toast(message: result, icon: icon, style: style, url: url)
+        let toast = Toast(message: result, icon: icon, style: style, url: url, animateIcon: animateIcon)
         withAnimation(.easeInOut(duration: 0.25)) {
             toastQueue.append(toast)
         }

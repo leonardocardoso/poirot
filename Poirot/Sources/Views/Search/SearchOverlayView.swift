@@ -6,6 +6,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
     case sessions
     case debugLogs
     case facets
+    case fileChanges
     case todos
     case history
     case commands
@@ -24,6 +25,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: "SESSIONS"
         case .debugLogs: "DEBUG LOGS"
         case .facets: "AI SUMMARIES"
+        case .fileChanges: "FILE CHANGES"
         case .todos: "TODOS"
         case .history: "HISTORY"
         case .commands: "COMMANDS"
@@ -44,6 +46,7 @@ private enum SearchCategory: Int, CaseIterable, Hashable {
         case .sessions: .sessions
         case .debugLogs: .sessions
         case .facets: .sessions
+        case .fileChanges: .sessions
         case .todos: .todos
         case .history: .history
         case .commands: .commands
@@ -133,6 +136,8 @@ struct SearchOverlayView: View {
     private var historyEntries: [HistoryEntry] = []
     @State
     private var allFacets: [String: SessionFacets] = [:]
+    @State
+    private var fileHistorySessionFiles: [(sessionId: String, fileNames: [String])] = []
 
     // MARK: - Search Logic
 
@@ -181,6 +186,7 @@ struct SearchOverlayView: View {
         // Sessions
         for project in appState.projects {
             for session in project.sessions {
+                if session.isSidechain, !appState.showAgentSessions { continue }
                 let best = max(score(session.title), score(project.name), score(session.id))
                 guard best > 0 else { continue }
                 all.append(SearchResult(
@@ -211,6 +217,39 @@ struct SearchOverlayView: View {
                     trailing: project.name,
                     score: best,
                     action: .openDebugLog(sessionId: session.id, projectId: project.id)
+                ))
+            }
+        }
+
+        // File Changes
+        for entry in fileHistorySessionFiles {
+            for fileName in entry.fileNames {
+                let nameOnly = (fileName as NSString).lastPathComponent
+                let best = max(score(nameOnly), score(fileName), score("file changes"))
+                guard best > 0 else { continue }
+
+                let sessionMatch = appState.projects
+                    .compactMap { project in
+                        project.sessions.first { $0.id == entry.sessionId }
+                            .map { (project, $0) }
+                    }.first
+
+                let action: SearchAction
+                if let (project, session) = sessionMatch {
+                    action = .openSession(session, projectId: project.id)
+                } else {
+                    action = .navigateTo(.sessions)
+                }
+
+                all.append(SearchResult(
+                    id: "filechange-\(entry.sessionId)-\(fileName)",
+                    category: .fileChanges,
+                    icon: "clock.arrow.2.circlepath",
+                    title: nameOnly,
+                    subtitle: fileName,
+                    trailing: sessionMatch?.1.timeAgo ?? "",
+                    score: best,
+                    action: action
                 ))
             }
         }
@@ -925,6 +964,36 @@ struct SearchOverlayView: View {
         allFacets = await Task.detached {
             FacetsLoader().loadAllFacets()
         }.value
+        fileHistorySessionFiles = await Task.detached {
+            Self.scanFileHistorySessions()
+        }.value
+    }
+
+    /// Scans ~/.claude/file-history/ for session directories and collects file names
+    /// from the corresponding session JSONL files.
+    nonisolated private static func scanFileHistorySessions() -> [(sessionId: String, fileNames: [String])] {
+        let loader = FileHistoryLoader()
+        let fm = FileManager.default
+        let historyPath = fm.homeDirectoryForCurrentUser
+            .appendingPathComponent(".claude/file-history")
+
+        guard let sessionDirs = try? fm.contentsOfDirectory(
+            at: historyPath,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        var results: [(sessionId: String, fileNames: [String])] = []
+        for dir in sessionDirs.prefix(50) {
+            var isDir: ObjCBool = false
+            guard fm.fileExists(atPath: dir.path, isDirectory: &isDir), isDir.boolValue else { continue }
+            let sessionId = dir.lastPathComponent
+            let entries = loader.loadFileHistory(for: sessionId, projectPath: "")
+            if !entries.isEmpty {
+                results.append((sessionId: sessionId, fileNames: entries.map(\.fileName)))
+            }
+        }
+        return results
     }
 }
 
