@@ -68,6 +68,7 @@ private enum SearchAction {
     case openDebugLog(sessionId: String, projectId: String)
     case navigateTo(NavigationItem)
     case openDetail(NavigationItem, ConfigDetailInfo)
+    case toggleMenuBar
 }
 
 private struct SearchResult: Identifiable {
@@ -110,7 +111,7 @@ struct SearchOverlayView: View {
     @FocusState
     private var isFocused: Bool
 
-    // Cached config items
+    /// Cached config items
     @State
     private var commands: [ClaudeCommand] = []
     @State
@@ -458,6 +459,22 @@ struct SearchOverlayView: View {
             ))
         }
 
+        // Quick Actions
+        let menuBarLabel = "Toggle Menu Bar Icon"
+        let menuBarScore = score(menuBarLabel)
+        if menuBarScore > 0 {
+            all.append(SearchResult(
+                id: "action-toggle-menubar",
+                category: .commands,
+                icon: "menubar.rectangle",
+                title: menuBarLabel,
+                subtitle: "Show or hide the menu bar icon",
+                trailing: "",
+                score: menuBarScore,
+                action: .toggleMenuBar
+            ))
+        }
+
         // Facets (AI Summaries)
         for (sessionId, facets) in allFacets {
             let goalScore = score(facets.underlyingGoal)
@@ -474,11 +491,10 @@ struct SearchOverlayView: View {
                         .map { (project, $0) }
                 }.first
 
-            let action: SearchAction
-            if let (project, session) = sessionMatch {
-                action = .openSession(session, projectId: project.id)
+            let action: SearchAction = if let (project, session) = sessionMatch {
+                .openSession(session, projectId: project.id)
             } else {
-                action = .navigateTo(.sessions)
+                .navigateTo(.sessions)
             }
 
             all.append(SearchResult(
@@ -882,6 +898,11 @@ struct SearchOverlayView: View {
             appState.pushConfigDetail(
                 navItemID: navItem.id, detail: detail
             )
+
+        case .toggleMenuBar:
+            let key = "showMenuBarIcon"
+            let current = UserDefaults.standard.object(forKey: key) as? Bool ?? true
+            UserDefaults.standard.set(!current, forKey: key)
         }
         dismiss()
     }
