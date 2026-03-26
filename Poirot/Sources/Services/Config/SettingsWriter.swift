@@ -98,8 +98,8 @@ enum SettingsWriter {
                 braceDepth = 0
             }
             if inTopLevelMCPServers {
-                braceDepth += trimmed.filter { $0 == "{" }.count
-                braceDepth -= trimmed.filter { $0 == "}" }.count
+                braceDepth += trimmed.count(where: { $0 == "{" })
+                braceDepth -= trimmed.count(where: { $0 == "}" })
                 if trimmed.hasPrefix(needle) {
                     return index + 1
                 }
@@ -110,6 +110,70 @@ enum SettingsWriter {
             }
         }
         return nil
+    }
+
+    // MARK: - MCP Server Add / Update
+
+    nonisolated static func addMCPServer(
+        name: String,
+        command: String,
+        args: [String],
+        env: [String: String]
+    ) {
+        let url = claudeConfigFileURL()
+        var dict: [String: Any] = [:]
+        if let data = try? Data(contentsOf: url),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            dict = json
+        }
+
+        var servers = dict["mcpServers"] as? [String: Any] ?? [:]
+        var serverDef: [String: Any] = [
+            "command": command,
+            "args": args,
+        ]
+        if !env.isEmpty {
+            serverDef["env"] = env
+        }
+        servers[name] = serverDef
+        dict["mcpServers"] = servers
+
+        guard let updated = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return }
+        try? updated.write(to: url, options: .atomic)
+    }
+
+    nonisolated static func updateMCPServer(
+        originalName: String,
+        newName: String,
+        command: String,
+        args: [String],
+        env: [String: String]
+    ) {
+        let url = claudeConfigFileURL()
+        guard let data = try? Data(contentsOf: url),
+              var dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return }
+
+        var servers = dict["mcpServers"] as? [String: Any] ?? [:]
+        servers.removeValue(forKey: originalName)
+        var serverDef: [String: Any] = [
+            "command": command,
+            "args": args,
+        ]
+        if !env.isEmpty {
+            serverDef["env"] = env
+        }
+        servers[newName] = serverDef
+        dict["mcpServers"] = servers
+
+        guard let updated = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return }
+        try? updated.write(to: url, options: .atomic)
     }
 
     // MARK: - MCP Server Definition Removal

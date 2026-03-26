@@ -69,6 +69,7 @@ private enum SearchAction {
     case navigateTo(NavigationItem)
     case openDetail(NavigationItem, ConfigDetailInfo)
     case toggleMenuBar
+    case addMCPServer
 }
 
 private struct SearchResult: Identifiable {
@@ -234,11 +235,10 @@ struct SearchOverlayView: View {
                             .map { (project, $0) }
                     }.first
 
-                let action: SearchAction
-                if let (project, session) = sessionMatch {
-                    action = .openSession(session, projectId: project.id)
+                let action: SearchAction = if let (project, session) = sessionMatch {
+                    .openSession(session, projectId: project.id)
                 } else {
-                    action = .navigateTo(.sessions)
+                    .navigateTo(.sessions)
                 }
 
                 all.append(SearchResult(
@@ -472,6 +472,21 @@ struct SearchOverlayView: View {
                 trailing: "",
                 score: menuBarScore,
                 action: .toggleMenuBar
+            ))
+        }
+
+        let addMCPLabel = "Add MCP Server"
+        let addMCPScore = score(addMCPLabel)
+        if addMCPScore > 0 {
+            all.append(SearchResult(
+                id: "action-add-mcp-server",
+                category: .mcpServers,
+                icon: "plus.circle",
+                title: addMCPLabel,
+                subtitle: "Open the MCP server setup wizard",
+                trailing: "",
+                score: addMCPScore,
+                action: .addMCPServer
             ))
         }
 
@@ -903,6 +918,13 @@ struct SearchOverlayView: View {
             let key = "showMenuBarIcon"
             let current = UserDefaults.standard.object(forKey: key) as? Bool ?? true
             UserDefaults.standard.set(!current, forKey: key)
+
+        case .addMCPServer:
+            appState.selectedNav = .mcpServers
+            Task {
+                try? await Task.sleep(for: .milliseconds(100))
+                appState.configAddTrigger = UUID()
+            }
         }
         dismiss()
     }
