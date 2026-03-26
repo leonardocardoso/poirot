@@ -14,6 +14,10 @@ struct MCPServersListView: View {
     private var configFileWatcher: FileWatcher?
     @State
     private var authCacheWatcher: FileWatcher?
+    @State
+    private var showWizard = false
+    @State
+    private var editingServer: MCPServer?
 
     @AppStorage("textEditor")
     private var textEditor = PreferredEditor.vscode.rawValue
@@ -71,7 +75,8 @@ struct MCPServersListView: View {
             screenID: item.id,
             filterQuery: $filterQuery,
             placeholder: "Find in MCP Servers\u{2026}",
-            showProjectPicker: true
+            showProjectPicker: true,
+            showAddButton: true
         )
         }
         .task {
@@ -93,6 +98,20 @@ struct MCPServersListView: View {
         }
         .onAppear { startFileWatchers() }
         .onDisappear { stopFileWatchers() }
+        .onChange(of: appState.configAddTrigger) {
+            editingServer = nil
+            showWizard = true
+        }
+        .sheet(isPresented: $showWizard) {
+            MCPSetupWizardView(
+                editingServer: editingServer,
+                onComplete: {
+                    showWizard = false
+                    editingServer = nil
+                    reloadServers()
+                }
+            )
+        }
     }
 
     private func startFileWatchers() {
@@ -144,6 +163,7 @@ struct MCPServersListView: View {
                                 MCPServerCard(
                                     server: server,
                                     filterQuery: filterQuery,
+                                    onEdit: { editServer(server) },
                                     onOpenInEditor: { openServerInEditor(server) },
                                     onShowInFinder: { showSettingsInFinder() },
                                     onRemove: { removeServer(server) }
@@ -179,6 +199,7 @@ struct MCPServersListView: View {
                         MCPServerCard(
                             server: server,
                             filterQuery: filterQuery,
+                            onEdit: { editServer(server) },
                             onOpenInEditor: { openServerInEditor(server) },
                             onShowInFinder: { showSettingsInFinder() },
                             onRemove: { removeServer(server) }
@@ -204,7 +225,7 @@ struct MCPServersListView: View {
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.blue)
 
-            Text("Add MCP servers via `claude mcp add` or edit ~/.claude.json directly.")
+            Text("Add MCP servers with the + button above, `claude mcp add`, or edit ~/.claude.json directly.")
                 .font(PoirotTheme.Typography.caption)
                 .foregroundStyle(PoirotTheme.Colors.textSecondary)
         }
@@ -237,6 +258,11 @@ struct MCPServersListView: View {
         NSWorkspace.shared.activateFileViewerSelecting([url])
     }
 
+    private func editServer(_ server: MCPServer) {
+        editingServer = server
+        showWizard = true
+    }
+
     private func removeServer(_ server: MCPServer) {
         Task.detached {
             SettingsWriter.removeMCPServer(serverName: server.rawName)
@@ -261,6 +287,7 @@ struct MCPServersListView: View {
 private struct MCPServerCard: View {
     let server: MCPServer
     var filterQuery: String = ""
+    let onEdit: () -> Void
     let onOpenInEditor: () -> Void
     let onShowInFinder: () -> Void
     let onRemove: () -> Void
@@ -315,6 +342,16 @@ private struct MCPServerCard: View {
                 Spacer()
 
                 if server.source == .user {
+                    Button {
+                        onEdit()
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Edit server")
+
                     Button {
                         onOpenInEditor()
                     } label: {
