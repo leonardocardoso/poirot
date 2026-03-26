@@ -36,7 +36,6 @@ struct MenuBarStateTests {
 
         #expect(state.recentSessions.isEmpty)
         #expect(state.searchQuery.isEmpty)
-        #expect(state.claudeCodeStatus == .idle)
     }
 
     // MARK: - Load Recent Sessions
@@ -120,25 +119,4 @@ struct MenuBarStateTests {
         #expect(state.filteredSessions.count == 1)
     }
 
-    // MARK: - Claude Code Status Detection
-
-    @Test
-    func detectClaudeCodeStatus_notInstalled() {
-        let state = MenuBarState()
-
-        let status = state.detectClaudeCodeStatus(cliPath: "/nonexistent/path/to/claude")
-
-        #expect(status == .notInstalled)
-    }
-
-    @Test
-    func detectClaudeCodeStatus_returnsIdleOrRunning() {
-        let state = MenuBarState()
-
-        // Using /bin/sh as a known existing path for testing
-        let status = state.detectClaudeCodeStatus(cliPath: "/bin/sh")
-
-        // It should return either .idle or .running (depending on whether claude is running)
-        #expect(status == .idle || status == .running)
-    }
 }

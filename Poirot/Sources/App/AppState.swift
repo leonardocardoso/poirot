@@ -289,7 +289,6 @@ final class AppState {
 
     var projectSortOption: ProjectSortOption = .recentActivity
     var sidebarSearchQuery: String = ""
-    var menuBarStatus: ClaudeCodeStatus = .idle
     var allBlocksExpanded = false
     var refreshID: UUID = .init()
     private(set) var sessionCache: [String: Session] = [:]

@@ -286,8 +286,10 @@ struct ContentView: View {
     // MARK: - Batch Loading
 
     private func loadProjectsInBatches() async {
-        appState.projects.removeAll()
-        appState.isLoadingProjects = true
+        let isInitialLoad = appState.projects.isEmpty
+        if isInitialLoad {
+            appState.isLoadingProjects = true
+        }
         appState.isLoadingMoreProjects = true
 
         do {
@@ -300,8 +302,11 @@ struct ContentView: View {
 
             // Phase 2: build projects in batches, yielding to UI between each
             let batchSize = 5
-            var isFirstBatch = true
+            var loadedIds = Set(appState.projects.map(\.id))
+
             for batchStart in stride(from: 0, to: directories.count, by: batchSize) {
+                guard !Task.isCancelled else { return }
+
                 let batchEnd = min(batchStart + batchSize, directories.count)
                 let batch = Array(directories[batchStart ..< batchEnd])
 
@@ -309,17 +314,43 @@ struct ContentView: View {
                     batch.compactMap { SessionLoader.loadProject(at: $0) }
                 }.value
 
+                guard !Task.isCancelled else { return }
+
+                var newProjects: [Project] = []
+                var updatedProjects: [(index: Int, project: Project)] = []
+
+                for project in projects {
+                    if loadedIds.contains(project.id) {
+                        if let idx = appState.projects.firstIndex(where: { $0.id == project.id }) {
+                            updatedProjects.append((idx, project))
+                        }
+                    } else {
+                        newProjects.append(project)
+                        loadedIds.insert(project.id)
+                    }
+                }
+
                 withAnimation(.easeInOut(duration: 0.3)) {
-                    appState.projects.append(contentsOf: projects)
-                    if isFirstBatch {
+                    for update in updatedProjects {
+                        appState.projects[update.index] = update.project
+                    }
+                    appState.projects.append(contentsOf: newProjects)
+                    if isInitialLoad, appState.isLoadingProjects {
                         appState.isLoadingProjects = false
-                        isFirstBatch = false
                     }
                 }
 
                 if batchEnd < directories.count {
                     try? await Task.sleep(for: .milliseconds(50))
                 }
+            }
+
+            guard !Task.isCancelled else { return }
+
+            // Remove projects whose directories no longer exist
+            let directoryNames = Set(directories.map(\.lastPathComponent))
+            withAnimation(.easeInOut(duration: 0.3)) {
+                appState.projects.removeAll { !directoryNames.contains($0.id) }
             }
         } catch {
             print("Failed to load projects: \(error)")

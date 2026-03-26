@@ -82,18 +82,10 @@ struct PoirotApp: App {
                 .environment(appState)
         }
 
-        MenuBarExtra("Poirot", systemImage: menuBarIcon, isInserted: $showMenuBarIcon) {
+        MenuBarExtra("Poirot", image: "MenuBarIcon", isInserted: $showMenuBarIcon) {
             MenuBarView()
                 .environment(appState)
         }
         .menuBarExtraStyle(.window)
-    }
-
-    private var menuBarIcon: String {
-        switch appState.menuBarStatus {
-        case .running: "sparkle"
-        case .idle: "sparkle"
-        case .notInstalled: "exclamationmark.circle"
-        }
     }
 }

@@ -24,43 +24,65 @@ struct MenuBarView: View {
         .background(PoirotTheme.Colors.bgCard)
         .onAppear {
             menuBarState.loadRecentSessions(from: appState.projects)
-            Task {
-                await menuBarState.refreshStatus(
-                    cliPath: UserDefaults.standard.string(forKey: "claudeCodePath")
-                        ?? "/usr/local/bin/claude"
-                )
-                appState.menuBarStatus = menuBarState.claudeCodeStatus
-            }
+            menuBarState.loadStats()
         }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
-        HStack(spacing: PoirotTheme.Spacing.sm) {
-            Image(systemName: statusIcon)
-                .font(PoirotTheme.Typography.body)
-                .foregroundStyle(statusColor)
-                .symbolEffect(.pulse, isActive: menuBarState.claudeCodeStatus == .running)
+        VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
+            HStack(spacing: PoirotTheme.Spacing.sm) {
+                if let nsImage = NSImage(named: "AppIcon") {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                }
 
-            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
                 Text(provider.assistantName)
                     .font(PoirotTheme.Typography.captionMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
 
-                Text(statusLabel)
-                    .font(PoirotTheme.Typography.tiny)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                Spacer()
             }
 
-            Spacer()
-
-            Text("\(appState.projects.count) projects")
-                .font(PoirotTheme.Typography.tiny)
-                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            if let stats = menuBarState.stats {
+                HStack(spacing: PoirotTheme.Spacing.md) {
+                    statItem(
+                        value: AnalyticsFormatters.formatLargeNumber(stats.totalSessions),
+                        label: "sessions"
+                    )
+                    statItem(
+                        value: AnalyticsFormatters.formatLargeNumber(stats.totalMessages),
+                        label: "messages"
+                    )
+                    statItem(
+                        value: AnalyticsFormatters.formatLargeNumber(stats.totalInputTokens + stats.totalOutputTokens),
+                        label: "tokens"
+                    )
+                    if stats.totalCostUSD > 0 {
+                        statItem(
+                            value: AnalyticsFormatters.formatCost(stats.totalCostUSD),
+                            label: "cost"
+                        )
+                    }
+                }
+            }
         }
         .padding(.horizontal, PoirotTheme.Spacing.lg)
         .padding(.vertical, PoirotTheme.Spacing.md)
+    }
+
+    private func statItem(value: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(value)
+                .font(PoirotTheme.Typography.captionMedium)
+                .foregroundStyle(PoirotTheme.Colors.textPrimary)
+            Text(label)
+                .font(PoirotTheme.Typography.tiny)
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+        }
     }
 
     // MARK: - Search
@@ -143,9 +165,6 @@ struct MenuBarView: View {
             openWindow(id: "main")
         } label: {
             HStack(spacing: PoirotTheme.Spacing.sm) {
-                Image(systemName: "macwindow")
-                    .font(PoirotTheme.Typography.small)
-
                 Text("Open Poirot")
                     .font(PoirotTheme.Typography.captionMedium)
 
@@ -161,32 +180,6 @@ struct MenuBarView: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(PoirotTheme.Colors.textPrimary)
-    }
-
-    // MARK: - Status Helpers
-
-    private var statusIcon: String {
-        switch menuBarState.claudeCodeStatus {
-        case .running: "circle.fill"
-        case .idle: "circle"
-        case .notInstalled: "exclamationmark.circle"
-        }
-    }
-
-    private var statusColor: Color {
-        switch menuBarState.claudeCodeStatus {
-        case .running: PoirotTheme.Colors.green
-        case .idle: PoirotTheme.Colors.textTertiary
-        case .notInstalled: PoirotTheme.Colors.orange
-        }
-    }
-
-    private var statusLabel: String {
-        switch menuBarState.claudeCodeStatus {
-        case .running: "Running"
-        case .idle: "Idle"
-        case .notInstalled: "CLI not found"
-        }
     }
 
     // MARK: - Actions
