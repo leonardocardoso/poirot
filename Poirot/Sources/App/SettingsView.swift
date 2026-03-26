@@ -1,3 +1,4 @@
+import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
@@ -16,6 +17,11 @@ struct SettingsView: View {
             ViewerSettingsView()
                 .tabItem {
                     Label("Viewer", systemImage: "eye")
+                }
+
+            MenuBarSettingsView()
+                .tabItem {
+                    Label("Menu Bar", systemImage: "menubar.rectangle")
                 }
         }
         .frame(width: 560, height: 360)
@@ -259,15 +265,58 @@ private struct ViewerSettingsView: View {
     }
 }
 
+// MARK: - Menu Bar
+
+private struct MenuBarSettingsView: View {
+    @AppStorage("showMenuBarIcon")
+    private var showMenuBarIcon = true
+
+    @State
+    private var launchAtLogin = SMAppService.mainApp.status == .enabled
+
+    var body: some View {
+        VStack(spacing: 0) {
+            settingsRow {
+                Text("Menu Bar Icon:")
+            } control: {
+                Toggle("Show Poirot in menu bar", isOn: $showMenuBarIcon)
+                    .labelsHidden()
+            }
+
+            settingsRow {
+                Text("Launch at Login:")
+            } control: {
+                Toggle("Start Poirot when you log in", isOn: $launchAtLogin)
+                    .labelsHidden()
+                    .onChange(of: launchAtLogin) { _, newValue in
+                        do {
+                            if newValue {
+                                try SMAppService.mainApp.register()
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                            }
+                        } catch {
+                            launchAtLogin = SMAppService.mainApp.status == .enabled
+                        }
+                    }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 32)
+    }
+}
+
 // MARK: - Settings Layout Helpers
 
 private let settingsLabelWidth: CGFloat = 200
 
 @MainActor
-private func settingsRow<Label: View, Control: View>(
+private func settingsRow(
     alignment: VerticalAlignment = .firstTextBaseline,
-    @ViewBuilder label: () -> Label,
-    @ViewBuilder control: () -> Control
+    @ViewBuilder label: () -> some View,
+    @ViewBuilder control: () -> some View
 ) -> some View {
     HStack(alignment: alignment, spacing: 12) {
         label()
