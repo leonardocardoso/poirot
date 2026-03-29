@@ -13,6 +13,9 @@ struct SessionsNavigationView: View {
     @State
     private var showTimeline = false
 
+    @SceneStorage("sessionsListWidth")
+    private var listWidth: Double = 280
+
     private var filteredProjects: [Project] {
         let projects = appState.filteredSortedProjects
         let trimmed = listSearchQuery.trimmingCharacters(in: .whitespaces)
@@ -48,13 +51,14 @@ struct SessionsNavigationView: View {
     }
 
     var body: some View {
-        HSplitView {
+        HStack(spacing: 0) {
             sessionsListPane
-                .frame(minWidth: 220, idealWidth: 280, maxWidth: 380)
-                .layoutPriority(1)
+                .frame(width: max(220, min(listWidth, 380)))
+
+            PoirotSplitDivider(position: $listWidth, minPosition: 220, maxPosition: 380)
 
             detailPane
-                .frame(minWidth: 400, idealWidth: 600)
+                .frame(maxWidth: .infinity)
         }
         .onChange(of: appState.selectedSession) {
             showTimeline = false
@@ -424,6 +428,43 @@ private struct SessionsProjectSection: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Split Divider
+
+private struct PoirotSplitDivider: View {
+    @Binding
+    var position: Double
+    let minPosition: Double
+    let maxPosition: Double
+
+    @State
+    private var isDragging = false
+
+    var body: some View {
+        Rectangle()
+            .fill(PoirotTheme.Colors.border.opacity(isDragging ? 0.8 : 0.3))
+            .frame(width: 1)
+            .contentShape(Rectangle().inset(by: -3))
+            .onHover { hovering in
+                if hovering {
+                    NSCursor.resizeLeftRight.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        isDragging = true
+                        let new = position + value.translation.width
+                        position = max(minPosition, min(new, maxPosition))
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                    }
+            )
     }
 }
 
