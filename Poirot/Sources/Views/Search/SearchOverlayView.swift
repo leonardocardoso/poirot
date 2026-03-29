@@ -109,6 +109,8 @@ struct SearchOverlayView: View {
     private var searchTask: Task<Void, Never>?
     @State
     private var isSearching = false
+    @State
+    private var escMonitor: Any?
     @FocusState
     private var isFocused: Bool
 
@@ -621,13 +623,17 @@ struct SearchOverlayView: View {
             .padding(.top, 80)
             .frame(maxHeight: .infinity, alignment: .top)
         }
-        .onAppear { isFocused = true }
-        .task { await loadConfigItems() }
-        .onExitCommand { dismiss() }
-        .onKeyPress(.escape) {
-            dismiss()
-            return .handled
+        .onAppear {
+            isFocused = true
+            escMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                if event.keyCode == 53 {
+                    dismiss()
+                    return nil
+                }
+                return event
+            }
         }
+        .task { await loadConfigItems() }
         .onKeyPress(.upArrow) {
             if selectedIndex > 0 { selectedIndex -= 1 }
             return .handled
@@ -668,6 +674,10 @@ struct SearchOverlayView: View {
         .onDisappear {
             debounceTask?.cancel()
             searchTask?.cancel()
+            if let escMonitor {
+                NSEvent.removeMonitor(escMonitor)
+            }
+            escMonitor = nil
         }
     }
 
