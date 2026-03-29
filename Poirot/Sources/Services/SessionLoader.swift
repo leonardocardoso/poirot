@@ -123,6 +123,17 @@ nonisolated struct SessionLoader: SessionLoading {
                     sessions.append(session)
                 }
             }
+            // Scan subagent directories for each main session
+            let mainSessionIds = sessions.filter { !$0.isSidechain }.map(\.id)
+            for parentId in mainSessionIds {
+                let agentSessions = loadSubAgentSessions(
+                    parentSessionId: parentId,
+                    directoryURL: directoryURL,
+                    projectPath: projectPath
+                )
+                sessions.append(contentsOf: agentSessions)
+            }
+
             sessions.sort { $0.startedAt > $1.startedAt }
             return Project(id: dirName, name: projectName, path: projectPath, sessions: sessions)
         }
@@ -184,6 +195,17 @@ nonisolated struct SessionLoader: SessionLoading {
             }
         }
 
+        // Scan subagent directories for each main session
+        let fallbackMainIds = mainFiles.map { $0.deletingPathExtension().lastPathComponent }
+        for parentId in fallbackMainIds {
+            let agentSessions = loadSubAgentSessions(
+                parentSessionId: parentId,
+                directoryURL: directoryURL,
+                projectPath: projectPath
+            )
+            sessions.append(contentsOf: agentSessions)
+        }
+
         sessions.sort { $0.startedAt > $1.startedAt }
 
         return Project(id: dirName, name: projectName, path: projectPath, sessions: sessions)
@@ -220,6 +242,62 @@ nonisolated struct SessionLoader: SessionLoading {
             ?? json["projectPath"] as? String
 
         return SessionsIndex(originalPath: originalPath, entries: entries)
+    }
+
+    // MARK: - Sub-Agent Loading
+
+    private func loadSubAgentSessions(
+        parentSessionId: String,
+        directoryURL: URL,
+        projectPath: String
+    ) -> [Session] {
+        let fm = FileManager.default
+        let subagentsDir = directoryURL
+            .appendingPathComponent(parentSessionId)
+            .appendingPathComponent("subagents")
+
+        guard fm.fileExists(atPath: subagentsDir.path) else { return [] }
+
+        guard let files = try? fm.contentsOfDirectory(
+            at: subagentsDir,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        let agentFiles = files.filter {
+            $0.pathExtension == "jsonl"
+                && $0.lastPathComponent.hasPrefix(Self.agentPrefix)
+                && !$0.lastPathComponent.hasPrefix("\(Self.agentPrefix)acompact-")
+        }
+
+        var sessions: [Session] = []
+        for file in agentFiles {
+            let stem = file.deletingPathExtension().lastPathComponent
+            let agentId = String(stem.dropFirst(Self.agentPrefix.count))
+            let meta = parseAgentMeta(at: subagentsDir.appendingPathComponent("\(stem).meta.json"))
+
+            if let session = parser.parseSummary(
+                fileURL: file,
+                projectPath: projectPath,
+                sessionId: stem,
+                indexStartedAt: nil,
+                agentId: agentId,
+                isSidechain: true,
+                parentSessionId: parentSessionId,
+                agentType: meta.agentType,
+                agentDescription: meta.description
+            ) {
+                sessions.append(session)
+            }
+        }
+        return sessions
+    }
+
+    private func parseAgentMeta(at url: URL) -> (agentType: String?, description: String?) {
+        guard let data = try? Data(contentsOf: url),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return (nil, nil) }
+        return (json["agentType"] as? String, json["description"] as? String)
     }
 
     private func isUUIDFilename(_ name: String) -> Bool {

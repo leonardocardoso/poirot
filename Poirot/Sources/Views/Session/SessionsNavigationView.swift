@@ -10,6 +10,9 @@ struct SessionsNavigationView: View {
     @State
     private var collapsedProjects: Set<String> = []
 
+    @State
+    private var showTimeline = false
+
     private var filteredProjects: [Project] {
         let projects = appState.filteredSortedProjects
         let trimmed = listSearchQuery.trimmingCharacters(in: .whitespaces)
@@ -33,13 +36,28 @@ struct SessionsNavigationView: View {
         }
     }
 
+    private func sessionGroup(for session: Session) -> SessionGroup? {
+        let parentId = session.parentSessionId ?? session.id
+        for project in appState.projects {
+            let groups = SessionGroup.group(sessions: project.sessions)
+            if let group = groups.first(where: { $0.id == parentId }), !group.agents.isEmpty {
+                return group
+            }
+        }
+        return nil
+    }
+
     var body: some View {
         HSplitView {
             sessionsListPane
                 .frame(minWidth: 220, idealWidth: 280, maxWidth: 380)
+                .layoutPriority(1)
 
             detailPane
                 .frame(minWidth: 400, idealWidth: 600)
+        }
+        .onChange(of: appState.selectedSession) {
+            showTimeline = false
         }
     }
 
@@ -64,6 +82,7 @@ struct SessionsNavigationView: View {
                                     project: project,
                                     searchQuery: listSearchQuery,
                                     isCollapsed: collapsedProjects.contains(project.id),
+                                    showAgentSessions: appState.showAgentSessions,
                                     onToggleCollapse: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
                                             if collapsedProjects.contains(project.id) {
@@ -249,7 +268,14 @@ struct SessionsNavigationView: View {
     @ViewBuilder
     private var detailPane: some View {
         if let session = appState.selectedSession {
-            if appState.isShowingFileHistory {
+            if showTimeline, let group = sessionGroup(for: session) {
+                SessionTimelineView(group: group)
+                    .transition(.opacity)
+                    .overlay(alignment: .topTrailing) {
+                        timelineToggleButton
+                            .padding(PoirotTheme.Spacing.md)
+                    }
+            } else if appState.isShowingFileHistory {
                 FileHistoryView(session: session)
                     .transition(.opacity)
             } else if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
@@ -258,10 +284,41 @@ struct SessionsNavigationView: View {
             } else {
                 SessionDetailView(session: session)
                     .transition(.opacity)
+                    .overlay(alignment: .topTrailing) {
+                        if sessionGroup(for: session) != nil {
+                            timelineToggleButton
+                                .padding(PoirotTheme.Spacing.md)
+                        }
+                    }
             }
         } else {
             noSessionSelectedState
         }
+    }
+
+    @ViewBuilder
+    private var timelineToggleButton: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showTimeline.toggle()
+            }
+        } label: {
+            Image(systemName: showTimeline ? "text.bubble" : "chart.bar.xaxis")
+                .font(PoirotTheme.Typography.small)
+                .foregroundStyle(showTimeline ? PoirotTheme.Colors.accent : PoirotTheme.Colors.textTertiary)
+                .contentTransition(.symbolEffect(.replace))
+                .frame(width: 30, height: 30)
+                .background(
+                    RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                        .fill(PoirotTheme.Colors.bgElevated)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                                .stroke(PoirotTheme.Colors.border)
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .help(showTimeline ? "Show transcript" : "Show timeline")
     }
 
     private var noSessionSelectedState: some View {
@@ -290,15 +347,43 @@ private struct SessionsProjectSection: View {
     let project: Project
     var searchQuery: String = ""
     let isCollapsed: Bool
+    let showAgentSessions: Bool
     let onToggleCollapse: () -> Void
+
+    @State
+    private var expandedGroups: Set<String> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             projectHeader
 
             if !isCollapsed {
-                ForEach(project.sessions) { session in
-                    SessionsListRow(session: session, searchQuery: searchQuery)
+                if showAgentSessions {
+                    let groups = SessionGroup.group(sessions: project.sessions)
+                    ForEach(groups) { group in
+                        if group.agents.isEmpty {
+                            SessionsListRow(session: group.parent, searchQuery: searchQuery)
+                        } else {
+                            SessionGroupRow(
+                                group: group,
+                                searchQuery: searchQuery,
+                                isExpanded: expandedGroups.contains(group.id),
+                                onToggleExpand: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        if expandedGroups.contains(group.id) {
+                                            expandedGroups.remove(group.id)
+                                        } else {
+                                            expandedGroups.insert(group.id)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                } else {
+                    ForEach(project.sessions) { session in
+                        SessionsListRow(session: session, searchQuery: searchQuery)
+                    }
                 }
             }
         }
@@ -319,7 +404,7 @@ private struct SessionsProjectSection: View {
                     .symbolRenderingMode(.hierarchical)
 
                 Text(project.name)
-                    .font(PoirotTheme.Typography.bodyMedium)
+                    .font(PoirotTheme.Typography.subheading)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(1)
 
@@ -339,6 +424,163 @@ private struct SessionsProjectSection: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Session Group Row
+
+private struct SessionGroupRow: View {
+    let group: SessionGroup
+    var searchQuery: String = ""
+    let isExpanded: Bool
+    let onToggleExpand: () -> Void
+
+    @Environment(AppState.self)
+    private var appState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Parent row with agent badge
+            HStack(spacing: 0) {
+                SessionsListRow(session: group.parent, searchQuery: searchQuery)
+
+                Button(action: onToggleExpand) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "cpu")
+                            .font(.system(size: 10))
+                        Text("\(group.agentCount)")
+                            .font(PoirotTheme.Typography.tiny)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 7, weight: .semibold))
+                            .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    }
+                    .foregroundStyle(PoirotTheme.Colors.purple)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15)))
+                    .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, PoirotTheme.Spacing.md)
+            }
+
+            if isExpanded {
+                ForEach(group.agents) { agent in
+                    AgentSessionRow(session: agent, searchQuery: searchQuery)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Agent Session Row
+
+private struct AgentSessionRow: View {
+    let session: Session
+    var searchQuery: String = ""
+
+    @Environment(AppState.self)
+    private var appState
+
+    @State
+    private var isHovered = false
+
+    private var isSelected: Bool {
+        appState.selectedSession == session
+    }
+
+    var body: some View {
+        Button {
+            appState.selectedSession = session
+        } label: {
+            VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
+                HStack(spacing: PoirotTheme.Spacing.xs) {
+                    Image(systemName: Self.iconForAgentType(session.agentType))
+                        .font(.system(size: 10))
+                        .foregroundStyle(Self.colorForAgentType(session.agentType))
+
+                    if let agentType = session.agentType {
+                        Text(agentType)
+                            .font(PoirotTheme.Typography.small)
+                            .foregroundStyle(Self.colorForAgentType(session.agentType))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(
+                                Capsule().fill(Self.colorForAgentType(session.agentType).opacity(0.15))
+                            )
+                    }
+
+                    if let desc = session.agentDescription, !desc.isEmpty {
+                        Text(desc)
+                            .font(PoirotTheme.Typography.caption)
+                            .foregroundStyle(
+                                isSelected
+                                    ? PoirotTheme.Colors.accent
+                                    : PoirotTheme.Colors.textSecondary
+                            )
+                            .lineLimit(1)
+                    } else {
+                        Text(HighlightedText.fuzzyAttributedString(session.title, query: searchQuery))
+                            .font(PoirotTheme.Typography.caption)
+                            .foregroundStyle(
+                                isSelected
+                                    ? PoirotTheme.Colors.accent
+                                    : PoirotTheme.Colors.textSecondary
+                            )
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    Text(session.timeAgo)
+                        .font(PoirotTheme.Typography.tiny)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                }
+
+                if session.totalTokens > 0 {
+                    HStack(spacing: PoirotTheme.Spacing.xs) {
+                        Text("\(SessionsListRow.formatTokens(session.totalTokens)) tk")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.blue)
+
+                        Text("\(session.turnCount) \(session.turnCount == 1 ? "turn" : "turns")")
+                            .font(PoirotTheme.Typography.tiny)
+                            .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                    }
+                }
+            }
+            .padding(.horizontal, PoirotTheme.Spacing.md)
+            .padding(.vertical, PoirotTheme.Spacing.xs)
+            .padding(.leading, PoirotTheme.Spacing.xl + PoirotTheme.Spacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: PoirotTheme.Radius.sm)
+                    .fill(
+                        isSelected
+                            ? PoirotTheme.Colors.accentDim
+                            : isHovered ? PoirotTheme.Colors.bgCardHover : .clear
+                    )
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
+
+    static func iconForAgentType(_ type: String?) -> String {
+        switch type?.lowercased() {
+        case "explore": "magnifyingglass"
+        case "plan": "map"
+        case "general-purpose": "cpu"
+        default: "cpu"
+        }
+    }
+
+    static func colorForAgentType(_ type: String?) -> Color {
+        switch type?.lowercased() {
+        case "explore": PoirotTheme.Colors.blue
+        case "plan": PoirotTheme.Colors.green
+        default: PoirotTheme.Colors.purple
+        }
     }
 }
 
@@ -371,7 +613,7 @@ private struct SessionsListRow: View {
                     }
 
                     Text(HighlightedText.fuzzyAttributedString(session.title, query: searchQuery))
-                        .font(PoirotTheme.Typography.caption)
+                        .font(PoirotTheme.Typography.bodyMedium)
                         .foregroundStyle(
                             isSelected
                                 ? PoirotTheme.Colors.accent
@@ -454,7 +696,7 @@ private struct SessionsListRow: View {
         return model
     }
 
-    private static func formatTokens(_ count: Int) -> String {
+    static func formatTokens(_ count: Int) -> String {
         if count >= 1000 {
             let k = Double(count) / 1000.0
             return k.truncatingRemainder(dividingBy: 1) == 0

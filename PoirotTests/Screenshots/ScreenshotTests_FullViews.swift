@@ -51,6 +51,27 @@ struct ScreenshotTests_FullViews {
         )
     }
 
+    // MARK: - Multi-Agent Sessions (Sidebar + Sessions with sub-agents grouped)
+
+    @Test
+    func testMultiAgentSessions() async throws {
+        let state = makeAppState(
+            selectedSession: ScreenshotData.conversationSession,
+            selectedProject: ScreenshotData.projects.first?.id
+        )
+        state.showAgentSessions = true
+
+        try await snapshotView(
+            compositeAppView(state: state) {
+                SessionsNavigationView()
+            },
+            size: ScreenshotSize.fullApp,
+            named: "testMultiAgentSessions",
+            record: isRecording,
+            delay: 2
+        )
+    }
+
     // MARK: - Conversation View
 
     @Test
