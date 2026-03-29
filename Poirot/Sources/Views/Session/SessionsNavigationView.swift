@@ -295,6 +295,9 @@ struct SessionsNavigationView: View {
                         }
                     }
             }
+        } else if let project = appState.currentProject {
+            ProjectSessionsView(project: project)
+                .transition(.opacity)
         } else {
             noSessionSelectedState
         }

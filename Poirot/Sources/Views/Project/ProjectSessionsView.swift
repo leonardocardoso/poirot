@@ -196,6 +196,7 @@ private struct SessionCard: View {
 
     var body: some View {
         Button {
+            guard appState.selectedSession?.id != session.id else { return }
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
@@ -241,6 +242,7 @@ private struct SessionListRow: View {
 
     var body: some View {
         Button {
+            guard appState.selectedSession?.id != session.id else { return }
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.sm) {
