@@ -559,7 +559,7 @@ private struct AgentSessionRow: View {
                                     ? PoirotTheme.Colors.accent
                                     : PoirotTheme.Colors.textSecondary
                             )
-                            .lineLimit(1)
+                            .lineLimit(2)
                     } else {
                         Text(HighlightedText.fuzzyAttributedString(session.title, query: searchQuery))
                             .font(PoirotTheme.Typography.caption)
@@ -568,7 +568,7 @@ private struct AgentSessionRow: View {
                                     ? PoirotTheme.Colors.accent
                                     : PoirotTheme.Colors.textSecondary
                             )
-                            .lineLimit(1)
+                            .lineLimit(2)
                     }
 
                     Spacer()
@@ -660,7 +660,7 @@ private struct SessionsListRow: View {
                                 ? PoirotTheme.Colors.accent
                                 : PoirotTheme.Colors.textPrimary
                         )
-                        .lineLimit(1)
+                        .lineLimit(2)
 
                     Spacer()
 
@@ -701,7 +701,7 @@ private struct SessionsListRow: View {
                     Text(firstPrompt)
                         .font(PoirotTheme.Typography.tiny)
                         .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                         .truncationMode(.tail)
                 }
             }
