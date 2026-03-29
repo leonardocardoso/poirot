@@ -30,7 +30,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Session Browser (Sidebar + Project Grid) — light mode
+    // MARK: - Session Browser (Sidebar + Sessions Navigation) — light mode
 
     @Test
     func testSessionBrowser() async throws {
@@ -40,7 +40,7 @@ struct ScreenshotTests_FullViews {
 
         try await snapshotView(
             compositeAppView(state: state) {
-                ProjectSessionsView(project: ScreenshotData.projects.first!)
+                SessionsNavigationView()
             },
             size: ScreenshotSize.fullApp,
             named: "testSessionBrowser",
