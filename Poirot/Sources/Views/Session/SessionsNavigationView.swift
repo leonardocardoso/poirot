@@ -354,6 +354,9 @@ private struct SessionsProjectSection: View {
     let showAgentSessions: Bool
     let onToggleCollapse: () -> Void
 
+    @Environment(AppState.self)
+    private var appState
+
     @State
     private var expandedGroups: Set<String> = []
 
@@ -394,7 +397,10 @@ private struct SessionsProjectSection: View {
     }
 
     private var projectHeader: some View {
-        Button(action: onToggleCollapse) {
+        Button {
+            appState.selectedProject = project.id
+            onToggleCollapse()
+        } label: {
             HStack(spacing: PoirotTheme.Spacing.xs) {
                 Image(systemName: "chevron.right")
                     .font(PoirotTheme.Typography.picoSemibold)
@@ -532,6 +538,7 @@ private struct AgentSessionRow: View {
 
     var body: some View {
         Button {
+            guard appState.selectedSession?.id != session.id else { return }
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
@@ -643,6 +650,7 @@ private struct SessionsListRow: View {
 
     var body: some View {
         Button {
+            guard appState.selectedSession?.id != session.id else { return }
             appState.selectedSession = session
         } label: {
             VStack(alignment: .leading, spacing: PoirotTheme.Spacing.xxs) {
