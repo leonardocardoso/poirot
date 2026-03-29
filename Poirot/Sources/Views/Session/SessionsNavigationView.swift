@@ -397,43 +397,49 @@ private struct SessionsProjectSection: View {
     }
 
     private var projectHeader: some View {
-        Button {
-            appState.selectedProject = project.id
-            onToggleCollapse()
-        } label: {
-            HStack(spacing: PoirotTheme.Spacing.xs) {
+        HStack(spacing: PoirotTheme.Spacing.xs) {
+            Button {
+                onToggleCollapse()
+            } label: {
                 Image(systemName: "chevron.right")
                     .font(PoirotTheme.Typography.picoSemibold)
                     .foregroundStyle(PoirotTheme.Colors.textTertiary)
                     .rotationEffect(.degrees(isCollapsed ? 0 : 90))
                     .frame(width: 12, height: 18)
-
-                Image(systemName: "shippingbox")
-                    .font(PoirotTheme.Typography.small)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .symbolRenderingMode(.hierarchical)
-
-                Text(project.name)
-                    .font(PoirotTheme.Typography.subheading)
-                    .foregroundStyle(PoirotTheme.Colors.textPrimary)
-                    .lineLimit(1)
-
-                Spacer()
-
-                Text("\(project.sessions.count)")
-                    .font(PoirotTheme.Typography.tiny)
-                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .background(
-                        Capsule().fill(PoirotTheme.Colors.bgCard)
-                    )
             }
-            .padding(.horizontal, PoirotTheme.Spacing.md)
-            .padding(.vertical, PoirotTheme.Spacing.sm)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+
+            Button {
+                appState.selectedProject = project.id
+            } label: {
+                HStack(spacing: PoirotTheme.Spacing.xs) {
+                    Image(systemName: "shippingbox")
+                        .font(PoirotTheme.Typography.small)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .symbolRenderingMode(.hierarchical)
+
+                    Text(project.name)
+                        .font(PoirotTheme.Typography.subheading)
+                        .foregroundStyle(PoirotTheme.Colors.textPrimary)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    Text("\(project.sessions.count)")
+                        .font(PoirotTheme.Typography.tiny)
+                        .foregroundStyle(PoirotTheme.Colors.textTertiary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule().fill(PoirotTheme.Colors.bgCard)
+                        )
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, PoirotTheme.Spacing.md)
+        .padding(.vertical, PoirotTheme.Spacing.sm)
     }
 }
 
