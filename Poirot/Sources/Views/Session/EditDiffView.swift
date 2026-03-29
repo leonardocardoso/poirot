@@ -16,13 +16,17 @@ struct EditDiffView: View {
     private var isContentHovered = false
     @State
     private var isButtonsHovered = false
+    @State
+    private var computedDiff: [DiffLine]?
+
+    private static let maxLines = 5000
+
+    private var diffLines: [DiffLine] {
+        computedDiff ?? []
+    }
 
     private var buttonOpacity: Double {
         isButtonsHovered ? 1.0 : (isContentHovered ? 0.15 : 0.5)
-    }
-
-    private var diffLines: [DiffLine] {
-        LineDiff.diff(old: oldString, new: newString)
     }
 
     private var gutterWidth: CGFloat {
@@ -36,27 +40,50 @@ struct EditDiffView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ZStack(alignment: .topTrailing) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    ForEach(diffLines) { line in
-                        diffLineRow(line)
+            if computedDiff == nil {
+                ProgressView()
+                    .controlSize(.small)
+                    .frame(maxWidth: .infinity, minHeight: 40)
+            } else {
+                ZStack(alignment: .topTrailing) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        ForEach(diffLines) { line in
+                            diffLineRow(line)
+                        }
                     }
-                }
-                .padding(.vertical, PoirotTheme.Spacing.sm)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
 
-                HStack(spacing: PoirotTheme.Spacing.xs) {
-                    savePatchButton
-                    copyImageButton
-                    copyButton
+                    HStack(spacing: PoirotTheme.Spacing.xs) {
+                        savePatchButton
+                        copyImageButton
+                        copyButton
+                    }
+                    .opacity(buttonOpacity)
+                    .onHover { isButtonsHovered = $0 }
+                    .animation(.easeInOut(duration: 0.15), value: buttonOpacity)
+                    .padding(PoirotTheme.Spacing.sm)
                 }
-                .opacity(buttonOpacity)
-                .onHover { isButtonsHovered = $0 }
-                .animation(.easeInOut(duration: 0.15), value: buttonOpacity)
-                .padding(PoirotTheme.Spacing.sm)
+                .onHover { isContentHovered = $0 }
             }
-            .onHover { isContentHovered = $0 }
         }
         .background(PoirotTheme.Colors.bgCode)
+        .task(id: ObjectIdentifier(Self.self)) {
+            let old = oldString
+            let new = newString
+            let limit = Self.maxLines
+            let result = await Task.detached {
+                let oldLines = old.components(separatedBy: "\n")
+                let newLines = new.components(separatedBy: "\n")
+                if oldLines.count > limit || newLines.count > limit {
+                    return LineDiff.diff(
+                        oldLines: Array(oldLines.prefix(limit)),
+                        newLines: Array(newLines.prefix(limit))
+                    )
+                }
+                return LineDiff.diff(oldLines: oldLines, newLines: newLines)
+            }.value
+            computedDiff = result
+        }
     }
 
     private func diffLineRow(_ line: DiffLine) -> some View {
