@@ -30,17 +30,18 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Session Browser (Sidebar + Project Grid) — light mode
+    // MARK: - Session Browser (Sidebar + Sessions Navigation) — light mode
 
     @Test
     func testSessionBrowser() async throws {
         let state = makeAppState(
+            selectedSession: ScreenshotData.conversationSession,
             selectedProject: ScreenshotData.projects.first?.id
         )
 
         try await snapshotView(
             compositeAppView(state: state) {
-                ProjectSessionsView(project: ScreenshotData.projects.first!)
+                SessionsNavigationView()
             },
             size: ScreenshotSize.fullApp,
             named: "testSessionBrowser",
@@ -99,7 +100,7 @@ struct ScreenshotTests_FullViews {
         )
     }
 
-    // MARK: - Search Overlay (Sidebar + Home + Overlay) — light mode
+    // MARK: - Search Overlay (Sidebar + Overlay) — light mode
 
     @Test
     func testSearch() async throws {
@@ -107,7 +108,7 @@ struct ScreenshotTests_FullViews {
 
         try await snapshotView(
             compositeAppView(state: state) {
-                HomeView()
+                Color.clear
                     .overlay {
                         SearchOverlayView()
                     }
@@ -134,20 +135,6 @@ struct ScreenshotTests_FullViews {
             named: "testConfigScreen",
             record: isRecording,
             delay: 2
-        )
-    }
-
-    // MARK: - Home — light mode
-
-    @Test
-    func testHome() async throws {
-        try await snapshotView(
-            withEnvironment(HomeView()),
-            size: ScreenshotSize.mainContent,
-            named: "testHome",
-            record: isRecording,
-            delay: 0.5,
-            colorScheme: .light
         )
     }
 
