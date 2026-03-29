@@ -20,7 +20,7 @@ Track your Claude Code usage with visual dashboards. See token consumption, cost
 Browse all your Claude Code sessions grouped by project in a dedicated sessions tab. Timestamps, token counts, model info — everything at a glance with search, sort, and agent session filtering.
 
 <p align="center">
-  <img src="assets/showcase/10-session-browser.png" alt="Session History Browser" width="720" />
+  <img src="assets/showcase/03-session-browser.png" alt="Session History Browser" width="720" />
 </p>
 
 ---

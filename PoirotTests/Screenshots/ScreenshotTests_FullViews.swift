@@ -35,6 +35,7 @@ struct ScreenshotTests_FullViews {
     @Test
     func testSessionBrowser() async throws {
         let state = makeAppState(
+            selectedSession: ScreenshotData.conversationSession,
             selectedProject: ScreenshotData.projects.first?.id
         )
 
