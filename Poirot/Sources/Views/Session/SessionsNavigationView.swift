@@ -109,9 +109,81 @@ struct SessionsNavigationView: View {
                 .background(
                     Capsule().fill(PoirotTheme.Colors.bgCard)
                 )
+
+            agentSessionsToggle
+            refreshButton
+            sortMenu
         }
         .padding(.horizontal, PoirotTheme.Spacing.md)
         .padding(.vertical, PoirotTheme.Spacing.sm)
+    }
+
+    // MARK: - Agent Sessions Toggle
+
+    private var agentSessionsToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                appState.showAgentSessions.toggle()
+            }
+        } label: {
+            Image(systemName: appState.showAgentSessions ? "person.2.wave.2" : "person.2")
+                .font(PoirotTheme.Typography.microMedium)
+                .foregroundStyle(
+                    appState.showAgentSessions
+                        ? PoirotTheme.Colors.accent
+                        : PoirotTheme.Colors.textTertiary
+                )
+                .contentTransition(.symbolEffect(.replace))
+        }
+        .buttonStyle(.plain)
+        .help(appState.showAgentSessions ? "Hide agent sessions" : "Show agent sessions")
+    }
+
+    // MARK: - Refresh Button
+
+    @ViewBuilder
+    private var refreshButton: some View {
+        if appState.isLoadingMoreProjects {
+            ProgressView()
+                .controlSize(.mini)
+                .tint(PoirotTheme.Colors.textTertiary)
+        } else {
+            Button {
+                appState.refreshID = UUID()
+            } label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(PoirotTheme.Typography.microMedium)
+                    .foregroundStyle(PoirotTheme.Colors.textTertiary)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: - Sort Menu
+
+    private var sortMenu: some View {
+        Menu {
+            ForEach(ProjectSortOption.allCases, id: \.self) { option in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        appState.projectSortOption = option
+                    }
+                } label: {
+                    if appState.projectSortOption == option {
+                        Label(option.label, systemImage: "checkmark")
+                    } else {
+                        Text(option.label)
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(PoirotTheme.Typography.microMedium)
+                .foregroundStyle(PoirotTheme.Colors.textTertiary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
 
     private var sessionsListSearchBar: some View {
@@ -247,7 +319,7 @@ private struct SessionsProjectSection: View {
                     .symbolRenderingMode(.hierarchical)
 
                 Text(project.name)
-                    .font(PoirotTheme.Typography.captionMedium)
+                    .font(PoirotTheme.Typography.bodyMedium)
                     .foregroundStyle(PoirotTheme.Colors.textPrimary)
                     .lineLimit(1)
 
