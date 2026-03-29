@@ -623,6 +623,7 @@ struct SearchOverlayView: View {
         }
         .onAppear { isFocused = true }
         .task { await loadConfigItems() }
+        .onExitCommand { dismiss() }
         .onKeyPress(.escape) {
             dismiss()
             return .handled

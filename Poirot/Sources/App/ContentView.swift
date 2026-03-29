@@ -365,23 +365,7 @@ struct ContentView: View {
     private var detailView: some View {
         switch appState.selectedNav.id {
         case NavigationItem.sessions.id:
-            if let session = appState.selectedSession {
-                if appState.isShowingFileHistory {
-                    FileHistoryView(session: session)
-                        .transition(.opacity)
-                } else if appState.isLoadingSession || (session.messages.isEmpty && session.fileURL != nil) {
-                    SessionSkeletonView()
-                        .transition(.opacity)
-                } else {
-                    SessionDetailView(session: session)
-                        .transition(.opacity)
-                }
-            } else if let project = appState.currentProject {
-                ProjectSessionsView(project: project)
-                    .transition(.opacity)
-            } else {
-                HomeView()
-            }
+            SessionsNavigationView()
         case NavigationItem.todos.id:
             TodosOverviewView()
                 .transition(.opacity)

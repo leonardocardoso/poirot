@@ -47,16 +47,4 @@ struct ScreenshotTests_Windows {
         )
     }
 
-    // MARK: - Home View
-
-    @Test
-    func testHomeWindow() async throws {
-        try await snapshotView(
-            withEnvironment(HomeView()),
-            size: ScreenshotSize.mainContent,
-            named: "testHomeWindow",
-            record: isRecording,
-            delay: 0.5
-        )
-    }
 }
