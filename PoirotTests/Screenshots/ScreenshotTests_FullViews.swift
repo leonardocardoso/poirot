@@ -47,7 +47,7 @@ struct ScreenshotTests_FullViews {
             named: "testSessionBrowser",
             record: isRecording,
             delay: 2,
-            colorScheme: .light
+            colorScheme: .dark
         )
     }
 
