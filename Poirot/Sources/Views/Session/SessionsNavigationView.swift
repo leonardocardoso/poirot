@@ -491,28 +491,28 @@ private struct SessionGroupRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Parent row with agent badge
-            HStack(spacing: 0) {
-                SessionsListRow(session: group.parent, searchQuery: searchQuery)
-
-                Button(action: onToggleExpand) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "cpu")
-                            .font(.system(size: 10))
-                        Text("\(group.agentCount)")
-                            .font(PoirotTheme.Typography.tiny)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 7, weight: .semibold))
-                            .rotationEffect(.degrees(isExpanded ? 90 : 0))
+            SessionsListRow(session: group.parent, searchQuery: searchQuery)
+                .overlay(alignment: .topTrailing) {
+                    Button(action: onToggleExpand) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "cpu")
+                                .font(.system(size: 10))
+                            Text("\(group.agentCount)")
+                                .font(PoirotTheme.Typography.tiny)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 7, weight: .semibold))
+                                .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                        }
+                        .foregroundStyle(PoirotTheme.Colors.purple)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15)))
+                        .contentShape(Capsule())
                     }
-                    .foregroundStyle(PoirotTheme.Colors.purple)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15)))
-                    .contentShape(Capsule())
+                    .buttonStyle(.plain)
+                    .padding(.top, PoirotTheme.Spacing.sm)
+                    .padding(.trailing, PoirotTheme.Spacing.md)
                 }
-                .buttonStyle(.plain)
-                .padding(.trailing, PoirotTheme.Spacing.md)
-            }
 
             if isExpanded {
                 ForEach(group.agents) { agent in
