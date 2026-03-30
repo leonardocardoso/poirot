@@ -220,6 +220,12 @@ private struct SessionCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
             .cardChrome(isHovered: isHovered, isSelected: isSelected)
+            .overlay(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? PoirotTheme.Colors.accent : PoirotTheme.Colors.accent.opacity(0.3))
+                    .frame(width: 3)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
+            }
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
@@ -263,6 +269,12 @@ private struct SessionListRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(PoirotTheme.Spacing.lg)
             .cardChrome(isHovered: isHovered, isSelected: isSelected)
+            .overlay(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? PoirotTheme.Colors.accent : PoirotTheme.Colors.accent.opacity(0.3))
+                    .frame(width: 3)
+                    .padding(.vertical, PoirotTheme.Spacing.sm)
+            }
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }

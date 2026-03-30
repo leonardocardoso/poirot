@@ -102,13 +102,6 @@ struct SessionsNavigationView: View {
                         }
                         .padding(.vertical, PoirotTheme.Spacing.xs)
                     }
-                    .onChange(of: appState.selectedProject) { _, newProject in
-                        if let id = newProject {
-                            withAnimation {
-                                proxy.scrollTo(id, anchor: .top)
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -413,6 +406,7 @@ private struct SessionsProjectSection: View {
             .buttonStyle(.plain)
 
             Button {
+                appState.selectedSession = nil
                 appState.selectedProject = project.id
             } label: {
                 HStack(spacing: PoirotTheme.Spacing.xs) {
