@@ -174,6 +174,7 @@
 		C4A26E38C665512B50DDD2B5 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2EE5CD7194B8CC20DD119 /* Project.swift */; };
 		C7FFC09B40034AEC2B1107C7 /* SessionTodoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E373C2C9BB21F67B3EB14B /* SessionTodoTests.swift */; };
 		C91183A99030A6B72A4A7E4B /* MenuBarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9580FE03B8FA1152D430F840 /* MenuBarState.swift */; };
+		C949550626B993BF29ECF64E /* SessionGroupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30D13CF1A16B8D428F2F4 /* SessionGroupTests.swift */; };
 		CA8DD0E9F39C84614482677A /* SessionTodosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 114E9F54DB1CF828FF14B0C3 /* SessionTodosView.swift */; };
 		CAB5F34D7514661FF558EF9A /* StatsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FDE64043B69FBEE45996BB /* StatsCache.swift */; };
 		CB3AC04050A0C0BB836B2F81 /* ScreenshotTests_History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8DCF6F5F9B1A533DC502B6 /* ScreenshotTests_History.swift */; };
@@ -302,6 +303,7 @@
 		4B1310119E45052B3EF67E81 /* HighlightedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightedText.swift; sourceTree = "<group>"; };
 		4CBF0A440234AB50896BD12C /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		4DA932278008D948F5DF449C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		4FF30D13CF1A16B8D428F2F4 /* SessionGroupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionGroupTests.swift; sourceTree = "<group>"; };
 		503413B2F69003FA8E54BCA8 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		505984D8D6C74ABC0C58926D /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		50BFC6DB8AA0EE305CEAC146 /* TokenUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenUsageTests.swift; sourceTree = "<group>"; };
@@ -728,6 +730,7 @@
 				2DB669E6E758B390FBEE0F5C /* ProjectSortingTests.swift */,
 				0CA4C7D377D0E8560AC2F32B /* ProjectTests.swift */,
 				FB587780A1B696F264CA7247 /* SessionFacetsTests.swift */,
+				4FF30D13CF1A16B8D428F2F4 /* SessionGroupTests.swift */,
 				F185FB61B227605186CB8619 /* SessionTests.swift */,
 				17E373C2C9BB21F67B3EB14B /* SessionTodoTests.swift */,
 				BFA5A7B55EFC02EA5F35FA62 /* SessionXMLStrippingTests.swift */,
@@ -1363,6 +1366,7 @@
 				20F6247BCADD3EF3D0481DC4 /* ScreenshotTests_ToolBlocks.swift in Sources */,
 				8A58370B7C38A9EC44705EBB /* ScreenshotTests_Windows.swift in Sources */,
 				3B90FF19B26C9F36D341806E /* SessionFacetsTests.swift in Sources */,
+				C949550626B993BF29ECF64E /* SessionGroupTests.swift in Sources */,
 				CCB27912A3ACF886218F7747 /* SessionLoaderTests.swift in Sources */,
 				419F4F71726C23CCCDA684E0 /* SessionLoadingMock.swift in Sources */,
 				CF11F662293826CE22F64175 /* SessionTests.swift in Sources */,
