@@ -491,28 +491,13 @@ private struct SessionGroupRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Parent row with agent badge
-            SessionsListRow(session: group.parent, searchQuery: searchQuery)
-                .overlay(alignment: .topTrailing) {
-                    Button(action: onToggleExpand) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "cpu")
-                                .font(.system(size: 10))
-                            Text("\(group.agentCount)")
-                                .font(PoirotTheme.Typography.tiny)
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 7, weight: .semibold))
-                                .rotationEffect(.degrees(isExpanded ? 90 : 0))
-                        }
-                        .foregroundStyle(PoirotTheme.Colors.purple)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15)))
-                        .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.top, PoirotTheme.Spacing.sm)
-                    .padding(.trailing, PoirotTheme.Spacing.md)
-                }
+            SessionsListRow(
+                session: group.parent,
+                searchQuery: searchQuery,
+                agentCount: group.agentCount,
+                isAgentExpanded: isExpanded,
+                onToggleAgents: onToggleExpand
+            )
 
             if isExpanded {
                 ForEach(group.agents) { agent in
@@ -640,6 +625,9 @@ private struct AgentSessionRow: View {
 private struct SessionsListRow: View {
     let session: Session
     var searchQuery: String = ""
+    var agentCount: Int = 0
+    var isAgentExpanded: Bool = false
+    var onToggleAgents: (() -> Void)?
 
     @Environment(AppState.self)
     private var appState
@@ -674,6 +662,26 @@ private struct SessionsListRow: View {
                         .lineLimit(2)
 
                     Spacer()
+
+                    if agentCount > 0, let onToggleAgents {
+                        Button(action: onToggleAgents) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "cpu")
+                                    .font(.system(size: 10))
+                                Text("\(agentCount)")
+                                    .font(PoirotTheme.Typography.tiny)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 7, weight: .semibold))
+                                    .rotationEffect(.degrees(isAgentExpanded ? 90 : 0))
+                            }
+                            .foregroundStyle(PoirotTheme.Colors.purple)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Capsule().fill(PoirotTheme.Colors.purple.opacity(0.15)))
+                            .contentShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
 
                     Text(session.timeAgo)
                         .font(PoirotTheme.Typography.tiny)
