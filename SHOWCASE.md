@@ -25,6 +25,15 @@ Browse all your Claude Code sessions grouped by project in a dedicated sessions 
 
 ---
 
+## Multi-Agent Session Grouping
+Sub-agent sessions are automatically grouped under their parent session. Expand any parent to see its spawned agents — Explore, Plan, and others — with type badges, descriptions, and token counts. A timeline view shows all sessions as a Gantt chart, so you can see what ran in parallel.
+
+<p align="center">
+  <img src="assets/showcase/26-multi-agent-sessions.png" alt="Multi-Agent Session Grouping" width="720" />
+</p>
+
+---
+
 ## Rich Conversation View
 Full conversation timeline with user messages, assistant responses, and collapsible tool blocks. Markdown rendering with syntax highlighting, because raw JSONL is not fun to read.
 

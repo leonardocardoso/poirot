@@ -18,7 +18,10 @@ enum ScreenshotData {
             id: "-Users-leo-Dev-poirot",
             name: "poirot",
             path: "/Users/leo/Dev/poirot",
-            sessions: [conversationSession, toolBlocksSession, thinkingSession, editDiffSession, writeToolSession]
+            sessions: [
+                conversationSession, toolBlocksSession, thinkingSession, editDiffSession, writeToolSession,
+                agentExplore1, agentExplore2, agentPlan1, agentExplore3,
+            ]
         ),
         Project(
             id: "-Users-leo-Dev-reellette-ios",
@@ -1662,4 +1665,74 @@ enum ScreenshotData {
         mock.entries = historyEntries
         return mock
     }
+
+    // MARK: - Agent / Sub-Agent Sessions
+
+    static let agentExplore1 = Session(
+        id: "agent-a5984cda07de98171",
+        projectPath: "/Users/leo/Dev/poirot",
+        messages: [],
+        startedAt: minutesAgo(40),
+        model: "claude-sonnet-4-6",
+        totalTokens: 1520,
+        cachedTitle: "Explore sessions UI structure",
+        cachedTurnCount: 23,
+        agentId: "a5984cda07de98171",
+        isSidechain: true,
+        parentSessionId: "conv-001",
+        endedAt: minutesAgo(38),
+        agentType: "Explore",
+        agentDescription: "Explore sessions UI structure"
+    )
+
+    static let agentExplore2 = Session(
+        id: "agent-a7e39e5ee252c7f4e",
+        projectPath: "/Users/leo/Dev/poirot",
+        messages: [],
+        startedAt: minutesAgo(35),
+        model: "claude-sonnet-4-6",
+        totalTokens: 3200,
+        cachedTitle: "Research session models and grouping",
+        cachedTurnCount: 35,
+        agentId: "a7e39e5ee252c7f4e",
+        isSidechain: true,
+        parentSessionId: "conv-001",
+        endedAt: minutesAgo(30),
+        agentType: "Explore",
+        agentDescription: "Research session models and grouping"
+    )
+
+    static let agentPlan1 = Session(
+        id: "agent-acb7b6172385db44c",
+        projectPath: "/Users/leo/Dev/poirot",
+        messages: [],
+        startedAt: minutesAgo(28),
+        model: "claude-opus-4-6",
+        totalTokens: 6600,
+        cachedTitle: "Design session grouping and timeline",
+        cachedTurnCount: 46,
+        agentId: "acb7b6172385db44c",
+        isSidechain: true,
+        parentSessionId: "conv-001",
+        endedAt: minutesAgo(20),
+        agentType: "Plan",
+        agentDescription: "Design session grouping and timeline"
+    )
+
+    static let agentExplore3 = Session(
+        id: "agent-af4e08a895ed07f7c",
+        projectPath: "/Users/leo/Dev/poirot",
+        messages: [],
+        startedAt: minutesAgo(18),
+        model: "claude-sonnet-4-6",
+        totalTokens: 2400,
+        cachedTitle: "Explore PoirotTheme and chart views",
+        cachedTurnCount: 40,
+        agentId: "af4e08a895ed07f7c",
+        isSidechain: true,
+        parentSessionId: "conv-001",
+        endedAt: minutesAgo(15),
+        agentType: "Explore",
+        agentDescription: "Explore PoirotTheme and chart views"
+    )
 }

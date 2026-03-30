@@ -14,6 +14,10 @@ nonisolated struct Session: Identifiable, Hashable {
     let firstPrompt: String?
     let agentId: String?
     let isSidechain: Bool
+    let parentSessionId: String?
+    let endedAt: Date?
+    let agentType: String?
+    let agentDescription: String?
 
     init(
         id: String,
@@ -28,7 +32,11 @@ nonisolated struct Session: Identifiable, Hashable {
         cachedTurnCount: Int? = nil,
         firstPrompt: String? = nil,
         agentId: String? = nil,
-        isSidechain: Bool = false
+        isSidechain: Bool = false,
+        parentSessionId: String? = nil,
+        endedAt: Date? = nil,
+        agentType: String? = nil,
+        agentDescription: String? = nil
     ) {
         self.id = id
         self.projectPath = projectPath
@@ -43,6 +51,10 @@ nonisolated struct Session: Identifiable, Hashable {
         self.firstPrompt = firstPrompt
         self.agentId = agentId
         self.isSidechain = isSidechain
+        self.parentSessionId = parentSessionId
+        self.endedAt = endedAt
+        self.agentType = agentType
+        self.agentDescription = agentDescription
     }
 
     var projectName: String {
@@ -69,6 +81,13 @@ nonisolated struct Session: Identifiable, Hashable {
 
     var timeAgo: String {
         Self.relativeDateFormatter.localizedString(for: startedAt, relativeTo: .now)
+    }
+
+    var isSubAgent: Bool { parentSessionId != nil }
+
+    var duration: TimeInterval? {
+        guard let end = endedAt else { return nil }
+        return end.timeIntervalSince(startedAt)
     }
 
     func hash(into hasher: inout Hasher) {

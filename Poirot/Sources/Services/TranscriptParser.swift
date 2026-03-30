@@ -235,7 +235,10 @@ nonisolated struct TranscriptParser {
         indexStartedAt: Date?,
         firstPrompt: String? = nil,
         agentId: String? = nil,
-        isSidechain: Bool = false
+        isSidechain: Bool = false,
+        parentSessionId: String? = nil,
+        agentType: String? = nil,
+        agentDescription: String? = nil
     ) -> Session? {
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
         guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return nil }
@@ -247,6 +250,7 @@ nonisolated struct TranscriptParser {
         var userCount = 0
         var firstAssistantModel: String?
         var earliestTimestamp: Date?
+        var latestTimestamp: Date?
         var totalTokens = 0
         var seenMsgIds: Set<String> = []
 
@@ -271,6 +275,9 @@ nonisolated struct TranscriptParser {
             if let ts = parseTimestamp(record["timestamp"]) {
                 if earliestTimestamp == nil || ts < earliestTimestamp! {
                     earliestTimestamp = ts
+                }
+                if latestTimestamp == nil || ts > latestTimestamp! {
+                    latestTimestamp = ts
                 }
             }
 
@@ -326,7 +333,11 @@ nonisolated struct TranscriptParser {
             cachedTurnCount: userCount,
             firstPrompt: firstPrompt,
             agentId: agentId,
-            isSidechain: isSidechain
+            isSidechain: isSidechain,
+            parentSessionId: parentSessionId,
+            endedAt: latestTimestamp,
+            agentType: agentType,
+            agentDescription: agentDescription
         )
     }
 
