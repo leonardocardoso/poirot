@@ -1242,7 +1242,7 @@ enum ScreenshotData {
         message: try! AttributedString(markdown: "New version **1.2.0** available\nTap to download from GitHub"),
         icon: "arrow.down.circle.fill",
         style: .info,
-        url: URL(string: "https://github.com/LeonardoCardoso/poirot/releases"),
+        url: URL(string: "https://github.com/a7t-ai/poirot/releases"),
         animateIcon: false
     )
     // swiftlint:enable force_try

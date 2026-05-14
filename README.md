@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/showcase/01-hero.png" alt="Poirot — Investigating your Claude Code sessions" width="720" />
+  <img src="assets/hero.png" alt="Poirot — Investigating your Claude Code sessions" width="720" />
 </p>
 
 <h1 align="center">POIROT</h1>
@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/swift-6-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 6" />
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" />
   <img src="https://img.shields.io/badge/PRs-welcome-E8A642?style=flat-square" alt="PRs Welcome" />
-  <img src="https://img.shields.io/github/stars/LeonardoCardoso/Poirot?style=flat-square&color=E8A642&label=stars" alt="GitHub Stars" />
+  <img src="https://img.shields.io/github/stars/a7t-ai/poirot?style=flat-square&color=E8A642&label=stars" alt="GitHub Stars" />
 </p>
 
 <p align="center">
@@ -159,7 +159,7 @@ Named after **Hercule Poirot**, Agatha Christie's legendary detective. Because e
 ### Install with Homebrew
 
 ```bash
-brew tap leonardocardoso/poirot
+brew tap a7t-ai/poirot
 brew install --cask poirot
 ```
 
@@ -175,7 +175,7 @@ Install SwiftLint and SwiftFormat via Homebrew: `brew install swiftlint swiftfor
 ### Build & Run
 
 ```bash
-git clone https://github.com/LeonardoCardoso/Poirot.git
+git clone https://github.com/a7t-ai/poirot.git
 cd Poirot
 brew install swiftlint swiftformat
 open Poirot.xcodeproj

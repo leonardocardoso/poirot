@@ -28,7 +28,7 @@ struct AboutView: View {
 
                 HStack(spacing: 12) {
                     Button("Open source project") {
-                        if let url = URL(string: "https://github.com/leonardocardoso/poirot") {
+                        if let url = URL(string: "https://github.com/a7t-ai/poirot") {
                             openURL(url)
                         }
                     }

@@ -2,7 +2,7 @@ import Foundation
 
 /// Checks GitHub releases for newer versions of Poirot.
 enum UpdateChecker {
-    nonisolated private static let owner = "leonardocardoso"
+    nonisolated private static let owner = "a7t-ai"
     nonisolated private static let repo = "poirot"
 
     struct Release: Sendable {

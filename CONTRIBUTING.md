@@ -16,7 +16,7 @@ brew install swiftlint swiftformat
 ## Building
 
 ```bash
-git clone https://github.com/LeonardoCardoso/Poirot.git
+git clone https://github.com/a7t-ai/poirot.git
 cd Poirot
 brew install swiftlint swiftformat
 open Poirot.xcodeproj

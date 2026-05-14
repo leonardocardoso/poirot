@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-and-release:
-    if: github.repository == 'leonardocardoso/poirot'
+    if: github.repository == 'a7t-ai/poirot'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -167,7 +167,7 @@ jobs:
           echo "" >> /tmp/release-body.md
           echo "### Install via Homebrew" >> /tmp/release-body.md
           echo '```bash' >> /tmp/release-body.md
-          echo "brew tap leonardocardoso/poirot" >> /tmp/release-body.md
+          echo "brew tap a7t-ai/poirot" >> /tmp/release-body.md
           echo "brew install --cask poirot" >> /tmp/release-body.md
           echo '```' >> /tmp/release-body.md
           echo "" >> /tmp/release-body.md
@@ -191,7 +191,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           SHA="${{ steps.sha.outputs.sha256 }}"
 
-          git clone https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/LeonardoCardoso/homebrew-poirot.git /tmp/tap
+          git clone https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/a7t-ai/homebrew-poirot.git /tmp/tap
           cd /tmp/tap
 
           cat > Casks/poirot.rb << CASK
@@ -199,10 +199,10 @@ jobs:
             version "${VERSION}"
             sha256 "${SHA}"
 
-            url "https://github.com/LeonardoCardoso/poirot/releases/download/v#{version}/Poirot-v#{version}.dmg"
+            url "https://github.com/a7t-ai/poirot/releases/download/v#{version}/Poirot-v#{version}.dmg"
             name "Poirot"
             desc "Native macOS companion for Claude Code"
-            homepage "https://github.com/LeonardoCardoso/poirot"
+            homepage "https://github.com/a7t-ai/poirot"
 
             depends_on macos: ">= :sequoia"
 
